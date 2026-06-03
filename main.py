@@ -1,796 +1,389 @@
 #!/usr/bin/env python3
 """
-EternalBlue Honeypoint - SMB Service Simulator
-================================================
-Simula um serviço SMB (porta 445) vulnerável ao MS17-010 (EternalBlue).
-Responde ao SMB Negotiate Protocol com banners realistas de Windows 7/2008 R2.
+Honeypoint Framework — Launcher Unificado
+==========================================
+Executa os módulos EternalBlue e BlueKeep simultaneamente
+e gera relatórios comparativos de Stage Coverage.
 
-Uso em HOMELAB apenas - ferramenta de pesquisa acadêmica.
-Autor: Honeypoint Research Project
+Uso:
+  sudo python3 honeypoint_main.py                        # Todos os módulos
+  sudo python3 honeypoint_main.py --smb-only              # Apenas EternalBlue
+  sudo python3 honeypoint_main.py --rdp-only              # Apenas BlueKeep
+  sudo python3 honeypoint_main.py --report                # Gera relatório dos dados coletados
+  sudo python3 honeypoint_main.py --smb-port 4455 --rdp-port 3390  # Portas alternativas
 """
 
-import socket
-import struct
-import threading
-import logging
-import json
-import datetime
 import argparse
+import json
 import os
-import signal
 import sys
+import glob
+import signal
+import threading
+import datetime
+from pathlib import Path
 
-# ============================================================
-# LOGGING SETUP
-# ============================================================
 LOG_DIR = "/var/log/honeypoint"
-os.makedirs(LOG_DIR, exist_ok=True)
-
-# Logger principal (texto legível)
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[
-        logging.FileHandler(f"{LOG_DIR}/honeypoint.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("honeypoint")
-
-# Logger JSON estruturado (para análise posterior)
-json_logger = logging.getLogger("honeypoint.json")
-json_handler = logging.FileHandler(f"{LOG_DIR}/events.jsonl")
-json_handler.setFormatter(logging.Formatter('%(message)s'))
-json_logger.addHandler(json_handler)
-json_logger.setLevel(logging.INFO)
+REPORT_DIR = os.path.join(LOG_DIR, "reports")
+os.makedirs(REPORT_DIR, exist_ok=True)
 
 
-def log_event(event_type: str, client_ip: str, client_port: int, details: dict):
-    """Loga evento em formato JSON Lines para análise."""
-    event = {
-        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        "event_type": event_type,
-        "src_ip": client_ip,
-        "src_port": client_port,
-        "details": details
+# ============================================================
+# RELATÓRIO COMPARATIVO
+# ============================================================
+
+def load_sc_reports(cve_filter: str | None = None) -> list[dict]:
+    """Carrega todos os relatórios SC salvos."""
+    reports = []
+    pattern = os.path.join(LOG_DIR, "sc_*.json")
+    
+    for filepath in sorted(glob.glob(pattern)):
+        try:
+            with open(filepath) as f:
+                report = json.load(f)
+            if cve_filter and report.get("cve_name", "") != cve_filter:
+                continue
+            report["_filepath"] = filepath
+            reports.append(report)
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"  Aviso: erro ao ler {filepath}: {e}")
+    
+    return reports
+
+
+def generate_comparative_report():
+    """
+    Gera relatório comparativo completo para a dissertação.
+    Agrupa por CVE, calcula estatísticas, e compara com a literatura.
+    """
+    from sc_tracker import LITERATURE_SC
+    
+    all_reports = load_sc_reports()
+    
+    if not all_reports:
+        print("❌ Nenhum relatório SC encontrado em", LOG_DIR)
+        print("   Execute os honeypoints e teste com Metasploit/Nmap primeiro.")
+        return
+    
+    # Agrupar por CVE
+    by_cve = {}
+    for r in all_reports:
+        cve = r.get("cve_name", "Unknown")
+        by_cve.setdefault(cve, []).append(r)
+    
+    # ── Relatório por CVE ──
+    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    report = {
+        "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "total_sessions": len(all_reports),
+        "cves_tested": list(by_cve.keys()),
+        "results": {}
     }
-    json_logger.info(json.dumps(event))
-
-
-# ============================================================
-# SMB PROTOCOL CONSTANTS & CRAFTED RESPONSES
-# ============================================================
-
-# NetBIOS Session Service header (4 bytes)
-# Type: Session Message (0x00), Length: varies
-def netbios_header(payload_len: int) -> bytes:
-    # NetBIOS Session Service: 1 byte type + 3 bytes length (big-endian)
-    return struct.pack(">B", 0x00) + payload_len.to_bytes(3, byteorder='big')
-
-
-# SMB1 Header (32 bytes)
-SMB1_HEADER_MAGIC = b'\xffSMB'
-
-def build_smb1_header(command: int, status: int = 0, flags: int = 0x98,
-                       flags2: int = 0xC853, tid: int = 0, pid: int = 0,
-                       uid: int = 0, mid: int = 0) -> bytes:
-    """Constrói um header SMB1 realista."""
-    header = SMB1_HEADER_MAGIC
-    header += struct.pack("<B", command)       # Command
-    header += struct.pack("<I", status)        # NT Status
-    header += struct.pack("<B", flags)         # Flags
-    header += struct.pack("<H", flags2)        # Flags2
-    header += b'\x00' * 2                      # PID High
-    header += b'\x00' * 8                      # Signature
-    header += b'\x00' * 2                      # Reserved
-    header += struct.pack("<H", tid)           # Tree ID
-    header += struct.pack("<H", pid)           # Process ID
-    header += struct.pack("<H", uid)           # User ID
-    header += struct.pack("<H", mid)           # Multiplex ID
-    return header
-
-
-def parse_dialect_index(data: bytes) -> int:
-    """Encontra o índice de 'NT LM 0.12' na lista de dialetos do cliente."""
-    try:
-        # Pular NetBIOS (4) + SMB header (32) + WordCount (1) + ByteCount (2)
-        offset = 4 + 32 + 1 + 2
-        index = 0
-        while offset < len(data):
-            if data[offset] != 0x02:  # Cada dialeto começa com 0x02
-                break
-            offset += 1
-            # Encontrar o null terminator
-            null_pos = data.index(0x00, offset)
-            dialect = data[offset:null_pos].decode('ascii', errors='ignore')
-            if dialect == 'NT LM 0.12':
-                return index
-            offset = null_pos + 1
-            index += 1
-    except (ValueError, IndexError):
-        pass
-    return index  # fallback: último dialeto
-
-
-def parse_smb_header(data: bytes) -> dict:
-    """Extrai campos do SMB header para fingerprinting do cliente."""
-    try:
-        h = data[4:]  # pular NetBIOS
-        if h[:4] != b'\xffSMB':
-            return {}
-        return {
-            "command": f"0x{h[4]:02x}",
-            "status": f"0x{struct.unpack('<I', h[5:9])[0]:08x}",
-            "flags": f"0x{h[9]:02x}",
-            "flags2": f"0x{struct.unpack('<H', h[10:12])[0]:04x}",
-            "pid_high": struct.unpack('<H', h[12:14])[0],
-            "signature": h[14:22].hex(),
-            "tid": struct.unpack('<H', h[24:26])[0],
-            "pid": struct.unpack('<H', h[26:28])[0],
-            "uid": struct.unpack('<H', h[28:30])[0],
-            "mid": struct.unpack('<H', h[30:32])[0],
-        }
-    except (IndexError, struct.error):
-        return {}
-
-
-def parse_session_setup(data: bytes) -> dict:
-    """
-    Parseia Session Setup AndX Request (non-extended security, WordCount=13).
-    Extrai fingerprint do atacante: NativeOS, NativeLanManager, AccountName, Domain.
     
-    Esses campos revelam a ferramenta/SO do atacante:
-    - Metasploit Ruby: "Windows 2000 2195" / "Windows 2000 5.0"
-    - Impacket Python: "Unix" / "Samba"  
-    - Windows real: "Windows 10.0" / "Windows 10.0"
-    - CrackMapExec: herda do Impacket
-    """
-    info = {}
-    try:
-        smb_start = 4  # após NetBIOS header
-        body_start = smb_start + 32  # após SMB header
+    print()
+    print("=" * 72)
+    print("  RELATÓRIO COMPARATIVO DE STAGE COVERAGE")
+    print(f"  Gerado em: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=" * 72)
+    
+    for cve_name, sessions in by_cve.items():
+        scores = [s.get("sc_score", 0) for s in sessions]
+        avg_sc = sum(scores) / len(scores) if scores else 0
+        max_sc = max(scores) if scores else 0
+        min_sc = min(scores) if scores else 0
+        full_coverage = sum(1 for s in scores if s == 1.0)
         
-        word_count = data[body_start]
-        info["word_count"] = word_count
+        # Ferramentas detectadas
+        tools = {}
+        for s in sessions:
+            tool = s.get("tool_detected", "Unknown")
+            tools[tool] = tools.get(tool, 0) + 1
         
-        if word_count == 13:
-            # Non-Extended Security Session Setup
-            words_start = body_start + 1
-            
-            info["max_buffer_size"] = struct.unpack('<H', data[words_start+4:words_start+6])[0]
-            info["max_mpx_count"] = struct.unpack('<H', data[words_start+6:words_start+8])[0]
-            info["vc_number"] = struct.unpack('<H', data[words_start+8:words_start+10])[0]
-            info["session_key"] = struct.unpack('<I', data[words_start+10:words_start+14])[0]
-            
-            oem_pw_len = struct.unpack('<H', data[words_start+14:words_start+16])[0]
-            uni_pw_len = struct.unpack('<H', data[words_start+16:words_start+18])[0]
-            capabilities = struct.unpack('<I', data[words_start+22:words_start+26])[0]
-            
-            info["oem_password_len"] = oem_pw_len
-            info["unicode_password_len"] = uni_pw_len
-            info["capabilities"] = f"0x{capabilities:08x}"
-            
-            # ByteCount e dados variáveis
-            bc_offset = words_start + 26
-            byte_count = struct.unpack('<H', data[bc_offset:bc_offset+2])[0]
-            info["byte_count"] = byte_count
-            
-            # Pular passwords
-            str_offset = bc_offset + 2 + oem_pw_len + uni_pw_len
-            
-            # Extrair strings null-terminated (ASCII ou Unicode depende de flags2)
-            # Metasploit normalmente envia ASCII aqui
-            remaining = data[str_offset:]
-            strings = []
-            pos = 0
-            while pos < len(remaining) and len(strings) < 4:
-                # Tentar encontrar null terminator
-                null_pos = remaining.find(b'\x00', pos)
-                if null_pos == -1:
-                    break
-                s = remaining[pos:null_pos].decode('ascii', errors='replace')
-                if s:  # ignorar strings vazias entre delimitadores
-                    strings.append(s)
-                pos = null_pos + 1
-            
-            field_names = ["account_name", "primary_domain", "native_os", "native_lan_manager"]
-            for i, name in enumerate(field_names):
-                info[name] = strings[i] if i < len(strings) else ""
+        # Dados capturados por etapa
+        stage_completion = {}
+        for session in sessions:
+            for stage in session.get("stages", []):
+                sid = stage["id"]
+                stage_completion.setdefault(sid, {"completed": 0, "total": 0, "name": stage["name"]})
+                stage_completion[sid]["total"] += 1
+                if stage["status"] == "completed":
+                    stage_completion[sid]["completed"] += 1
         
-        elif word_count == 12:
-            # Extended Security Session Setup (NTLMSSP)
-            words_start = body_start + 1
-            security_blob_len = struct.unpack('<H', data[words_start+14:words_start+16])[0]
-            bc_offset = words_start + 24
-            byte_count = struct.unpack('<H', data[bc_offset:bc_offset+2])[0]
-            blob_start = bc_offset + 2
-            security_blob = data[blob_start:blob_start+security_blob_len]
-            
-            info["security_blob_len"] = security_blob_len
-            info["auth_type"] = "NTLMSSP/SPNEGO"
-            
-            # Checar se contém NTLMSSP
-            if b'NTLMSSP' in security_blob:
-                ntlm_offset = security_blob.index(b'NTLMSSP')
-                msg_type = struct.unpack('<I', security_blob[ntlm_offset+8:ntlm_offset+12])[0]
-                info["ntlmssp_type"] = msg_type
-                
-                if msg_type == 1:
-                    # NEGOTIATE_MESSAGE - flags revelam capabilities do cliente
-                    flags = struct.unpack('<I', security_blob[ntlm_offset+12:ntlm_offset+16])[0]
-                    info["ntlmssp_flags"] = f"0x{flags:08x}"
-                    
-                    # Extrair domain e workstation do NTLMSSP Type 1
-                    domain_len = struct.unpack('<H', security_blob[ntlm_offset+16:ntlm_offset+18])[0]
-                    domain_offset = struct.unpack('<I', security_blob[ntlm_offset+20:ntlm_offset+24])[0]
-                    ws_len = struct.unpack('<H', security_blob[ntlm_offset+24:ntlm_offset+26])[0]
-                    ws_offset = struct.unpack('<I', security_blob[ntlm_offset+28:ntlm_offset+32])[0]
-                    
-                    if domain_len > 0 and domain_offset < len(security_blob):
-                        info["ntlmssp_domain"] = security_blob[ntlm_offset+domain_offset:ntlm_offset+domain_offset+domain_len].decode('ascii', errors='replace')
-                    if ws_len > 0 and ws_offset < len(security_blob):
-                        info["ntlmssp_workstation"] = security_blob[ntlm_offset+ws_offset:ntlm_offset+ws_offset+ws_len].decode('ascii', errors='replace')
-            
-            # Strings após o blob
-            str_offset = blob_start + security_blob_len
-            remaining = data[str_offset:]
-            strings = []
-            pos = 0
-            while pos < len(remaining) and len(strings) < 2:
-                null_pos = remaining.find(b'\x00', pos)
-                if null_pos == -1:
-                    break
-                s = remaining[pos:null_pos].decode('ascii', errors='replace')
-                if s:
-                    strings.append(s)
-                pos = null_pos + 1
-            
-            if len(strings) >= 1:
-                info["native_os"] = strings[0]
-            if len(strings) >= 2:
-                info["native_lan_manager"] = strings[1]
-    
-    except (IndexError, struct.error) as e:
-        info["parse_error"] = str(e)
-    
-    return info
-
-
-def parse_tree_connect(data: bytes) -> dict:
-    """Extrai o caminho do compartilhamento do Tree Connect AndX."""
-    info = {}
-    try:
-        body_start = 4 + 32  # NetBIOS + SMB header
-        word_count = data[body_start]
-        words_start = body_start + 1
-        
-        # Pular words (word_count * 2) + password_len field
-        pw_len = struct.unpack('<H', data[words_start+6:words_start+8])[0]
-        bc_offset = words_start + (word_count * 2)
-        byte_count = struct.unpack('<H', data[bc_offset:bc_offset+2])[0]
-        
-        # Password + Path + Service
-        path_start = bc_offset + 2 + pw_len
-        remaining = data[path_start:]
-        
-        # Path pode ser Unicode (\\server\share\0\0) ou ASCII
-        # Tentar Unicode primeiro (look for double-null)
-        double_null = remaining.find(b'\x00\x00')
-        if double_null > 0 and double_null < 100:
-            path_bytes = remaining[:double_null+1]
-            try:
-                info["share_path"] = path_bytes.decode('utf-16-le', errors='replace').rstrip('\x00')
-            except:
-                info["share_path"] = path_bytes.decode('ascii', errors='replace').rstrip('\x00')
-        else:
-            # ASCII
-            null_pos = remaining.find(b'\x00')
-            if null_pos > 0:
-                info["share_path"] = remaining[:null_pos].decode('ascii', errors='replace')
-        
-        # Service string após o path
-        if 'share_path' in info:
-            svc_start = path_start + len(info["share_path"].encode()) + 2  # +null terminators
-            svc_remaining = data[svc_start:]
-            null_pos = svc_remaining.find(b'\x00')
-            if null_pos > 0:
-                info["service_type"] = svc_remaining[:null_pos].decode('ascii', errors='replace')
-    
-    except (IndexError, struct.error) as e:
-        info["parse_error"] = str(e)
-    
-    return info
-
-
-def parse_transaction(data: bytes) -> dict:
-    """Extrai informações da Transaction request (named pipe, subcommand)."""
-    info = {}
-    try:
-        body_start = 4 + 32
-        word_count = data[body_start]
-        words_start = body_start + 1
-        
-        if word_count >= 14:
-            # SMB_COM_TRANSACTION fields
-            info["total_param_count"] = struct.unpack('<H', data[words_start+0:words_start+2])[0]
-            info["total_data_count"] = struct.unpack('<H', data[words_start+2:words_start+4])[0]
-            info["max_param_count"] = struct.unpack('<H', data[words_start+4:words_start+6])[0]
-            info["max_data_count"] = struct.unpack('<H', data[words_start+6:words_start+8])[0]
-            info["setup_count"] = data[words_start+26]
-            
-            # Setup words (contêm o subcommand)
-            setup_count = data[words_start+26]
-            if setup_count >= 1:
-                setup_offset = words_start + 28
-                subcommand = struct.unpack('<H', data[setup_offset:setup_offset+2])[0]
-                info["subcommand"] = f"0x{subcommand:04x}"
-                
-                # Subcommands conhecidos
-                subcmd_names = {
-                    0x0023: "PeekNamedPipe",
-                    0x0026: "TransactNmPipe", 
-                    0x0053: "WaitNamedPipe",
-                    0x0001: "SetNamedPipeState",
-                }
-                info["subcommand_name"] = subcmd_names.get(subcommand, "Unknown")
-            
-            # Nome do pipe (após ByteCount)
-            bc_offset = words_start + (word_count * 2)
-            byte_count = struct.unpack('<H', data[bc_offset:bc_offset+2])[0]
-            
-            # Pipe name starts after padding
-            name_start = bc_offset + 2
-            remaining = data[name_start:name_start+byte_count]
-            null_pos = remaining.find(b'\x00')
-            if null_pos > 0:
-                info["pipe_name"] = remaining[:null_pos].decode('ascii', errors='replace')
-    
-    except (IndexError, struct.error) as e:
-        info["parse_error"] = str(e)
-    
-    return info
-
-
-def build_negotiate_response(dialect_index: int = 3) -> bytes:
-    """
-    Constrói SMB_COM_NEGOTIATE Response (0x72) simulando Windows 7 SP1 / Server 2008 R2.
-    
-    Este é o ponto-chave: o Nmap e scanners de vulnerabilidade leem estes campos
-    para determinar se o alvo é vulnerável ao MS17-010.
-    
-    Campos críticos para parecer vulnerável:
-    - Dialect: NT LM 0.12 (SMB1)
-    - SecurityMode: User-level security, sem message signing required
-    - MaxBufferSize, MaxMpxCount: valores típicos do Windows
-    - Server GUID: guid aleatório mas fixo
-    - Capabilities: indica suporte a NT Status, RPC, Unicode
-    """
-    smb_header = build_smb1_header(
-        command=0x72,  # SMB_COM_NEGOTIATE
-        status=0,
-        flags=0x98,
-        flags2=0xC053   # Unicode | NT Status (SEM Extended Security)
-    )
-
-    # Negotiate Response body (non-extended security)
-    body = b''
-    body += struct.pack("<B", 17)        # Word Count = 17
-    body += struct.pack("<H", dialect_index) # Dialect Index (NT LM 0.12)
-    body += struct.pack("<B", 0x03)      # Security Mode: User-level, plaintext
-    body += struct.pack("<H", 50)        # Max Mpx Count
-    body += struct.pack("<H", 1)         # Max Number VCs
-    body += struct.pack("<I", 16644)     # Max Buffer Size
-    body += struct.pack("<I", 65536)     # Max Raw Size
-    body += struct.pack("<I", 0)         # Session Key
-    
-    # Capabilities SEM Extended Security (0x80000000)
-    capabilities = 0x0000F3F7
-    body += struct.pack("<I", capabilities)
-    
-    # System Time (Windows FILETIME)
-    now = datetime.datetime.now(datetime.timezone.utc)
-    epoch = datetime.datetime(1601, 1, 1, tzinfo=datetime.timezone.utc)
-    filetime = int((now - epoch).total_seconds() * 10_000_000)
-    body += struct.pack("<Q", filetime)
-    
-    # Server Time Zone (em minutos, UTC-3 = 180)
-    body += struct.pack("<h", 180)
-    
-    # Encryption Key Length = 8 (challenge de 8 bytes)
-    body += struct.pack("<B", 8)
-    
-    # ByteCount: EncryptionKey(8) + DomainName + ServerName
-    encryption_key = b'\x01\x23\x45\x67\x89\xab\xcd\xef'  # 8-byte challenge
-    domain_name = 'WORKGROUP\x00'.encode('utf-16-le')
-    server_name = 'WIN7-PC\x00'.encode('utf-16-le')
-    
-    payload = encryption_key + domain_name + server_name
-    body += struct.pack("<H", len(payload))  # Byte Count
-    body += payload
-    
-    # Montar pacote completo
-    smb_packet = smb_header + body
-    packet = netbios_header(len(smb_packet)) + smb_packet
-    
-    return packet
-
-
-def build_session_setup_response(uid: int = 100) -> bytes:
-    """
-    Session Setup response - aceita qualquer autenticação.
-    Sem Extended Security, o fluxo é single-round.
-    """
-    smb_header = build_smb1_header(
-        command=0x73,
-        status=0,  # STATUS_SUCCESS
-        flags=0x98,
-        flags2=0xC053,
-        uid=uid
-    )
-    
-    body = b''
-    body += struct.pack("<B", 3)    # Word Count = 3
-    body += struct.pack("<B", 0)    # AndXCommand: No further commands
-    body += struct.pack("<B", 0)    # Reserved
-    body += struct.pack("<H", 0)    # AndXOffset
-    body += struct.pack("<H", 1)    # Action: logged in as GUEST
-    # ByteCount: NativeOS + NativeLanManager + PrimaryDomain
-    native_os = 'Windows 7 Professional 7601 Service Pack 1\x00'.encode('utf-16-le')
-    native_lm = 'Windows 7 Professional 6.1\x00'.encode('utf-16-le')
-    primary_domain = 'WORKGROUP\x00'.encode('utf-16-le')
-    byte_data = native_os + native_lm + primary_domain
-    body += struct.pack("<H", len(byte_data))  # ByteCount
-    body += byte_data
-    
-    smb_packet = smb_header + body
-    return netbios_header(len(smb_packet)) + smb_packet
-
-
-# ============================================================
-# CONNECTION HANDLER
-# ============================================================
-
-class HoneypointHandler:
-    """Gerencia uma conexão individual ao honeypoint."""
-    
-    def __init__(self, client_socket: socket.socket, client_addr: tuple):
-        self.sock = client_socket
-        self.ip = client_addr[0]
-        self.port = client_addr[1]
-        self.interaction_count = 0
-        self.raw_data_received = []
-        self.authenticated = False
-        self.uid = 100
-        self.tid = 2048
-    
-    def handle(self):
-        """Loop principal de interação com o cliente."""
-        logger.info(f"🎯 Nova conexão: {self.ip}:{self.port}")
-        log_event("connection_open", self.ip, self.port, {})
-        
-        try:
-            self.sock.settimeout(30)
-            
-            while True:
-                # Receber dados do cliente
-                data = self.sock.recv(4096)
-                if not data:
-                    break
-                
-                self.interaction_count += 1
-                self.raw_data_received.append(data.hex())
-                
-                logger.info(
-                    f"📨 [{self.ip}:{self.port}] Recebido {len(data)} bytes "
-                    f"(interação #{self.interaction_count})"
-                )
-                log_event("data_received", self.ip, self.port, {
-                    "length": len(data),
-                    "hex_preview": data[:64].hex(),
-                    "interaction": self.interaction_count
-                })
-                
-                # Analisar e responder
-                response = self._process_smb(data)
-                if response:
-                    self.sock.sendall(response)
-                    logger.info(
-                        f"📤 [{self.ip}:{self.port}] Enviado {len(response)} bytes"
-                    )
-                    log_event("response_sent", self.ip, self.port, {
-                        "length": len(response),
-                        "interaction": self.interaction_count
-                    })
-                else:
-                    # Comando não reconhecido - logar e desconectar
-                    log_event("unknown_command", self.ip, self.port, {
-                        "hex_data": data[:128].hex(),
-                        "interaction": self.interaction_count
-                    })
-                    break
-                    
-        except socket.timeout:
-            logger.info(f"⏰ [{self.ip}:{self.port}] Timeout após {self.interaction_count} interações")
-            log_event("timeout", self.ip, self.port, {
-                "interactions": self.interaction_count
-            })
-        except ConnectionResetError:
-            logger.info(f"🔌 [{self.ip}:{self.port}] Conexão resetada")
-            log_event("connection_reset", self.ip, self.port, {
-                "interactions": self.interaction_count
-            })
-        except Exception as e:
-            logger.error(f"❌ [{self.ip}:{self.port}] Erro: {e}")
-            log_event("error", self.ip, self.port, {
-                "error": str(e),
-                "interactions": self.interaction_count
-            })
-        finally:
-            self.sock.close()
-            logger.info(
-                f"🔒 [{self.ip}:{self.port}] Conexão encerrada "
-                f"({self.interaction_count} interações)"
-            )
-            log_event("connection_close", self.ip, self.port, {
-                "total_interactions": self.interaction_count,
-                "all_data_hex": self.raw_data_received
-            })
-    
-    def _process_smb(self, data: bytes) -> bytes | None:
-        """
-        Analisa o pacote recebido e retorna a resposta SMB apropriada.
-        
-        Fluxo típico de um scanner EternalBlue:
-        1. Cliente envia SMB_COM_NEGOTIATE → respondemos com dialeto NT LM 0.12
-        2. Cliente envia Session Setup → respondemos com NTLMSSP Challenge
-        3. Cliente pode tentar Tree Connect ou o exploit propriamente dito
-        """
-        # Pular NetBIOS header (4 bytes) para chegar ao SMB
-        if len(data) < 8:
-            return None
-        
-        # Verificar se é um pacote SMB válido
-        smb_offset = 4  # após NetBIOS header
-        
-        # SMB1 magic: \xffSMB
-        if data[smb_offset:smb_offset+4] == b'\xffSMB':
-            command = data[smb_offset + 4]
-            return self._handle_smb1(command, data)
-        
-        # SMB2 magic: \xfeSMB
-        elif data[smb_offset:smb_offset+4] == b'\xfeSMB':
-            logger.info(f"🔍 [{self.ip}:{self.port}] SMB2 detectado - respondendo com SMB1")
-            log_event("smb2_detected", self.ip, self.port, {
-                "note": "Cliente tentou SMB2, forçando downgrade para SMB1"
-            })
-            # Responder com negotiate SMB1 para forçar downgrade
-            return build_negotiate_response()
-        
-        # Pode ser apenas o NetBIOS session request
-        elif data[0] == 0x81:
-            logger.info(f"🔍 [{self.ip}:{self.port}] NetBIOS Session Request")
-            # Responder com Session Positive Response
-            return b'\x82\x00\x00\x00'
-        
-        return None
-    
-    def _handle_smb1(self, command: int, data: bytes) -> bytes | None:
-        """Processa comandos SMB1."""
-        
-        command_names = {
-            0x72: "NEGOTIATE",
-            0x73: "SESSION_SETUP",
-            0x75: "TREE_CONNECT",
-            0x25: "TRANSACTION",
-            0x32: "TRANSACTION2",
-            0xA0: "NT_TRANSACT",
+        cve_report = {
+            "sessions": len(sessions),
+            "sc_average": round(avg_sc, 4),
+            "sc_max": round(max_sc, 4),
+            "sc_min": round(min_sc, 4),
+            "full_coverage_sessions": full_coverage,
+            "full_coverage_rate": round(full_coverage / len(sessions), 4) if sessions else 0,
+            "tools_detected": tools,
+            "stage_completion_rates": {
+                sid: round(info["completed"] / info["total"], 4) if info["total"] > 0 else 0
+                for sid, info in stage_completion.items()
+            }
         }
         
-        cmd_name = command_names.get(command, f"UNKNOWN(0x{command:02x})")
-        logger.info(f"🔍 [{self.ip}:{self.port}] SMB1 Command: {cmd_name}")
+        report["results"][cve_name] = cve_report
         
-        log_event("smb1_command", self.ip, self.port, {
-            "command": cmd_name,
-            "command_hex": f"0x{command:02x}"
-        })
+        # ── Print ──
+        print()
+        print(f"  ┌─ {cve_name} ({sessions[0].get('cve_id', '')}) ─────────")
+        print(f"  │ Sessões analisadas: {len(sessions)}")
+        print(f"  │ SC médio: {avg_sc:.0%}  (min: {min_sc:.0%}, max: {max_sc:.0%})")
+        print(f"  │ Cobertura completa: {full_coverage}/{len(sessions)} sessões")
+        print(f"  │")
+        print(f"  │ Ferramentas detectadas:")
+        for tool, count in sorted(tools.items(), key=lambda x: -x[1]):
+            print(f"  │   {tool}: {count} sessões")
+        print(f"  │")
+        print(f"  │ Taxa de conclusão por etapa:")
+        for sid in sorted(stage_completion.keys()):
+            info = stage_completion[sid]
+            rate = info["completed"] / info["total"] if info["total"] > 0 else 0
+            bar = "█" * int(rate * 20) + "░" * (20 - int(rate * 20))
+            print(f"  │   {sid} {info['name']:<30} {bar} {rate:.0%}")
         
-        if command == 0x72:  # NEGOTIATE
-            idx = parse_dialect_index(data)
-            header_info = parse_smb_header(data)
-            logger.info(f"🔍 [{self.ip}:{self.port}] Dialect index: {idx}")
-            log_event("negotiate_details", self.ip, self.port, {
-                "dialect_index": idx,
-                "smb_header": header_info
-            })
-            return build_negotiate_response(idx)
+        # ── Comparação com literatura ──
+        lit_key = cve_name.lower().replace("-", "").replace(" ", "")
+        if lit_key in LITERATURE_SC:
+            print(f"  │")
+            print(f"  │ Comparação com a literatura:")
+            print(f"  │   {'Solução':<32} {'SC':>6}  {'Score':>6}")
+            print(f"  │   {'─'*50}")
+            
+            entries = list(LITERATURE_SC[lit_key].items())
+            # Atualizar nossa pontuação
+            for name, data in entries:
+                if "Proposta" in name:
+                    data["score"] = max_sc
+                    n = int(data["sc"].split("/")[1])
+                    data["sc"] = f"{int(max_sc * n)}/{n}"
+            
+            entries.sort(key=lambda x: -x[1]["score"])
+            
+            for name, data in entries:
+                marker = " ◀ " if "Proposta" in name else "   "
+                print(f"  │{marker}{name:<32} {data['sc']:>6}  {data['score']:>5.0%}")
+            
+            # Calcular posição no ranking
+            our_rank = 1
+            for name, data in entries:
+                if "Proposta" not in name and data["score"] > max_sc:
+                    our_rank += 1
+            
+            cve_report["literature_rank"] = our_rank
+            cve_report["literature_total"] = len(entries)
         
-        elif command == 0x73:  # SESSION_SETUP
-            self.authenticated = True
-            session_info = parse_session_setup(data)
-            header_info = parse_smb_header(data)
-            
-            # Fingerprinting do atacante
-            native_os = session_info.get("native_os", "")
-            native_lm = session_info.get("native_lan_manager", "")
-            account = session_info.get("account_name", "")
-            domain = session_info.get("primary_domain", "")
-            workstation = session_info.get("ntlmssp_workstation", "")
-            
-            # Identificar ferramenta baseado nas strings
-            tool_guess = "Unknown"
-            if "2195" in native_os or "Windows 2000" in native_os:
-                tool_guess = "Metasploit (Ruby Rex)"
-            elif "Unix" in native_os or "Samba" in native_lm:
-                tool_guess = "Impacket / CrackMapExec (Python)"
-            elif "Windows 10" in native_os:
-                tool_guess = "Windows 10 nativo ou PsExec"
-            elif "Windows 7" in native_os:
-                tool_guess = "Windows 7 nativo"
-            
-            logger.info(
-                f"🕵️ [{self.ip}:{self.port}] FINGERPRINT: "
-                f"OS='{native_os}' LM='{native_lm}' "
-                f"Account='{account}' Domain='{domain}' "
-                f"Tool='{tool_guess}'"
+        print(f"  └{'─'*60}")
+    
+    # ── Resumo geral ──
+    print()
+    print(f"  ┌─ RESUMO ─────────────────────────────────────")
+    print(f"  │ Total de sessões: {len(all_reports)}")
+    print(f"  │ CVEs testadas: {', '.join(by_cve.keys())}")
+    
+    for cve_name, cve_data in report["results"].items():
+        sc = cve_data["sc_max"]
+        rank = cve_data.get("literature_rank", "?")
+        total = cve_data.get("literature_total", "?")
+        print(f"  │ {cve_name}: SC={sc:.0%} (#{rank}/{total} no ranking)")
+    
+    print(f"  └{'─'*48}")
+    print()
+    
+    # ── Salvar ──
+    report_path = os.path.join(REPORT_DIR, f"comparative_{timestamp}.json")
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2, ensure_ascii=False)
+    
+    print(f"  📄 Relatório salvo: {report_path}")
+    print()
+    
+    return report
+
+
+def generate_latex_table():
+    """Gera tabela LaTeX comparativa para inserir na dissertação."""
+    from sc_tracker import LITERATURE_SC
+    
+    all_reports = load_sc_reports()
+    
+    # Calcular nosso melhor SC por CVE
+    best_sc = {}
+    for r in all_reports:
+        cve = r.get("cve_name", "")
+        sc = r.get("sc_score", 0)
+        if cve not in best_sc or sc > best_sc[cve]:
+            best_sc[cve] = sc
+    
+    print()
+    print("% ── Tabela LaTeX para a dissertação ──")
+    print("% Copiar e colar no .tex")
+    print()
+    print(r"\begin{table}[htbp]")
+    print(r"\centering")
+    print(r"\caption{Comparação de Stage Coverage entre a solução proposta e trabalhos relacionados}")
+    print(r"\label{tab:sc-comparison}")
+    print(r"\begin{tabular}{l c c c c}")
+    print(r"\hline")
+    print(r"\textbf{Solução} & \textbf{EternalBlue} & \textbf{BlueKeep} & \textbf{SC Médio} & \textbf{Ano} \\")
+    print(r"\hline")
+    
+    # Coletar todas as soluções
+    all_solutions = set()
+    for cve_data in LITERATURE_SC.values():
+        all_solutions.update(cve_data.keys())
+    
+    rows = []
+    for solution in sorted(all_solutions):
+        eb_data = LITERATURE_SC.get("eternalblue", {}).get(solution, {})
+        bk_data = LITERATURE_SC.get("bluekeep", {}).get(solution, {})
+        
+        eb_sc = eb_data.get("sc", "--")
+        bk_sc = bk_data.get("sc", "--")
+        
+        eb_score = eb_data.get("score", 0)
+        bk_score = bk_data.get("score", 0)
+        
+        # Atualizar proposta com dados reais
+        if "Proposta" in solution:
+            if "EternalBlue" in best_sc:
+                eb_score = best_sc["EternalBlue"]
+                eb_sc = f"{int(eb_score * 5)}/5"
+            if "BlueKeep" in best_sc:
+                bk_score = best_sc["BlueKeep"]
+                bk_sc = f"{int(bk_score * 5)}/5"
+        
+        count = 0
+        total = 0
+        if eb_data:
+            count += eb_score
+            total += 1
+        if bk_data:
+            count += bk_score
+            total += 1
+        avg = count / total if total > 0 else 0
+        
+        year = ""
+        if "Provos" in solution: year = "2004"
+        elif "Filippi" in solution: year = "2019"
+        elif "Naagas" in solution: year = "2018"
+        elif "Gao" in solution: year = "2021"
+        elif "Wang" in solution: year = "2025"
+        elif "Rehman" in solution: year = "2024"
+        elif "Proposta" in solution: year = "2026"
+        
+        bold = r"\textbf" if "Proposta" in solution else ""
+        
+        if bold:
+            rows.append(
+                (avg, f"\\textbf{{{solution}}} & \\textbf{{{eb_sc}}} & "
+                       f"\\textbf{{{bk_sc}}} & \\textbf{{{avg:.0%}}} & "
+                       f"\\textbf{{{year}}} \\\\")
             )
-            
-            log_event("session_setup_fingerprint", self.ip, self.port, {
-                "tool_guess": tool_guess,
-                "session_info": session_info,
-                "smb_header": header_info
-            })
-            
-            return build_session_setup_response(self.uid)
-        
-        elif command == 0x75:  # TREE_CONNECT
-            tree_info = parse_tree_connect(data)
-            share_path = tree_info.get("share_path", "unknown")
-            
-            logger.info(f"🌲 [{self.ip}:{self.port}] Tree Connect: {share_path}")
-            log_event("tree_connect_attempt", self.ip, self.port, {
-                "tree_info": tree_info
-            })
-            return self._build_tree_connect_success()
-        
-        elif command in (0x25, 0x32, 0xA0):  # TRANSACTION / TRANSACTION2 / NT_TRANSACT
-            trans_info = parse_transaction(data)
-            pipe_name = trans_info.get("pipe_name", "")
-            subcmd = trans_info.get("subcommand_name", "")
-            
-            log_event("EXPLOIT_ATTEMPT", self.ip, self.port, {
-                "alert": "🚨 POSSÍVEL TENTATIVA DE EXPLOIT ETERNALBLUE!",
-                "command": cmd_name,
-                "transaction_info": trans_info,
-                "raw_hex": data.hex(),
-                "severity": "HIGH"
-            })
-            logger.warning(
-                f"🚨🚨🚨 [{self.ip}:{self.port}] EXPLOIT ATTEMPT! "
-                f"Cmd={cmd_name} Pipe={pipe_name} SubCmd={subcmd}"
-            )
-            # Simular vulnerabilidade: STATUS_INSUFF_SERVER_RESOURCES
-            # Este é exatamente o indicador que o scanner MS17-010 procura
-            return self._build_error_response(command, 0xC0000205)
-        
         else:
-            log_event("unknown_smb_command", self.ip, self.port, {
-                "command_hex": f"0x{command:02x}",
-                "raw_hex": data[:64].hex()
-            })
-            return self._build_error_response(command, 0xC0000002)
-    
-    def _build_tree_connect_success(self) -> bytes:
-        """Tree Connect com STATUS_SUCCESS - aceita IPC$."""
-        smb_header = build_smb1_header(
-            command=0x75, status=0, flags=0x98, flags2=0xC053,
-            tid=self.tid, uid=self.uid
-        )
-        body = b''
-        body += struct.pack("<B", 3)    # Word Count = 3
-        body += struct.pack("<B", 0)    # AndXCommand
-        body += struct.pack("<B", 0)    # Reserved
-        body += struct.pack("<H", 0)    # AndXOffset
-        body += struct.pack("<H", 1)    # Optional Support (SMB_SUPPORT_SEARCH_BITS)
-        # ByteCount: Service + NativeFileSystem
-        service = b'IPC\x00'
-        native_fs = b'\x00'
-        body += struct.pack("<H", len(service) + len(native_fs))
-        body += service + native_fs
-        smb_packet = smb_header + body
-        return netbios_header(len(smb_packet)) + smb_packet
-
-    def _build_error_response(self, command: int, status: int) -> bytes:
-        """Constrói uma resposta de erro SMB1."""
-        smb_header = build_smb1_header(
-            command=command, status=status, tid=self.tid, uid=self.uid
-        )
-        body = struct.pack("<B", 0) + struct.pack("<H", 0)  # WordCount=0, ByteCount=0
-        smb_packet = smb_header + body
-        return netbios_header(len(smb_packet)) + smb_packet
-
-
-# ============================================================
-# MAIN SERVER
-# ============================================================
-
-class EternalBlueHoneypoint:
-    """Servidor principal do Honeypoint."""
-    
-    def __init__(self, host: str = "0.0.0.0", port: int = 445):
-        self.host = host
-        self.port = port
-        self.running = False
-        self.server_socket = None
-        self.connections = []
-    
-    def start(self):
-        """Inicia o honeypoint."""
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        
-        try:
-            self.server_socket.bind((self.host, self.port))
-        except PermissionError:
-            logger.error(
-                f"❌ Sem permissão para bind na porta {self.port}. "
-                f"Execute como root ou use: sudo python3 {sys.argv[0]}"
+            rows.append(
+                (avg, f"{solution} & {eb_sc} & {bk_sc} & {avg:.0%} & {year} \\\\")
             )
-            sys.exit(1)
-        except OSError as e:
-            logger.error(f"❌ Erro no bind: {e}")
-            sys.exit(1)
-        
-        self.server_socket.listen(10)
-        self.running = True
-        
-        logger.info("=" * 60)
-        logger.info("🍯 ETERNALBLUE HONEYPOINT ATIVO")
-        logger.info(f"🌐 Escutando em {self.host}:{self.port}")
-        logger.info(f"📁 Logs: {LOG_DIR}/")
-        logger.info(f"📋 Eventos JSON: {LOG_DIR}/events.jsonl")
-        logger.info("=" * 60)
-        
-        log_event("server_start", "0.0.0.0", self.port, {
-            "bind_address": self.host,
-            "bind_port": self.port
-        })
-        
-        # Signal handlers para shutdown gracioso
-        signal.signal(signal.SIGINT, self._shutdown)
-        signal.signal(signal.SIGTERM, self._shutdown)
-        
-        while self.running:
-            try:
-                self.server_socket.settimeout(1.0)
-                try:
-                    client_sock, client_addr = self.server_socket.accept()
-                except socket.timeout:
-                    continue
-                
-                handler = HoneypointHandler(client_sock, client_addr)
-                thread = threading.Thread(
-                    target=handler.handle,
-                    daemon=True,
-                    name=f"client-{client_addr[0]}:{client_addr[1]}"
-                )
-                thread.start()
-                self.connections.append(thread)
-                
-            except Exception as e:
-                if self.running:
-                    logger.error(f"❌ Erro no accept: {e}")
     
-    def _shutdown(self, signum, frame):
-        """Encerra o servidor graciosamente."""
-        logger.info("\n🛑 Encerrando honeypoint...")
-        self.running = False
-        if self.server_socket:
-            self.server_socket.close()
-        log_event("server_stop", "0.0.0.0", self.port, {
-            "reason": "signal",
-            "signal": signum
-        })
-        logger.info("✅ Honeypoint encerrado.")
+    # Ordenar por avg score descending
+    rows.sort(key=lambda x: -x[0])
+    for _, row in rows:
+        print(row)
+    
+    print(r"\hline")
+    print(r"\end{tabular}")
+    print(r"\end{table}")
+    print()
+
+
+# ============================================================
+# LAUNCHER
+# ============================================================
+
+def _port_available(port: int) -> bool:
+    """Verifica se a porta está disponível para bind."""
+    import socket as _sock
+    s = _sock.socket(_sock.AF_INET, _sock.SOCK_STREAM)
+    s.setsockopt(_sock.SOL_SOCKET, _sock.SO_REUSEADDR, 1)
+    try:
+        s.bind(('0.0.0.0', port))
+        return True
+    except OSError:
+        return False
+    finally:
+        s.close()
+
+
+def run_modules(smb_port: int = 445, rdp_port: int = 3389,
+                smb_only: bool = False, rdp_only: bool = False):
+    """Executa os módulos de honeypoint em threads separadas."""
+
+    print()
+    print("=" * 60)
+    print("  🍯 HONEYPOINT FRAMEWORK")
+    print("  Dissertação de Mestrado — UFPR")
+    print("=" * 60)
+
+    threads = []
+    any_failed = False
+
+    if not rdp_only:
+        if not _port_available(smb_port):
+            print(f"  ❌ EternalBlue (SMB) — porta {smb_port} JÁ EM USO")
+            print(f"     Execute: sudo ss -tlnp | grep :{smb_port}")
+            any_failed = True
+        else:
+            from honeypoint_eternalblue import EternalBlueHoneypoint
+            smb_hp = EternalBlueHoneypoint(port=smb_port)
+            t_smb = threading.Thread(
+                target=smb_hp.start, daemon=True, name="eternalblue"
+            )
+            t_smb.start()
+            threads.append(("EternalBlue (SMB)", t_smb, smb_port))
+            print(f"  ✅ EternalBlue (SMB) — porta {smb_port}")
+
+    if not smb_only:
+        if not _port_available(rdp_port):
+            print(f"  ❌ BlueKeep (RDP) — porta {rdp_port} JÁ EM USO")
+            print(f"     Execute: sudo ss -tlnp | grep :{rdp_port}")
+            any_failed = True
+        else:
+            from honeypoint_bluekeep import BlueKeepHoneypoint
+            rdp_hp = BlueKeepHoneypoint(port=rdp_port)
+            t_rdp = threading.Thread(
+                target=rdp_hp.start, daemon=True, name="bluekeep"
+            )
+            t_rdp.start()
+            threads.append(("BlueKeep (RDP)", t_rdp, rdp_port))
+            print(f"  ✅ BlueKeep (RDP) — porta {rdp_port}")
+
+    if any_failed and not threads:
+        print("=" * 60)
+        sys.exit(1)
+
+    print()
+    print(f"  📁 Logs: {LOG_DIR}/")
+    print(f"  📊 SC Reports: {LOG_DIR}/sc_*.json")
+    print(f"  📋 Relatório: python3 {sys.argv[0]} --report")
+    print()
+    print("  Testar com:")
+    print(f"    nmap --script smb-vuln-ms17-010 -p {smb_port} 127.0.0.1")
+    print(f"    nmap --script rdp-enum-encryption -p {rdp_port} 127.0.0.1")
+    print("=" * 60)
+    print()
+
+    def shutdown(sig, frame):
+        print("\n🛑 Encerrando framework...")
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, shutdown)
+    signal.signal(signal.SIGTERM, shutdown)
+
+    try:
+        for _, thread, _ in threads:
+            thread.join()
+    except KeyboardInterrupt:
         sys.exit(0)
 
 
@@ -800,25 +393,52 @@ class EternalBlueHoneypoint:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="EternalBlue Honeypoint - Simulador SMB para Pesquisa",
+        description="Honeypoint Framework — Launcher e Relatórios",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Exemplos:
-  sudo python3 honeypoint_eternalblue.py                  # porta 445 (padrão)
-  sudo python3 honeypoint_eternalblue.py -p 4455          # porta alternativa
-  sudo python3 honeypoint_eternalblue.py -b 192.168.1.50  # bind específico
+Modos de operação:
 
-Testar com nmap:
-  nmap -sV -p 445 <IP_DA_VM>
-  nmap --script smb-vuln-ms17-010 -p 445 <IP_DA_VM>
+  Execução:
+    sudo python3 honeypoint_main.py                          # Todos os módulos
+    sudo python3 honeypoint_main.py --smb-only --smb-port 4455
+    sudo python3 honeypoint_main.py --rdp-only --rdp-port 3390
+
+  Relatórios:
+    python3 honeypoint_main.py --report                      # Relatório comparativo
+    python3 honeypoint_main.py --latex                        # Tabela LaTeX
+
+  Testar:
+    # EternalBlue:
+    msfconsole -x 'use auxiliary/scanner/smb/smb_ms17_010; set RHOSTS <IP>; set RPORT 4455; run'
+    
+    # BlueKeep:
+    msfconsole -x 'use auxiliary/scanner/rdp/cve_2019_0708_bluekeep; set RHOSTS <IP>; set RPORT 3390; run'
         """
     )
-    parser.add_argument("-p", "--port", type=int, default=445,
-                        help="Porta para escutar (default: 445)")
-    parser.add_argument("-b", "--bind", type=str, default="0.0.0.0",
-                        help="Endereço para bind (default: 0.0.0.0)")
+    
+    parser.add_argument("--smb-port", type=int, default=445,
+                        help="Porta SMB/EternalBlue (default: 445)")
+    parser.add_argument("--rdp-port", type=int, default=3389,
+                        help="Porta RDP/BlueKeep (default: 3389)")
+    parser.add_argument("--smb-only", action="store_true",
+                        help="Executar apenas EternalBlue")
+    parser.add_argument("--rdp-only", action="store_true",
+                        help="Executar apenas BlueKeep")
+    parser.add_argument("--report", action="store_true",
+                        help="Gerar relatório comparativo")
+    parser.add_argument("--latex", action="store_true",
+                        help="Gerar tabela LaTeX para dissertação")
     
     args = parser.parse_args()
     
-    honeypoint = EternalBlueHoneypoint(host=args.bind, port=args.port)
-    honeypoint.start()
+    if args.report:
+        generate_comparative_report()
+    elif args.latex:
+        generate_latex_table()
+    else:
+        run_modules(
+            smb_port=args.smb_port,
+            rdp_port=args.rdp_port,
+            smb_only=args.smb_only,
+            rdp_only=args.rdp_only,
+        )
