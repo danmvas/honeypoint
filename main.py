@@ -6,11 +6,11 @@ Executa os módulos EternalBlue e BlueKeep simultaneamente
 e gera relatórios comparativos de Stage Coverage.
 
 Uso:
-  sudo python3 honeypoint_main.py                        # Todos os módulos
-  sudo python3 honeypoint_main.py --smb-only              # Apenas EternalBlue
-  sudo python3 honeypoint_main.py --rdp-only              # Apenas BlueKeep
-  sudo python3 honeypoint_main.py --report                # Gera relatório dos dados coletados
-  sudo python3 honeypoint_main.py --smb-port 4455 --rdp-port 3390  # Portas alternativas
+  sudo python3 main.py                        # Todos os módulos
+  sudo python3 main.py --smb-only              # Apenas EternalBlue
+  sudo python3 main.py --rdp-only              # Apenas BlueKeep
+  sudo python3 main.py --report                # Gera relatório dos dados coletados
+  sudo python3 main.py --smb-port 4455 --rdp-port 3390  # Portas alternativas
 """
 
 import argparse
@@ -334,7 +334,7 @@ def run_modules(smb_port: int = 445, rdp_port: int = 3389,
             print(f"     Execute: sudo ss -tlnp | grep :{smb_port}")
             any_failed = True
         else:
-            from honeypoint_eternalblue import EternalBlueHoneypoint
+            from eternalblue import EternalBlueHoneypoint
             smb_hp = EternalBlueHoneypoint(port=smb_port)
             t_smb = threading.Thread(
                 target=smb_hp.start, daemon=True, name="eternalblue"
@@ -349,7 +349,7 @@ def run_modules(smb_port: int = 445, rdp_port: int = 3389,
             print(f"     Execute: sudo ss -tlnp | grep :{rdp_port}")
             any_failed = True
         else:
-            from honeypoint_bluekeep import BlueKeepHoneypoint
+            from bluekeep import BlueKeepHoneypoint
             rdp_hp = BlueKeepHoneypoint(port=rdp_port)
             t_rdp = threading.Thread(
                 target=rdp_hp.start, daemon=True, name="bluekeep"
@@ -399,13 +399,13 @@ if __name__ == "__main__":
 Modos de operação:
 
   Execução:
-    sudo python3 honeypoint_main.py                          # Todos os módulos
-    sudo python3 honeypoint_main.py --smb-only --smb-port 4455
-    sudo python3 honeypoint_main.py --rdp-only --rdp-port 3390
+    sudo python3 main.py                          # Todos os módulos
+    sudo python3 main.py --smb-only --smb-port 4455
+    sudo python3 main.py --rdp-only --rdp-port 3390
 
   Relatórios:
-    python3 honeypoint_main.py --report                      # Relatório comparativo
-    python3 honeypoint_main.py --latex                        # Tabela LaTeX
+    python3 main.py --report                      # Relatório comparativo
+    python3 main.py --latex                        # Tabela LaTeX
 
   Testar:
     # EternalBlue:
