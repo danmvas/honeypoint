@@ -94,12 +94,22 @@ def list_drivers(drivers: dict) -> None:
         print("  Nenhum driver encontrado em drivers/")
         print(f"  Crie um driver herdando de framework.base.HoneyPointDriver")
     else:
-        print(f"  {'Nome':<20} {'CVE':<18} {'Protocolo':<10} {'Porta':<8} {'Stages'}")
-        print(f"  {'─'*66}")
-        for key, cls in sorted(drivers.items()):
-            meta = cls().get_metadata()
-            print(f"  {meta.name:<20} {meta.cve:<18} {meta.protocol:<10} "
-                  f"{meta.default_port:<8} {meta.total_stages}")
+        metas = {key: cls().get_metadata() for key, cls in drivers.items()}
+        has_family = any(m.family for m in metas.values())
+        if has_family:
+            print(f"  {'Nome':<20} {'CVE':<18} {'Protocolo':<10} {'Porta':<8} {'Stages':<8} {'Família'}")
+            print(f"  {'─'*80}")
+            for key in sorted(metas):
+                meta = metas[key]
+                print(f"  {meta.name:<20} {meta.cve:<18} {meta.protocol:<10} "
+                      f"{meta.default_port:<8} {meta.total_stages:<8} {meta.family or '-'}")
+        else:
+            print(f"  {'Nome':<20} {'CVE':<18} {'Protocolo':<10} {'Porta':<8} {'Stages'}")
+            print(f"  {'─'*66}")
+            for key in sorted(metas):
+                meta = metas[key]
+                print(f"  {meta.name:<20} {meta.cve:<18} {meta.protocol:<10} "
+                      f"{meta.default_port:<8} {meta.total_stages}")
     
     print(f"{'='*70}\n")
 
