@@ -4,7 +4,7 @@ Framework genérico e extensível para defesa por deception contra reconheciment
 
 Desenvolvido como parte da dissertação de mestrado no PPGInf/UFPR. O framework provê a infraestrutura para criar, executar e avaliar **honeypoints** — serviços falsos que simulam vulnerabilidades conhecidas para enganar scanners de reconhecimento e capturar seu comportamento.
 
-A arquitetura é baseada em **drivers**: o core do framework é genérico (tracking de estágios, logging, métricas, launcher), e cada protocolo/CVE é implementado como um driver independente. Novos drivers podem ser adicionados sem modificar o framework.
+A arquitetura tem três camadas: o core do framework é genérico (tracking de estágios, logging, métricas, launcher); famílias de protocolo (`families/`) concentram o tronco de reconhecimento compartilhado por várias CVEs do mesmo protocolo; e cada CVE específica é implementada como um driver fino que só contém sua divergência real. Novas famílias e drivers podem ser adicionados sem modificar o framework.
 
 ---
 
@@ -14,18 +14,26 @@ A arquitetura é baseada em **drivers**: o core do framework é genérico (track
 framework/                 ← Core genérico (não sabe de protocolos)
 ├── __init__.py
 ├── base.py                ← HoneyPointDriver: classe base abstrata (contrato do driver)
+├── family.py              ← FamilyDriver + PortListener: orquestração genérica de múltiplas variantes por porta
 ├── tracker.py             ← SCTracker: tracking de stages + cálculo de SC + logs JSON
 └── launcher.py            ← Discovery automático de drivers + execução em threads
 
-drivers/                   ← Implementações específicas de protocolo
-├── eternalblue.py         ← Driver SMB: simula CVE-2017-0144 (MS17-010)
-├── bluekeep.py            ← Driver RDP: simula CVE-2019-0708
-└── README.md              ← Como criar um novo driver
+families/                  ← Tronco compartilhado por família de protocolo
+├── smb.py                 ← SMBFamilyDriver: Negotiate → Session Setup → Tree Connect IPC$
+├── rdp.py                 ← RDPFamilyDriver: X.224 CR → Security Negotiation → MCS Connect Initial
+└── README.md               ← O que é uma família, como criar uma nova
+
+drivers/                   ← CVE específica (arquivo fino, só a divergência real)
+├── eternalblue.py         ← CVE-2017-0144 (MS17-010) — variante SMB1-Recon
+├── bluekeep.py             ← CVE-2019-0708 (BlueKeep) — variante RDP-Recon
+├── ms12_020.py             ← CVE-2012-0002 (MS12-020) — variante RDP-Recon
+├── _common/logging_utils.py ← utilitário de suporte a drivers (não é família)
+└── README.md               ← Como criar um novo driver
 ```
 
 ![Arquitetura do Honeypoint Framework](framework_architecture.svg)
 
-A analogia é com IDS como Snort/Suricata: o motor é genérico, a comunidade cria as assinaturas. Aqui, o framework provê o motor de deception, e o usuário implementa drivers para os protocolos e CVEs que deseja simular.
+A analogia é com IDS como Snort/Suricata: o motor é genérico, a comunidade cria as assinaturas. Aqui, o framework provê o motor de deception, `families/` provê os "decoders" de protocolo compartilhados entre assinaturas relacionadas, e o usuário implementa drivers finos para as CVEs que deseja simular.
 
 ---
 
@@ -47,12 +55,47 @@ Cada driver define suas próprias stages ao declarar `DriverMetadata.stages`. O 
 
 ## Drivers incluídos
 
-Dois drivers de referência são incluídos como prova de conceito:
+Três drivers de referência são incluídos, formando uma família completa (RDP-Recon, 2 CVEs) e uma família com um único membro por enquanto (SMB1-Recon):
 
-| Driver | CVE | Protocolo | Porta padrão | Stages | Scanner Metasploit |
-|--------|-----|-----------|-------------|--------|--------------------|
-| EternalBlue | CVE-2017-0144 | SMB v1 | 445 | 5 | `auxiliary/scanner/smb/smb_ms17_010` |
-| BlueKeep | CVE-2019-0708 | RDP | 3389 | 5 | `auxiliary/scanner/rdp/cve_2019_0708_bluekeep` |
+| Driver | CVE | Protocolo | Porta padrão | Família | Stages | Scanner Metasploit |
+|--------|-----|-----------|-------------|---------|--------|--------------------|
+| EternalBlue | CVE-2017-0144 | SMB v1 | 445 | SMB1-Recon | 5 | `auxiliary/scanner/smb/smb_ms17_010` |
+| BlueKeep | CVE-2019-0708 | RDP | 3389 | RDP-Recon | 5 | `auxiliary/scanner/rdp/cve_2019_0708_bluekeep` |
+| MS12-020 | CVE-2012-0002 | RDP | 3389 | RDP-Recon | 5 | `auxiliary/scanner/rdp/ms12_020_check` |
+
+> **Escopo estrito de reconhecimento:** todo driver aqui precisa corresponder a um scanner/checker
+> real, seguro e não-invasivo (categoria `auxiliary/scanner/` do Metasploit, ou equivalente) — nunca
+> a um módulo de exploração. Uma segunda CVE SMBv1 (MS08-067) foi avaliada e **descartada**: não
+> existe, nem no Metasploit (`auxiliary/scanner/smb/` só tem `smb_ms17_010.rb` como scanner
+> CVE-específico) nem no nmap (o script `smb-vuln-ms08-067` é categorizado `intrusive exploit dos`
+> e o próprio autor avisa que é mais provável derrubar o alvo do que detectá-lo com segurança), uma
+> forma de checagem puramente de reconhecimento para essa CVE. `SMB1-Recon` fica com um único
+> membro até que uma CVE SMBv1 com scanner dedicado seguro seja identificada — encontrar uma é
+> trabalho futuro, não algo a forçar.
+
+### Famílias de driver e dispatch dinâmico
+
+**SMB1-Recon** — hoje só EternalBlue, mas a base (`families/smb.py`,
+`SMBFamilyDriver`) já foi extraída como tronco compartilhado (Negotiate →
+Session Setup → Tree Connect IPC$) para quando uma segunda CVE SMBv1 com
+scanner dedicado seguro for encontrada — nesse momento os dois dividiriam a
+porta 445 com resolução dinâmica de variante, do mesmo jeito que a família
+RDP-Recon já faz abaixo.
+
+**RDP-Recon** — BlueKeep e MS12-020 compartilham X.224 Connection Request →
+Security Negotiation → MCS Connect Initial (`families/rdp.py`,
+`RDPFamilyDriver`) e **dividem a porta 3389**. Aqui o sinal de divergência não
+cabe num único pacote: só fica claro no primeiro Channel Join Request, depois
+de observar quantos IDs de usuário MCS foram alocados (BlueKeep = fluxo
+normal de 1 usuário; MS12-020 = 2 Attach User Requests seguidas de um bind de
+canal cross-user, o comportamento real verificado pelo scanner
+`ms12_020_check`).
+
+Em ambos os casos, isso é o "attach" dinâmico ao driver certo assim que a
+família é reconhecida, sem exigir dois sockets na mesma porta. Ver
+`families/smb.py` e `families/rdp.py` para o mecanismo completo, e
+`drivers/README.md` para como registrar uma nova variante numa família
+existente (ou criar uma família nova).
 
 ### Etapas do EternalBlue (SMB)
 
@@ -70,11 +113,19 @@ O sinal comportamental que distingue reconhecimento automatizado de tráfego leg
 
 | Stage | Nome | O que captura |
 |-------|------|--------------|
-| B1 | X.224 Connection Request | Cookie RDP (hostname do atacante), protocolos suportados |
-| B2 | MCS Connect (GCC) | Hostname real, resolução de tela, teclado, timezone |
-| B3 | MCS Channel Join | Canais virtuais solicitados |
-| B4 | Security Exchange | Chave RSA do cliente |
-| B5 | Vuln Check MS_T120 | Tentativa de bind no canal 0x1F (MS_T120) |
+| B1-B3 | (compartilhadas com MS12-020) | X.224 Connection Request (cookie, protocolos suportados), Security Negotiation (ausência de NLA), MCS Connect Initial (hostname, resolução, teclado, timezone) |
+| B4 | Channel Join | Canais virtuais solicitados |
+| B5 | Exploit PDU | Tentativa de bind no canal 0x1F/0 (MS_T120) seguida de payload de exploit (MCS Send Data) |
+
+### Etapas do MS12-020 (RDP)
+
+| Stage | Nome | O que captura |
+|-------|------|--------------|
+| M1-M3 | (compartilhadas com BlueKeep) | X.224 Connection Request, Security Negotiation, MCS Connect Initial |
+| M4 | Second Attach User Request | Scanner solicita um segundo ID de usuário MCS |
+| M5 | Cross-User Channel Bind | Scanner vincula o 1º usuário a um canal do 2º usuário — servidor aceita o bind inválido |
+
+Diferente do BlueKeep (que testa o canal MS_T120 com um único usuário), o MS12-020 depende de obter dois IDs de usuário MCS distintos para montar uma vinculação de canal cross-user — mecanismo real e distinto, verificado a partir do módulo `auxiliary/scanner/rdp/ms12_020_check`, embora compartilhe M1-M3 com o BlueKeep.
 
 ---
 
@@ -97,10 +148,11 @@ Saída esperada:
 
 ```
   Honeypoint Framework — Drivers Disponíveis
-  Nome                 CVE                Protocolo  Porta    Stages
-  ──────────────────────────────────────────────────────────────────
-  BlueKeep             CVE-2019-0708      RDP        3389     5
-  EternalBlue          CVE-2017-0144      SMB        445      5
+  Nome                 CVE                Protocolo  Porta    Stages   Família
+  ────────────────────────────────────────────────────────────────────────────────
+  BlueKeep             CVE-2019-0708      RDP        3389     5        RDP-Recon
+  EternalBlue          CVE-2017-0144      SMB        445      5        SMB1-Recon
+  MS12020              CVE-2012-0002      RDP        3389     5        RDP-Recon
 ```
 
 ### Iniciar o framework
@@ -238,7 +290,7 @@ sudo python3 -m framework.launcher --driver meuprotocolo
 
 ### Como definir as stages
 
-1. Identifique o módulo `auxiliary/scanner/` do Metasploit para o CVE alvo
+1. Identifique o módulo `auxiliary/scanner/` do Metasploit para o CVE alvo — **precisa ser um scanner de reconhecimento real, não um módulo de exploração.** Se a única ferramenta de detecção disponível para a CVE for um `exploit/` (mesmo em modo `check`) ou um script marcado como `intrusive`/`dos`, essa CVE não serve como driver deste projeto — o escopo é enganar scanners, não simular alvos de exploit real.
 2. Analise o código-fonte do scanner (Ruby) ou capture o tráfego com Wireshark
 3. Decomponha o fluxo em etapas sequenciais — cada troca de mensagem onde o scanner espera uma resposta específica é uma stage
 4. Implemente as respostas de protocolo necessárias para que o scanner progrida

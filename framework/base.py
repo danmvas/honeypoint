@@ -43,6 +43,7 @@ class DriverMetadata:
     scanner_tool: str            # Ex: "Metasploit Framework"
     description: str             # Descrição curta
     stages: list[StageDefinition] = field(default_factory=list)
+    family: Optional[str] = None  # Ex: "SMB1-Recon" — agrupa drivers relacionados (família de CVEs)
 
     @property
     def total_stages(self) -> int:
