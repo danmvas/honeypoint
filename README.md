@@ -4,7 +4,7 @@ Framework genérico e extensível para defesa por deception contra reconheciment
 
 Desenvolvido como parte da dissertação de mestrado no PPGInf/UFPR. O framework provê a infraestrutura para criar, executar e avaliar **honeypoints** — serviços falsos que simulam vulnerabilidades conhecidas para enganar scanners de reconhecimento e capturar seu comportamento.
 
-A arquitetura tem três camadas: o core do framework é genérico (tracking de estágios, logging, métricas, launcher); famílias de protocolo (`families/`) concentram o tronco de reconhecimento compartilhado por várias CVEs do mesmo protocolo; e cada CVE específica é implementada como um driver fino que só contém sua divergência real. Novas famílias e drivers podem ser adicionados sem modificar o framework.
+A arquitetura tem duas camadas obrigatórias e uma opcional: o core do framework é genérico (tracking de estágios, logging, métricas, launcher); cada CVE específica é implementada como um driver fino que herda diretamente de `HoneyPointDriver`; e famílias de protocolo (`families/`) são uma camada *opcional* — concentram o tronco de reconhecimento compartilhado por várias CVEs do mesmo protocolo e permitem que múltiplos drivers compartilhem a mesma porta com dispatch dinâmico. Novas famílias e drivers podem ser adicionados sem modificar o framework.
 
 ---
 
@@ -75,27 +75,13 @@ Três drivers de referência são incluídos, formando uma família completa (RD
 
 ### Famílias de driver e dispatch dinâmico
 
-**SMB1-Recon** — hoje só EternalBlue, mas a base (`families/smb.py`,
-`SMBFamilyDriver`) já foi extraída como tronco compartilhado (Negotiate →
-Session Setup → Tree Connect IPC$) para quando uma segunda CVE SMBv1 com
-scanner dedicado seguro for encontrada — nesse momento os dois dividiriam a
-porta 445 com resolução dinâmica de variante, do mesmo jeito que a família
-RDP-Recon já faz abaixo.
+Famílias são opcionais. Um driver pode herdar diretamente de `HoneyPointDriver` e rodar de forma standalone — sem família, sem compartilhamento de porta. Famílias só são necessárias quando dois ou mais drivers precisam escutar na mesma porta com dispatch dinâmico de variante.
 
-**RDP-Recon** — BlueKeep e MS12-020 compartilham X.224 Connection Request →
-Security Negotiation → MCS Connect Initial (`families/rdp.py`,
-`RDPFamilyDriver`) e **dividem a porta 3389**. Aqui o sinal de divergência não
-cabe num único pacote: só fica claro no primeiro Channel Join Request, depois
-de observar quantos IDs de usuário MCS foram alocados (BlueKeep = fluxo
-normal de 1 usuário; MS12-020 = 2 Attach User Requests seguidas de um bind de
-canal cross-user, o comportamento real verificado pelo scanner
-`ms12_020_check`).
+**SMB1-Recon** — hoje só EternalBlue, mas a base (`families/smb.py`, `SMBFamilyDriver`) já foi extraída como tronco compartilhado (Negotiate → Session Setup → Tree Connect IPC$) para quando uma segunda CVE SMBv1 com scanner dedicado seguro for encontrada — nesse momento os dois dividiriam a porta 445 com resolução dinâmica de variante, do mesmo jeito que a família RDP-Recon já faz abaixo.
 
-Em ambos os casos, isso é o "attach" dinâmico ao driver certo assim que a
-família é reconhecida, sem exigir dois sockets na mesma porta. Ver
-`families/smb.py` e `families/rdp.py` para o mecanismo completo, e
-`drivers/README.md` para como registrar uma nova variante numa família
-existente (ou criar uma família nova).
+**RDP-Recon** — BlueKeep e MS12-020 compartilham X.224 Connection Request → Security Negotiation → MCS Connect Initial (`families/rdp.py`, `RDPFamilyDriver`) e **dividem a porta 3389**. Aqui o sinal de divergência não cabe num único pacote: só fica claro no primeiro Channel Join Request, depois de observar quantos IDs de usuário MCS foram alocados (BlueKeep = fluxo normal de 1 usuário; MS12-020 = 2 Attach User Requests seguidas de um bind de canal cross-user, o comportamento real verificado pelo scanner `ms12_020_check`).
+
+Em ambos os casos, isso é o "attach" dinâmico ao driver certo assim que a família é reconhecida, sem exigir dois sockets na mesma porta. Ver `families/smb.py` e `families/rdp.py` para o mecanismo completo, e `drivers/README.md` para como registrar uma nova variante numa família existente (ou criar uma família nova).
 
 ### Etapas do EternalBlue (SMB)
 
@@ -263,6 +249,7 @@ class MeuProtocoloDriver(HoneyPointDriver):
             default_port=9999,
             scanner_module="auxiliary/scanner/proto/cve_xxxx",
             scanner_tool="Metasploit Framework",
+            # family=None,  # opcional — informar somente se este driver compartilha porta com outros via FamilyDriver
             description="Simula servidor PROTO vulnerável",
             stages=[
                 StageDefinition(1, "Handshake", "Cliente inicia conexão", "PROTO"),
