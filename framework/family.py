@@ -35,6 +35,7 @@ import logging
 import socket
 import threading
 import time
+from builtins import NotImplementedError
 from typing import Optional
 
 from framework.base import HoneyPointDriver
