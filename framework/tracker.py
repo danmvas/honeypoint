@@ -185,9 +185,13 @@ class SCTracker:
         self._session.sc_score = self.get_sc()
         
         # Salva JSON
-        filename = f"sc_{self._session.session_id}.json"
-        filepath = os.path.join(LOG_DIR, filename)
-        
+        filename = os.path.basename(f"sc_{self._session.session_id}.json")
+        _safe_base = os.path.abspath(LOG_DIR)
+        _safe_path = os.path.abspath(os.path.join(_safe_base, filename))
+        if os.path.commonpath([_safe_base, _safe_path]) != _safe_base:
+            raise ValueError("Invalid log path")
+        filepath = _safe_path
+
         report_dict = asdict(self._session)
         
         with open(filepath, "w") as f:
