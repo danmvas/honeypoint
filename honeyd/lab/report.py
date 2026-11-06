@@ -2,7 +2,7 @@
 """
 report.py - turn a lab results directory into the comparison report.
 
-    python3 honeyd/lab/report.py honeyd/lab/results/main > REPORT.md
+    python3 honeyd/lab/report.py [--rescore] honeyd/lab/results/main > REPORT.md
 
 Per attack: SC_obs per (target, tool) cell, each run scored by its deepest TCP
 session (aggregate_sc.py --per-run), the scanner's own verdict, RUNBOOK s5
@@ -75,6 +75,15 @@ def iso(ts):
     return datetime.datetime.fromisoformat(ts).timestamp()
 
 
+RESCORE = False   # --rescore: score each stored pcap with the current sc_observer
+
+
+def _observer():
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "sc_toolkit"))
+    import sc_observer
+    return sc_observer
+
+
 def load_runs(root):
     runs = []
     for path in sorted(glob.glob(os.path.join(root, "*.json"))):
@@ -83,7 +92,11 @@ def load_runs(root):
         if not m:
             continue
         attack, target, tool, rep = m.group(1), m.group(2), m.group(3), int(m.group(4))
-        obs = json.load(open(path))
+        if RESCORE:
+            obs = _observer().analyse(os.path.join(root, tag + ".pcap"), attack,
+                                      None, target, tool)
+        else:
+            obs = json.load(open(path))
         best = max(obs, key=lambda r: r["completed_stages"]) if obs else None
         ints = []
         for f in sorted(glob.glob(os.path.join(root, tag + ".sc_int", "sc_*.json"))):
@@ -156,7 +169,10 @@ def int_sessions_by_port(decoy_log):
 
 
 def main():
-    root = sys.argv[1] if len(sys.argv) > 1 else "results/main"
+    global RESCORE
+    args = [a for a in sys.argv[1:] if a != "--rescore"]
+    RESCORE = len(args) != len(sys.argv) - 1
+    root = args[0] if args else "results/main"
     runs = load_runs(root)
     if not runs:
         raise SystemExit(f"no runs under {root}")
@@ -199,7 +215,9 @@ def main():
                     continue
                 names = collections.Counter(
                     " → ".join(e["name"] for e in r["best"]["events"]) or "(none)" for r in rr)
-                p(f"- {LABEL[t]} × {w}: " + "; ".join(f"{k} ×{c}" for k, c in names.most_common()))
+                beyond = sum(1 for r in rr if r["best"].get("activity_beyond_n"))
+                p(f"- {LABEL[t]} × {w}: " + "; ".join(f"{k} ×{c}" for k, c in names.most_common())
+                  + (f" (+ activity beyond N in {beyond} runs)" if beyond else ""))
 
         # RUNBOOK s5: SC_int vs SC_obs on T1
         xr = [r for r in ar if r["target"] == "XXX"]

@@ -274,6 +274,38 @@ def rdp_neg_response(rec):
     return rec[11] == 0x02 if len(rec) >= 12 else False
 
 
+def rdp_neg_request(rec):
+    """True if an X.224 Connection Request ends with an RDP_NEG_REQ (type 0x01)."""
+    return (rec is not None and len(rec) >= 19 and rec[-8] == 0x01
+            and rec[-6:-4] == b"\x08\x00")
+
+
+def client_static_channels(rec):
+    """Static virtual channel names from the CS_NET block of an MCS Connect
+    Initial, in the client's order; the server numbers them from 1004. The
+    client data blocks start right after the H.221 key "Duca"."""
+    k = rec.find(b"Duca")
+    if k < 0 or k + 6 > len(rec):
+        return []
+    pos = k + 4 + (2 if rec[k + 4] & 0x80 else 1)
+    names = []
+    try:
+        while pos + 4 <= len(rec):
+            btype, blen = struct.unpack("<HH", rec[pos:pos + 4])
+            if blen < 4:
+                break
+            if btype == 0xC003:
+                count = struct.unpack("<I", rec[pos + 4:pos + 8])[0]
+                for i in range(min(count, 31)):
+                    raw = rec[pos + 8 + 12 * i:pos + 16 + 12 * i]
+                    names.append(raw.split(b"\x00", 1)[0].decode("ascii", "replace"))
+                break
+            pos += blen
+    except (IndexError, struct.error):
+        pass
+    return names
+
+
 def mcs_offset(rec):
     off = 4
     if len(rec) > off + 1 and rec[off] == 0x02 and rec[off + 1] == 0xF0:
@@ -330,7 +362,7 @@ EPS = 1e-6
 
 ETERNALBLUE_STAGES = {1: "SMB Negotiate", 2: "Session Setup",
                       3: "Tree Connect IPC$", 4: "PeekNamedPipe",
-                      5: "Post-verdict Transaction"}
+                      5: "Vuln Check Response"}
 
 BLUEKEEP_STAGES = {1: "X.224 Connection Request", 2: "Security Negotiation",
                    3: "MCS Connect Initial", 4: "Channel Join",
@@ -338,7 +370,7 @@ BLUEKEEP_STAGES = {1: "X.224 Connection Request", 2: "Security Negotiation",
 
 MS12020_STAGES = {1: "X.224 Connection Request", 2: "Security Negotiation",
                   3: "MCS Connect Initial", 4: "Second Attach User",
-                  5: "Cross-User Channel Bind"}
+                  5: "Channel Join Check"}
 
 
 class Trace:
@@ -346,6 +378,7 @@ class Trace:
 
     def __init__(self, names):
         self.names, self.events, self.done = names, {}, set()
+        self.beyond = []          # activity after the verdict: reported, not scored
 
     def complete(self, n, t_req, t_rsp=None, **extra):
         if n in self.done:
@@ -356,8 +389,11 @@ class Trace:
         ev.update(extra)
         self.events[n] = ev
 
+    def note_beyond(self, ts, **extra):
+        self.beyond.append(dict({"t": ts}, **extra))
+
     def result(self):
-        return [self.events[n] for n in sorted(self.events)], self.done
+        return [self.events[n] for n in sorted(self.events)], self.done, self.beyond
 
 
 def _first(records, pred):
@@ -412,9 +448,12 @@ def score_eternalblue(cli, srv):
         if r is not None:
             tr.complete(3, t, r)
 
-    # stage 4 is the first PeekNamedPipe; stage 5 is any later transaction,
-    # which is what separates a scanner from a tool that continues past the
-    # verdict it came for.
+    # Decision 1, option (a): stages end at the verdict-bearing exchange.
+    # Stage 4 is the PeekNamedPipe probe answered by the server (any status);
+    # stage 5 is that answer carrying STATUS_INSUFF_SERVER_RESOURCES, the
+    # status a vulnerable host returns and the one the scanner reads as its
+    # verdict. A patched host answers stage 4 and stops there. Transactions
+    # after the verdict are activity beyond N: recorded, not scored.
     peeks = [(ts, rec) for ts, rec in cli
              if (smb_fields(rec) or {}).get("command") in TRANS
              and smb_trans_subcommand(rec) == 0x0023]
@@ -422,33 +461,35 @@ def score_eternalblue(cli, srv):
              if (smb_fields(rec) or {}).get("command") in TRANS]
     if peeks:
         t4 = peeks[0][0]
-        # Stage 4 is the verdict-bearing exchange. It counts only when the
-        # response carries STATUS_INSUFF_SERVER_RESOURCES, which is the status
-        # a vulnerable host returns and the one the scanner reads as
-        # confirmation. Any other answer means the deception did not land.
-        def verdict(rec):
-            f = smb_fields(rec)
-            return (bool(f) and f["command"] in TRANS
-                    and f["status"] == STATUS_INSUFF_SERVER_RESOURCES)
-
-        t_rsp, _ = _any_after(srv, verdict, t4)
+        t_rsp, rsp = _any_after(
+            srv, lambda rec: (smb_fields(rec) or {}).get("command") in TRANS, t4)
         if t_rsp is not None:
-            tr.complete(4, t4, t_rsp, verdict="STATUS_INSUFF_SERVER_RESOURCES")
-        later = [ts for ts, _ in trans if ts is not None and t4 is not None
-                 and ts > t4 + EPS]
-        if later and 4 in tr.done:
-            tr.complete(5, later[0], None, note="continued past the verdict")
+            status = smb_fields(rsp)["status"]
+            tr.complete(4, t4, t_rsp, status=f"0x{status:08x}")
+            if status == STATUS_INSUFF_SERVER_RESOURCES:
+                tr.complete(5, t4, t_rsp, verdict="STATUS_INSUFF_SERVER_RESOURCES")
+        for ts, rec in trans:
+            if ts is not None and ts > t4 + EPS and 5 in tr.done:
+                tr.note_beyond(ts, command=f"0x{smb_fields(rec)['command']:02x}",
+                               note="transaction after the verdict")
     return tr.result()
 
 
 def _rdp_trunk(cli, srv, tr):
     """Stages 1-3, shared by every driver of the RDP-Recon family."""
-    t_cr, _ = _first(cli, lambda rec: x224_type(rec) == 0xE0)
+    t_cr, cr = _first(cli, lambda rec: x224_type(rec) == 0xE0)
     t_cc, cc = _any_after(srv, lambda rec: x224_type(rec) == 0xD0, t_cr)
     if t_cr is not None and cc is not None:
         tr.complete(1, t_cr, t_cc)
+        # Stage 2 is the server's security-layer selection. A client that
+        # sent RDP_NEG_REQ gets it as an RDP_NEG_RSP; a legacy request (no
+        # RDP_NEG_REQ) leaves Standard RDP Security as the only choice, and a
+        # valid Connection Confirm is that selection - it is how Metasploit's
+        # rdp_check_protocol itself reads a legacy confirm (PROTOCOL_RDP).
         if rdp_neg_response(cc):
-            tr.complete(2, t_cr, t_cc)
+            tr.complete(2, t_cr, t_cc, negotiation="RDP_NEG_RSP")
+        elif not rdp_neg_request(cr) and len(cc) >= 11:
+            tr.complete(2, t_cr, t_cc, negotiation="legacy confirm")
     t_ci, _ = _first(cli, mcs_is_connect_initial)
     t_cp, cp = _any_after(srv, mcs_is_connect_response, t_ci)
     if t_ci is not None and cp is not None:
@@ -465,9 +506,23 @@ def score_bluekeep(cli, srv):
         _, channel = mcs_channel_join_fields(join)
         tr.complete(4, t_join, t_conf, channel_id=channel,
                     ms_t120_attempted=channel in (0, 31))
-    t_sd, sd = _first(cli, lambda rec: mcs_is(rec, (0x64, 0x68)))
-    if sd is not None and 4 in tr.done:
-        tr.complete(5, t_sd, None, payload_bytes=len(sd))
+    # Stage 5 (Decision 1, option a) is the verdict-bearing exchange: data on
+    # the channel the client declared as MS_T120, answered by an MCS
+    # Disconnect Provider Ultimatum (what a vulnerable host sends and what
+    # both Metasploit and rdpscan read as VULNERABLE). Before this rule, any
+    # client Send Data counted - including the Security Exchange PDU.
+    _t, ci = _first(cli, mcs_is_connect_initial)
+    names = client_static_channels(ci) if ci is not None else []
+    t120 = [1004 + i for i, n in enumerate(names) if n.upper() == "MS_T120"]
+    if t120 and 4 in tr.done:
+        def on_t120(rec):
+            off = mcs_offset(rec)
+            return (mcs_is(rec, (0x64,)) and
+                    rec[off + 3:off + 5] == struct.pack(">H", t120[0]))
+        t_sd, sd = _first(cli, on_t120)
+        t_dp, _ = _any_after(srv, lambda rec: (mcs_type(rec) or 0) >> 2 == 8, t_sd)
+        if sd is not None and t_dp is not None:
+            tr.complete(5, t_sd, t_dp, channel_id=t120[0], payload_bytes=len(sd))
     return tr.result()
 
 
@@ -481,14 +536,19 @@ def score_ms12_020(cli, srv):
     if len(confirms) >= 2:
         t_req = requests[1] if len(requests) >= 2 else requests[0] if requests else None
         tr.complete(4, t_req, confirms[1][0], attached_user_ids=list(attached))
+    # Stage 5 (Decision 1, option a) is the exchange ms12_020_check reads its
+    # verdict from: the first Channel Join after the second Attach User, and
+    # the server's Channel Join Confirm with result 0. Whether the initiator
+    # is an attached user is recorded, not required - the module derives it
+    # from bytes of the Connect Response and never sends a valid one.
     if 4 in tr.done:
-        for ts, rec in cli:
-            if not mcs_is(rec, (0x38, 0x3A)):
-                continue
-            initiator, channel = mcs_channel_join_fields(rec)
-            if initiator in attached and initiator != attached[-1]:
-                tr.complete(5, ts, None, initiator=initiator, channel_id=channel)
-                break
+        t_ac2 = confirms[1][0]
+        t_cj, cj = _any_after(cli, lambda rec: mcs_is(rec, (0x38, 0x3A)), t_ac2)
+        t_cf, cf = _any_after(srv, lambda rec: mcs_is(rec, (0x3E,)), t_cj)
+        if cj is not None and cf is not None and cf[mcs_offset(cf) + 1] == 0:
+            initiator, channel = mcs_channel_join_fields(cj)
+            tr.complete(5, t_cj, t_cf, initiator=initiator, channel_id=channel,
+                        cross_user=initiator in attached and initiator != attached[-1])
     return tr.result()
 
 
@@ -509,7 +569,7 @@ def analyse(pcap, attack, port=None, target=None, tool=None):
     for key, cli, srv, span in sessions(pcap, port):
         framer = spec["framer"]
         c_recs, s_recs = framer(*cli), framer(*srv)
-        trace, done = spec["scorer"](c_recs, s_recs)
+        trace, done, beyond = spec["scorer"](c_recs, s_recs)
         results.append({
             "target": target, "tool": tool, "attack": attack,
             "cve": spec["cve"], "client": f"{key[0]}:{key[1]}",
@@ -520,6 +580,7 @@ def analyse(pcap, attack, port=None, target=None, tool=None):
             "sc_obs": round(len(done) / spec["n"], 4),
             "records_seen": len(c_recs) + len(s_recs),
             "events": trace,
+            "activity_beyond_n": beyond,
         })
     return results
 
