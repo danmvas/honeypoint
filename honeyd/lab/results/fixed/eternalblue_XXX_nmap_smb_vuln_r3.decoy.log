@@ -1,0 +1,58 @@
+
+  Honeypoint Framework — Iniciando 3 driver(s)
+
+11:42:36 [root] INFO: Iniciando EternalBlue (CVE-2017-0144) na porta 445
+11:42:36 [root] INFO:   Scanner esperado: auxiliary/scanner/smb/smb_ms17_010
+11:42:36 [root] INFO:   Total de stages: 5
+11:42:36 [root] INFO: Iniciando BlueKeep (CVE-2019-0708) na porta 3389
+11:42:36 [root] INFO:   Scanner esperado: auxiliary/scanner/rdp/cve_2019_0708_bluekeep
+11:42:36 [root] INFO:   Total de stages: 5
+2026-11-06 11:42:36,641 [INFO] 🍯 Family Honeypoint escutando na porta 3389
+11:42:36 [honeypoint.family] INFO: 🍯 Family Honeypoint escutando na porta 3389
+11:42:36 [root] INFO: Iniciando MS12020 (CVE-2012-0002) na porta 3389
+11:42:36 [root] INFO:   Scanner esperado: auxiliary/scanner/rdp/ms12_020_check
+11:42:36 [root] INFO:   Total de stages: 5
+2026-11-06 11:42:36,641 [INFO] 🍯 Family Honeypoint escutando na porta 445
+11:42:36 [honeypoint.family] INFO: 🍯 Family Honeypoint escutando na porta 445
+2026-11-06 11:42:36,941 [INFO] 🍯 Variantes ativas na porta 3389: ['BlueKeep', 'MS12020']
+11:42:36 [honeypoint.family] INFO: 🍯 Variantes ativas na porta 3389: ['BlueKeep', 'MS12020']
+2026-11-06 11:42:36,941 [INFO] 🍯 Variantes ativas na porta 445: ['EternalBlue']
+11:42:36 [honeypoint.family] INFO: 🍯 Variantes ativas na porta 445: ['EternalBlue']
+2026-11-06 11:42:37,841 [INFO] 🎯 Nova conexão SMB: 10.0.0.9:50134
+11:42:37 [honeypoint.smb_family] INFO: 🎯 Nova conexão SMB: 10.0.0.9:50134
+2026-11-06 11:42:37,841 [INFO] 🔍 [10.0.0.9:50134] Dialect index: 0
+11:42:37 [honeypoint.smb_family] INFO: 🔍 [10.0.0.9:50134] Dialect index: 0
+2026-11-06 11:42:37,842 [INFO] 🕵️ [10.0.0.9:50134] Session Setup: OS='Native Lanman'
+11:42:37 [honeypoint.smb_family] INFO: 🕵️ [10.0.0.9:50134] Session Setup: OS='Native Lanman'
+2026-11-06 11:42:37,842 [INFO] 🌲 [10.0.0.9:50134] Tree Connect: \\10.0.0.40\IPC$
+11:42:37 [honeypoint.smb_family] INFO: 🌲 [10.0.0.9:50134] Tree Connect: \\10.0.0.40\IPC$
+11:42:37 [honeypoint.EternalBlue] INFO: Nova sessão: EternalBlue_20261106_114237_842843_dc7f3e de 10.0.0.9:50134
+11:42:37 [honeypoint.EternalBlue] INFO: [EternalBlue] Stage 1/5 (SMB Negotiate) completada — SC = 1/5
+11:42:37 [honeypoint.EternalBlue] INFO: [EternalBlue] Stage 2/5 (Session Setup) completada — SC = 2/5
+11:42:37 [honeypoint.EternalBlue] INFO: [EternalBlue] Stage 3/5 (Tree Connect IPC$) completada — SC = 3/5
+2026-11-06 11:42:37,842 [INFO] ➡️  [10.0.0.9:50134] Conexão resolvida para variante: EternalBlue
+11:42:37 [honeypoint.smb_family] INFO: ➡️  [10.0.0.9:50134] Conexão resolvida para variante: EternalBlue
+2026-11-06 11:42:37,842 [INFO] 🔍 [10.0.0.9:50134] SMB1 Command: TRANSACTION
+11:42:37 [honeypoint.eternalblue] INFO: 🔍 [10.0.0.9:50134] SMB1 Command: TRANSACTION
+11:42:37 [honeypoint.EternalBlue] INFO: [EternalBlue] Stage 4/5 (PeekNamedPipe) completada — SC = 4/5
+2026-11-06 11:42:37,843 [INFO] {"timestamp": "2026-11-06T11:42:37.843058+00:00", "event_type": "VULN_CHECK", "src_ip": "10.0.0.9", "src_port": 50134, "details": {"alert": "Scanner verificando vulnerabilidade MS17-010", "pipe_name": "\\PIPE\\", "subcommand": "PeekNamedPipe"}}
+11:42:37 [honeypoint.eternalblue.json] INFO: {"timestamp": "2026-11-06T11:42:37.843058+00:00", "event_type": "VULN_CHECK", "src_ip": "10.0.0.9", "src_port": 50134, "details": {"alert": "Scanner verificando vulnerabilidade MS17-010", "pipe_name": "\\PIPE\\", "subcommand": "PeekNamedPipe"}}
+2026-11-06 11:42:37,843 [WARNING] 🔍 [10.0.0.9:50134] VULN CHECK: Pipe=\PIPE\ SubCmd=PeekNamedPipe
+11:42:37 [honeypoint.eternalblue] WARNING: 🔍 [10.0.0.9:50134] VULN CHECK: Pipe=\PIPE\ SubCmd=PeekNamedPipe
+11:42:37 [honeypoint.EternalBlue] INFO: Sessão finalizada: SC = 4/5 (SUCESSO) → /logs/sc_EternalBlue_20261106_114237_842843_dc7f3e.json
+
+============================================================
+  EternalBlue (CVE-2017-0144) — SC = 4/5 (80%)
+============================================================
+  ✅ Stage 1: SMB Negotiate
+  ✅ Stage 2: Session Setup
+  ✅ Stage 3: Tree Connect IPC$
+  ✅ Stage 4: PeekNamedPipe
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 11:42:37,843 [INFO] 🔒 [10.0.0.9:50134] Encerrada (4 interações)
+11:42:37 [honeypoint.smb_family] INFO: 🔒 [10.0.0.9:50134] Encerrada (4 interações)
+
+
+Parando todos os drivers...

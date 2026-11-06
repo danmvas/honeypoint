@@ -1,0 +1,105 @@
+done ms12_020_Honeyd_msf_ms12_020_r1
+done ms12_020_XXX_msf_ms12_020_r1
+done ms12_020_Inert_msf_ms12_020_r1
+done ms12_020_Honeyd_msf_ms12_020_r2
+done ms12_020_XXX_msf_ms12_020_r2
+done ms12_020_Inert_msf_ms12_020_r2
+done ms12_020_Honeyd_msf_ms12_020_r3
+done ms12_020_XXX_msf_ms12_020_r3
+done ms12_020_Inert_msf_ms12_020_r3
+done ms12_020_Honeyd_msf_ms12_020_r4
+done ms12_020_XXX_msf_ms12_020_r4
+done ms12_020_Inert_msf_ms12_020_r4
+done ms12_020_Honeyd_msf_ms12_020_r5
+done ms12_020_XXX_msf_ms12_020_r5
+done ms12_020_Inert_msf_ms12_020_r5
+done ms12_020_Honeyd_msf_ms12_020_r6
+done ms12_020_XXX_msf_ms12_020_r6
+done ms12_020_Inert_msf_ms12_020_r6
+done ms12_020_Honeyd_msf_ms12_020_r7
+done ms12_020_XXX_msf_ms12_020_r7
+done ms12_020_Inert_msf_ms12_020_r7
+done ms12_020_Honeyd_msf_ms12_020_r8
+done ms12_020_XXX_msf_ms12_020_r8
+done ms12_020_Inert_msf_ms12_020_r8
+done ms12_020_Honeyd_msf_ms12_020_r9
+done ms12_020_XXX_msf_ms12_020_r9
+done ms12_020_Inert_msf_ms12_020_r9
+done ms12_020_Honeyd_msf_ms12_020_r10
+done ms12_020_XXX_msf_ms12_020_r10
+done ms12_020_Inert_msf_ms12_020_r10
+done ms12_020_Honeyd_msf_ms12_020_r11
+done ms12_020_XXX_msf_ms12_020_r11
+done ms12_020_Inert_msf_ms12_020_r11
+done ms12_020_Honeyd_msf_ms12_020_r12
+done ms12_020_XXX_msf_ms12_020_r12
+done ms12_020_Inert_msf_ms12_020_r12
+done ms12_020_Honeyd_msf_ms12_020_r13
+done ms12_020_XXX_msf_ms12_020_r13
+done ms12_020_Inert_msf_ms12_020_r13
+done ms12_020_Honeyd_msf_ms12_020_r14
+done ms12_020_XXX_msf_ms12_020_r14
+done ms12_020_Inert_msf_ms12_020_r14
+done ms12_020_Honeyd_msf_ms12_020_r15
+done ms12_020_XXX_msf_ms12_020_r15
+done ms12_020_Inert_msf_ms12_020_r15
+done ms12_020_Honeyd_msf_ms12_020_r16
+done ms12_020_XXX_msf_ms12_020_r16
+done ms12_020_Inert_msf_ms12_020_r16
+done ms12_020_Honeyd_msf_ms12_020_r17
+done ms12_020_XXX_msf_ms12_020_r17
+done ms12_020_Inert_msf_ms12_020_r17
+done ms12_020_Honeyd_msf_ms12_020_r18
+done ms12_020_XXX_msf_ms12_020_r18
+done ms12_020_Inert_msf_ms12_020_r18
+done ms12_020_Honeyd_msf_ms12_020_r19
+done ms12_020_XXX_msf_ms12_020_r19
+done ms12_020_Inert_msf_ms12_020_r19
+done ms12_020_Honeyd_msf_ms12_020_r20
+done ms12_020_XXX_msf_ms12_020_r20
+done ms12_020_Inert_msf_ms12_020_r20
+done ms12_020_Honeyd_msf_ms12_020_r21
+done ms12_020_XXX_msf_ms12_020_r21
+done ms12_020_Inert_msf_ms12_020_r21
+done ms12_020_Honeyd_msf_ms12_020_r22
+done ms12_020_XXX_msf_ms12_020_r22
+done ms12_020_Inert_msf_ms12_020_r22
+done ms12_020_Honeyd_msf_ms12_020_r23
+done ms12_020_XXX_msf_ms12_020_r23
+done ms12_020_Inert_msf_ms12_020_r23
+done ms12_020_Honeyd_msf_ms12_020_r24
+done ms12_020_XXX_msf_ms12_020_r24
+done ms12_020_Inert_msf_ms12_020_r24
+done ms12_020_Honeyd_msf_ms12_020_r25
+done ms12_020_XXX_msf_ms12_020_r25
+done ms12_020_Inert_msf_ms12_020_r25
+done ms12_020_Honeyd_msf_ms12_020_r26
+done ms12_020_XXX_msf_ms12_020_r26
+done ms12_020_Inert_msf_ms12_020_r26
+done ms12_020_Honeyd_msf_ms12_020_r27
+done ms12_020_XXX_msf_ms12_020_r27
+done ms12_020_Inert_msf_ms12_020_r27
+done ms12_020_Honeyd_msf_ms12_020_r28
+done ms12_020_XXX_msf_ms12_020_r28
+done ms12_020_Inert_msf_ms12_020_r28
+done ms12_020_Honeyd_msf_ms12_020_r29
+done ms12_020_XXX_msf_ms12_020_r29
+done ms12_020_Inert_msf_ms12_020_r29
+done ms12_020_Honeyd_msf_ms12_020_r30
+done ms12_020_XXX_msf_ms12_020_r30
+done ms12_020_Inert_msf_ms12_020_r30
+
+attack: ms12_020   sessions: 90
+
+target                                      msf_ms12_020
+--------------------------------------------------------
+Honeyd                                        0/5 (R=30)
+Inert                                         0/5 (R=30)
+XXX                                           3/5 (R=30)
+
+every cell was deterministic across its runs
+
+% --- table rows; paste into 5-Evaluation.tex ---
+Honeyd & 0/5 \\
+Inert & 0/5 \\
+XXX & 3/5 \\

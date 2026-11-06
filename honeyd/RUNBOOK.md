@@ -337,3 +337,9 @@ How the lab maps onto this runbook:
 s6, updated: a real scanner has now driven the observer (Metasploit, Nmap,
 rdpscan), real tcpdump captures were parsed (630 runs), and Honeyd itself ran.
 Still not done: anything against a real Windows host.
+
+Re-run after the framework fixes (framework commit `b02681d`, 2026-11-06):
+`honeyd/lab/results/fixed/`. Both BlueKeep scanners now report T1 VULNERABLE
+in 30/30 runs, and every cell is deterministic. What is still open (the
+stage-2 rule on legacy requests, the MS12-020 verdict race, T3/T4) is in the
+"Update" section of `honeyd/lab/FINDINGS.md`.

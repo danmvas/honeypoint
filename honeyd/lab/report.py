@@ -140,7 +140,7 @@ def int_sessions_by_port(decoy_log):
     for line in lines:
         if not CONSOLE.match(line):
             continue
-        m = re.search(r"\[(\w+)\] Stage (\d+)/\d+ \(", line)
+        m = re.search(r"\[([\w-]+)\] Stage (\d+)/\d+ \(", line)
         if m:
             driver = m.group(1); pending.add(int(m.group(2)))
             continue

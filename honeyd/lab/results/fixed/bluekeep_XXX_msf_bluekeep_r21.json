@@ -1,0 +1,90 @@
+[
+  {
+    "target": "XXX",
+    "tool": "msf_bluekeep",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:45389",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793968961.718004,
+    "end_time": 1793968961.74295,
+    "total_stages": 5,
+    "completed_stages": 2,
+    "stages_completed": [
+      1,
+      2
+    ],
+    "sc_obs": 0.4,
+    "records_seen": 2,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793968961.742646,
+        "t_response": 1793968961.742851
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793968961.742646,
+        "t_response": 1793968961.742851
+      }
+    ]
+  },
+  {
+    "target": "XXX",
+    "tool": "msf_bluekeep",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:46269",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793968961.743186,
+    "end_time": 1793968966.808872,
+    "total_stages": 5,
+    "completed_stages": 5,
+    "stages_completed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "sc_obs": 1.0,
+    "records_seen": 39,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793968961.743759,
+        "t_response": 1793968961.743872
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793968961.743759,
+        "t_response": 1793968961.743872
+      },
+      {
+        "stage": 3,
+        "name": "MCS Connect Initial",
+        "t_request": 1793968961.744025,
+        "t_response": 1793968961.744649
+      },
+      {
+        "stage": 4,
+        "name": "Channel Join",
+        "t_request": 1793968961.745108,
+        "t_response": 1793968961.74534,
+        "channel_id": 1009,
+        "ms_t120_attempted": false
+      },
+      {
+        "stage": 5,
+        "name": "Exploit PDU",
+        "t_request": 1793968961.796774,
+        "t_response": null,
+        "payload_bytes": 95
+      }
+    ]
+  }
+]
