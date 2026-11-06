@@ -143,6 +143,18 @@ class PortListener:
     def effective_default_variant(self) -> FamilyDriver:
         return self.default_variant or self.variants[0]
 
+    def unresolved_tracker(self) -> SCTracker:
+        """Tracker (um por conexão) para uma conexão encerrada antes de
+        qualquer variante poder ser distinguida: só o tronco da família foi
+        exercitado, então o registro vai para a família, não para a
+        variante default — que nunca foi de fato acionada."""
+        metas = [v.get_metadata() for v in self.variants]
+        fam = next((m.family for m in metas if m.family), "") or f"port-{self.port}"
+        return SCTracker(
+            driver_name=fam, cve="unresolved", cve_alias=f"{fam} (unresolved)",
+            protocol=metas[0].protocol if metas else "",
+            total_stages=max((m.total_stages for m in metas), default=0))
+
     def wait_until_stopped(self) -> None:
         self._stopped_event.wait()
 

@@ -504,13 +504,14 @@ class SMBConnectionHandler:
         self.tracker: Optional[SCTracker] = None
         self._pending_stages: list[tuple[int, str, dict]] = []
         self._resolved: Optional[SMBFamilyDriver] = None
+        self._rxbuf = b""
 
     def handle(self) -> None:
         logger.info(f"🎯 Nova conexão SMB: {self.ip}:{self.port}")
         try:
             self.sock.settimeout(30)
             while True:
-                data = self.sock.recv(4096)
+                data = self._recv_msg()
                 if not data:
                     break
                 self.interaction_count += 1
@@ -529,6 +530,32 @@ class SMBConnectionHandler:
             self.sock.close()
             self._finalize()
             logger.info(f"🔒 [{self.ip}:{self.port}] Encerrada ({self.interaction_count} interações)")
+
+    def _recv_msg(self) -> Optional[bytes]:
+        """Exatamente uma mensagem NetBIOS (cabeçalho de 4 bytes + o
+        comprimento de 24 bits que ele declara), como quer que o TCP a tenha
+        cortado ou juntado. Antes, cada recv(4096) era tratado como uma
+        mensagem: duas mensagens no mesmo recv() perdiam a segunda, e uma
+        mensagem maior que 4 KiB era truncada. Os scanners SMB1 testados
+        esperam cada resposta antes do próximo pedido, por isso isso nunca
+        apareceu — mas nada garante. Exceções de socket sobem para handle().
+        """
+        buf = self._rxbuf
+        while True:
+            if buf and buf[0] not in (0x00, 0x81, 0x82, 0x83, 0x84, 0x85):
+                # não é NetBIOS (ex.: uma sonda HTTP): devolve como chegou, e
+                # _process() encerra a conexão como antes
+                self._rxbuf = b""
+                return buf
+            if len(buf) >= 4:
+                n = 4 + int.from_bytes(buf[1:4], "big")
+                if len(buf) >= n:
+                    self._rxbuf = buf[n:]
+                    return buf[:n]
+            chunk = self.sock.recv(65536)
+            if not chunk:
+                return None
+            buf += chunk
 
     def _process(self, data: bytes) -> Optional[bytes]:
         if len(data) < 8:
@@ -584,8 +611,10 @@ class SMBConnectionHandler:
         else:
             parsed = self._parse_for_variant(command, data)
             self._resolved = self._resolve_variant(command, parsed)
-            self.tracker = self._resolved._tracker
-            self.tracker.new_session(source_ip=self.ip)
+            # Um tracker por conexão: o tracker do driver é compartilhado por
+            # todas as conexões, e new_session() de uma zeraria a outra.
+            self.tracker = self._resolved._tracker.fork()
+            self.tracker.new_session(source_ip=self.ip, source_port=self.port)
             for n, name, d in self._pending_stages:
                 self.tracker.complete_stage(n, name, source_ip=self.ip, data=d)
             logger.info(f"➡️  [{self.ip}:{self.port}] Conexão resolvida para variante: "
@@ -596,9 +625,10 @@ class SMBConnectionHandler:
         if self._resolved is not None:
             tracker = self.tracker
         elif self._pending_stages:
-            variant = self.listener.effective_default_variant()
-            tracker = variant._tracker
-            tracker.new_session(source_ip=self.ip)
+            # Encerrada antes de qualquer variante poder ser distinguida: o
+            # registro vai para a família (tronco), não para a variante default.
+            tracker = self.listener.unresolved_tracker()
+            tracker.new_session(source_ip=self.ip, source_port=self.port)
             for n, name, d in self._pending_stages:
                 tracker.complete_stage(n, name, source_ip=self.ip, data=d)
         else:

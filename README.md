@@ -79,7 +79,7 @@ Famílias são opcionais. Um driver pode herdar diretamente de `HoneyPointDriver
 
 **SMB1-Recon** — hoje só EternalBlue, mas a base (`families/smb.py`, `SMBFamilyDriver`) já foi extraída como tronco compartilhado (Negotiate → Session Setup → Tree Connect IPC$) para quando uma segunda CVE SMBv1 com scanner dedicado seguro for encontrada — nesse momento os dois dividiriam a porta 445 com resolução dinâmica de variante, do mesmo jeito que a família RDP-Recon já faz abaixo.
 
-**RDP-Recon** — BlueKeep e MS12-020 compartilham X.224 Connection Request → Security Negotiation → MCS Connect Initial (`families/rdp.py`, `RDPFamilyDriver`) e **dividem a porta 3389**. Aqui o sinal de divergência não cabe num único pacote: só fica claro no primeiro Channel Join Request, depois de observar quantos IDs de usuário MCS foram alocados (BlueKeep = fluxo normal de 1 usuário; MS12-020 = 2 Attach User Requests seguidas de um bind de canal cross-user, o comportamento real verificado pelo scanner `ms12_020_check`).
+**RDP-Recon** — BlueKeep e MS12-020 compartilham X.224 Connection Request → Security Negotiation → MCS Connect Initial (`families/rdp.py`, `RDPFamilyDriver`) e **dividem a porta 3389**. Aqui o sinal de divergência não cabe num único pacote: o MS12-020 se revela no 2º Attach User Request (seguido de um bind de canal cross-user, o comportamento verificado pelo scanner `ms12_020_check`); o BlueKeep é o fluxo normal de 1 usuário e assume no primeiro Channel Join que nenhuma outra variante reconheça. Conexões que terminam antes disso são registradas sob a família (`RDP-Recon`).
 
 Em ambos os casos, isso é o "attach" dinâmico ao driver certo assim que a família é reconhecida, sem exigir dois sockets na mesma porta. Ver `families/smb.py` e `families/rdp.py` para o mecanismo completo, e `drivers/README.md` para como registrar uma nova variante numa família existente (ou criar uma família nova).
 
@@ -101,7 +101,7 @@ O sinal comportamental que distingue reconhecimento automatizado de tráfego leg
 |-------|------|--------------|
 | B1-B3 | (compartilhadas com MS12-020) | X.224 Connection Request (cookie, protocolos suportados), Security Negotiation (ausência de NLA), MCS Connect Initial (hostname, resolução, teclado, timezone) |
 | B4 | Channel Join | Canais virtuais solicitados |
-| B5 | Exploit PDU | Tentativa de bind no canal 0x1F/0 (MS_T120) seguida de payload de exploit (MCS Send Data) |
+| B5 | Exploit PDU | Dados no canal virtual MS_T120 (sonda do scanner ou payload), depois da sequência de conexão completa; o decoy responde MCS Disconnect Provider Ultimatum, como um alvo vulnerável |
 
 ### Etapas do MS12-020 (RDP)
 
