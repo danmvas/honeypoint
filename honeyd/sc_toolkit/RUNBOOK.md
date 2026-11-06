@@ -26,16 +26,16 @@ honeyd --version 2>&1 | head -1
 
 Give each target its own IP so a single capture can be filtered per target.
 
-### T1 — your honeypoint
+### T1 — STAGED
 
 ```bash
 cd /path/to/honeypoint
 sudo systemctl stop smbd nmbd xrdp          # free 445 and 3389
-sudo HONEYPOINT_LOG_DIR=/var/log/honeypoint python3 -m framework.launcher
+sudo STAGED_LOG_DIR=/var/log/staged python3 -m framework.launcher
 ```
 
 Both RDP variants bind 3389 together, so the dispatch is exercised by the same
-runs. Keep `/var/log/honeypoint/sc_*.json` — those are your `SC_int` values.
+runs. Keep `/var/log/staged/sc_*.json` — those are your `SC_int` values.
 
 ### T2 — Honeyd
 
@@ -122,12 +122,12 @@ goes in the paper as "Honeyd".
 #### What this already produced here
 
 Running the stock script behind the wrapper, with the same probe and the same
-observer used against the honeypoint:
+observer used against STAGED:
 
 | Target | `SC_obs` | Stages reached |
 |---|---|---|
 | Honeyd, stock `smb-autofail` | **2/5** | SMB Negotiate, Session Setup |
-| Honeypoint EternalBlue driver | **5/5** | all five (`SC_int` agreed) |
+| STAGED EternalBlue driver | **5/5** | all five (`SC_int` agreed) |
 
 Honeyd stops at stage 3 because its stock script denies the IPC$ tree connect,
 so the scanner never issues the named-pipe probe that carries the verdict. Note
@@ -219,15 +219,15 @@ mean, and it is what you should expect from deterministic scanners.
 
 ## 5. The third result: SC_int against SC_obs
 
-For each honeypoint session, match the driver's own record to the observer's by
+For each STAGED session, match the driver's own record to the observer's by
 source port and compare:
 
 ```bash
 python3 - <<'EOF'
 import json, glob
 obs = {(r["client"].split(":")[1]): r for f in glob.glob("results/*.json")
-       for r in json.load(open(f)) if r["target"].startswith("XXX")}
-for f in sorted(glob.glob("/var/log/honeypoint/sc_*.json")):
+       for r in json.load(open(f)) if r["target"].startswith("STAGED")}
+for f in sorted(glob.glob("/var/log/staged/sc_*.json")):
     j = json.load(open(f))
     port = str(j["events"][0]["source_port"]) if j["events"] else None
     o = obs.get(port)
@@ -313,7 +313,7 @@ How the lab maps onto this runbook:
   (s0/s7). The addresses are those of s1. The scanner (Metasploit, Nmap,
   rdpscan, tcpdump) is a container at 10.0.0.9.
 - **Targets.** T1 runs this repository read-only in `python:3.14-slim`; its
-  `logs/` and `HONEYPOINT_LOG_DIR` are bind-mounted out. T2 is the Honeyd image
+  `logs/` and `STAGED_LOG_DIR` are bind-mounted out. T2 is the Honeyd image
   (stock `smb-autofail` on 445; 3389 resets, since there is no stock RDP script).
   T5 is the s1 snippet verbatim. **T3/T4 were not run**: there is no
   hypervisor or Windows image on that machine.

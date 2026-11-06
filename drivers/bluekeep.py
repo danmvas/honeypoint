@@ -2,7 +2,7 @@
 """
 Driver: BlueKeep (CVE-2019-0708)
 =================================
-Honeypoint que simula um servidor RDP vulnerável ao BlueKeep,
+Decoy que simula um servidor RDP vulnerável ao BlueKeep,
 enganando o scanner Metasploit auxiliary/scanner/rdp/cve_2019_0708_bluekeep.
 
 Reusa as stages 1-3 (X.224 CR, Security Negotiation, MCS Connect
@@ -41,7 +41,7 @@ from drivers._common.logging_utils import setup_driver_logging
 LOG_DIR = "./logs/bluekeep"
 logger, json_logger, log_ev = setup_driver_logging(
     "bluekeep", LOG_DIR,
-    log_filename="bluekeep_honeypoint.log",
+    log_filename="bluekeep_staged.log",
     events_filename="bluekeep_events.jsonl")
 
 

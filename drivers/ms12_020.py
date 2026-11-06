@@ -2,7 +2,7 @@
 """
 Driver: MS12-020 (CVE-2012-0002)
 ==================================
-Honeypoint que simula um servidor RDP vulnerável ao MS12-020 (Microsoft
+Decoy que simula um servidor RDP vulnerável ao MS12-020 (Microsoft
 Remote Desktop Use-After-Free DoS), enganando o scanner Metasploit
 auxiliary/scanner/rdp/ms12_020_check.
 

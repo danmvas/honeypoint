@@ -1,10 +1,10 @@
-# Honeypoint Framework
+# STAGED — STage-Aware Generic Extensible Decoys
 
 Framework genérico e extensível para defesa por deception contra reconhecimento multi-estágio.
 
-Desenvolvido como parte da dissertação de mestrado no PPGInf/UFPR. O framework provê a infraestrutura para criar, executar e avaliar **honeypoints** — serviços falsos que simulam vulnerabilidades conhecidas para enganar scanners de reconhecimento e capturar seu comportamento.
+Desenvolvido como parte da dissertação de mestrado no PPGInf/UFPR. O framework provê a infraestrutura para criar, executar e avaliar **decoys** — serviços falsos que simulam vulnerabilidades conhecidas para enganar scanners de reconhecimento e capturar seu comportamento.
 
-A arquitetura tem duas camadas obrigatórias e uma opcional: o core do framework é genérico (tracking de estágios, logging, métricas, launcher); cada CVE específica é implementada como um driver fino que herda diretamente de `HoneyPointDriver`; e famílias de protocolo (`families/`) são uma camada *opcional* — concentram o tronco de reconhecimento compartilhado por várias CVEs do mesmo protocolo e permitem que múltiplos drivers compartilhem a mesma porta com dispatch dinâmico. Novas famílias e drivers podem ser adicionados sem modificar o framework.
+A arquitetura tem duas camadas obrigatórias e uma opcional: o core do framework é genérico (tracking de estágios, logging, métricas, launcher); cada CVE específica é implementada como um driver fino que herda diretamente de `StagedDriver`; e famílias de protocolo (`families/`) são uma camada *opcional* — concentram o tronco de reconhecimento compartilhado por várias CVEs do mesmo protocolo e permitem que múltiplos drivers compartilhem a mesma porta com dispatch dinâmico. Novas famílias e drivers podem ser adicionados sem modificar o framework.
 
 ---
 
@@ -13,7 +13,7 @@ A arquitetura tem duas camadas obrigatórias e uma opcional: o core do framework
 ```
 framework/                 ← Core genérico (não sabe de protocolos)
 ├── __init__.py
-├── base.py                ← HoneyPointDriver: classe base abstrata (contrato do driver)
+├── base.py                ← StagedDriver: classe base abstrata (contrato do driver)
 ├── family.py              ← FamilyDriver + PortListener: orquestração genérica de múltiplas variantes por porta
 ├── tracker.py             ← SCTracker: tracking de stages + cálculo de SC + logs JSON
 └── launcher.py            ← Discovery automático de drivers + execução em threads
@@ -31,7 +31,7 @@ drivers/                   ← CVE específica (arquivo fino, só a divergência
 └── README.md               ← Como criar um novo driver
 ```
 
-![Arquitetura do Honeypoint Framework](framework_architecture.svg)
+![Arquitetura do STAGED](framework_architecture.svg)
 
 A analogia é com IDS como Snort/Suricata: o motor é genérico, a comunidade cria as assinaturas. Aqui, o framework provê o motor de deception, `families/` provê os "decoders" de protocolo compartilhados entre assinaturas relacionadas, e o usuário implementa drivers finos para as CVEs que deseja simular.
 
@@ -39,7 +39,7 @@ A analogia é com IDS como Snort/Suricata: o motor é genérico, a comunidade cr
 
 ## Stage Coverage (SC)
 
-**Stage Coverage** é a métrica central do framework. Ela mede quantas etapas do protocolo de reconhecimento um scanner consegue completar contra o honeypoint:
+**Stage Coverage** é a métrica central do framework. Ela mede quantas etapas do protocolo de reconhecimento um scanner consegue completar contra o decoy:
 
 ```
 SC = etapas completadas / total de etapas (N)
@@ -75,7 +75,7 @@ Três drivers de referência são incluídos, formando uma família completa (RD
 
 ### Famílias de driver e dispatch dinâmico
 
-Famílias são opcionais. Um driver pode herdar diretamente de `HoneyPointDriver` e rodar de forma standalone — sem família, sem compartilhamento de porta. Famílias só são necessárias quando dois ou mais drivers precisam escutar na mesma porta com dispatch dinâmico de variante.
+Famílias são opcionais. Um driver pode herdar diretamente de `StagedDriver` e rodar de forma standalone — sem família, sem compartilhamento de porta. Famílias só são necessárias quando dois ou mais drivers precisam escutar na mesma porta com dispatch dinâmico de variante.
 
 **SMB1-Recon** — hoje só EternalBlue, mas a base (`families/smb.py`, `SMBFamilyDriver`) já foi extraída como tronco compartilhado (Negotiate → Session Setup → Tree Connect IPC$) para quando uma segunda CVE SMBv1 com scanner dedicado seguro for encontrada — nesse momento os dois dividiriam a porta 445 com resolução dinâmica de variante, do mesmo jeito que a família RDP-Recon já faz abaixo.
 
@@ -133,7 +133,7 @@ python3 -m framework.launcher --list
 Saída esperada:
 
 ```
-  Honeypoint Framework — Drivers Disponíveis
+  STAGED — Drivers Disponíveis
   Nome                 CVE                Protocolo  Porta    Stages   Família
   ────────────────────────────────────────────────────────────────────────────────
   BlueKeep             CVE-2019-0708      RDP        3389     5        RDP-Recon
@@ -168,7 +168,7 @@ sudo systemctl stop xrdp        # libera porta 3389 (xrdp)
 
 ## Como testar
 
-> **IMPORTANTE:** `nmap -p 445,3389 <IP>` é um scan de porta simples — verifica apenas se o TCP está aberto. Não envia dados de protocolo, então o honeypoint não consegue progredir além da conexão TCP. Para gerar Stage Coverage, é necessário usar ferramentas que **falam o protocolo**.
+> **IMPORTANTE:** `nmap -p 445,3389 <IP>` é um scan de porta simples — verifica apenas se o TCP está aberto. Não envia dados de protocolo, então o decoy não consegue progredir além da conexão TCP. Para gerar Stage Coverage, é necessário usar ferramentas que **falam o protocolo**.
 
 ### Testar EternalBlue
 
@@ -216,17 +216,17 @@ msfconsole -x 'use auxiliary/scanner/rdp/cve_2019_0708_bluekeep; set RHOSTS 127.
 
 ```bash
 # Logs em tempo real
-tail -f ./logs/eternalblue/honeypoint.log
-tail -f ./logs/bluekeep/bluekeep_honeypoint.log
+tail -f ./logs/eternalblue/staged.log
+tail -f ./logs/bluekeep/bluekeep_staged.log
 
 # Eventos JSON estruturados (um por sessão)
-ls /var/log/honeypoint/sc_*.json
+ls /var/log/staged/sc_*.json
 
 # Relatório agregado de todas as sessões
 python3 -m framework.launcher --report
 ```
 
-Cada sessão de scanning gera um arquivo JSON em `/var/log/honeypoint/` com timestamps, dados capturados por etapa, ferramenta identificada e SC final.
+Cada sessão de scanning gera um arquivo JSON em `/var/log/staged/` com timestamps, dados capturados por etapa, ferramenta identificada e SC final.
 
 ---
 
@@ -236,9 +236,9 @@ Para adicionar suporte a um novo protocolo ou CVE, crie um arquivo em `drivers/`
 
 ```python
 # drivers/meu_protocolo.py
-from framework import HoneyPointDriver, DriverMetadata, StageDefinition, SCTracker
+from framework import StagedDriver, DriverMetadata, StageDefinition, SCTracker
 
-class MeuProtocoloDriver(HoneyPointDriver):
+class MeuProtocoloDriver(StagedDriver):
 
     def get_metadata(self) -> DriverMetadata:
         return DriverMetadata(

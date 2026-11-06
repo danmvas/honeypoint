@@ -20,15 +20,15 @@ SC_obs per run (deepest TCP session of the run); verdict = the tool's own output
 
 | target | msf_exploit | msf_smb_ms17_010 | nmap_smb_vuln |
 |---|---|---|---|
-| T1 honeypoint | 5/5 (R=30)<br>*VULNERABLE ×30* | 5/5 (R=30)<br>*VULNERABLE ×30* | 5/5 (R=30)<br>*VULNERABLE ×30* |
+| T1 STAGED | 5/5 (R=30)<br>*VULNERABLE ×30* | 5/5 (R=30)<br>*VULNERABLE ×30* | 5/5 (R=30)<br>*VULNERABLE ×30* |
 | T2 Honeyd | 2/5 (R=30)<br>*UNKNOWN ×30* | 2/5 (R=30)<br>*error: ACCESS_DENIED (tree connect) ×30* | 1/5 (R=30)<br>*no script result ×30* |
 | T5 inert | 0/5 (R=30)<br>*UNKNOWN ×30* | 0/5 (R=30)<br>*error: no IPC$ tree ×30* | 0/5 (R=30)<br>*no script result ×30* |
 
 Stages reached (observer), per cell:
 
-- T1 honeypoint × msf_exploit: SMB Negotiate → Session Setup → Tree Connect IPC$ → PeekNamedPipe → Vuln Check Response ×30 (+ activity beyond N in 30 runs)
-- T1 honeypoint × msf_smb_ms17_010: SMB Negotiate → Session Setup → Tree Connect IPC$ → PeekNamedPipe → Vuln Check Response ×30 (+ activity beyond N in 30 runs)
-- T1 honeypoint × nmap_smb_vuln: SMB Negotiate → Session Setup → Tree Connect IPC$ → PeekNamedPipe → Vuln Check Response ×30
+- T1 STAGED × msf_exploit: SMB Negotiate → Session Setup → Tree Connect IPC$ → PeekNamedPipe → Vuln Check Response ×30 (+ activity beyond N in 30 runs)
+- T1 STAGED × msf_smb_ms17_010: SMB Negotiate → Session Setup → Tree Connect IPC$ → PeekNamedPipe → Vuln Check Response ×30 (+ activity beyond N in 30 runs)
+- T1 STAGED × nmap_smb_vuln: SMB Negotiate → Session Setup → Tree Connect IPC$ → PeekNamedPipe → Vuln Check Response ×30
 - T2 Honeyd × msf_exploit: SMB Negotiate → Session Setup ×30
 - T2 Honeyd × msf_smb_ms17_010: SMB Negotiate → Session Setup ×30
 - T2 Honeyd × nmap_smb_vuln: SMB Negotiate ×30
@@ -55,7 +55,7 @@ SC_int records overwritten (two sessions, same one-second session id): 0
 
 | target | memory.peak | CPU time |
 |---|---|---|
-| T1 honeypoint | 17.8 MiB | 214 ms |
+| T1 STAGED | 17.8 MiB | 214 ms |
 | T2 Honeyd | 14.5 MiB | 61 ms |
 | T5 inert | 5.7 MiB | 24 ms |
 
@@ -65,15 +65,15 @@ SC_obs per run (deepest TCP session of the run); verdict = the tool's own output
 
 | target | msf_bluekeep | nmap_rdp_enum | rdpscan |
 |---|---|---|---|
-| T1 honeypoint | 5/5 (R=30)<br>*VULNERABLE ×30* | 3/5 (R=30)<br>*enumerated ×30* | 5/5 (R=30)<br>*VULNERABLE - got appid ×30* |
+| T1 STAGED | 5/5 (R=30)<br>*VULNERABLE ×30* | 3/5 (R=30)<br>*enumerated ×30* | 5/5 (R=30)<br>*VULNERABLE - got appid ×30* |
 | T2 Honeyd | 0/5 (R=30)<br>*not reported vulnerable ×30* | 0/5 (R=30)<br>*port closed ×30* | 0/5 (R=30)<br>*UNKNOWN - no connection - refused (RST) ×30* |
 | T5 inert | 0/5 (R=30)<br>*not reported vulnerable ×30* | 0/5 (R=30)<br>*unhandled packet ×30* | 0/5 (R=30)<br>*UNKNOWN - RDP protocol error - receive timeout ×30* |
 
 Stages reached (observer), per cell:
 
-- T1 honeypoint × msf_bluekeep: X.224 Connection Request → Security Negotiation → MCS Connect Initial → Channel Join → Exploit PDU ×30
-- T1 honeypoint × nmap_rdp_enum: X.224 Connection Request → Security Negotiation → MCS Connect Initial ×30
-- T1 honeypoint × rdpscan: X.224 Connection Request → Security Negotiation → MCS Connect Initial → Channel Join → Exploit PDU ×30
+- T1 STAGED × msf_bluekeep: X.224 Connection Request → Security Negotiation → MCS Connect Initial → Channel Join → Exploit PDU ×30
+- T1 STAGED × nmap_rdp_enum: X.224 Connection Request → Security Negotiation → MCS Connect Initial ×30
+- T1 STAGED × rdpscan: X.224 Connection Request → Security Negotiation → MCS Connect Initial → Channel Join → Exploit PDU ×30
 - T2 Honeyd × msf_bluekeep: (none) ×30
 - T2 Honeyd × nmap_rdp_enum: (none) ×30
 - T2 Honeyd × rdpscan: (none) ×30
@@ -97,7 +97,7 @@ SC_int records overwritten (two sessions, same one-second session id): 0
 
 | target | memory.peak | CPU time |
 |---|---|---|
-| T1 honeypoint | 17.8 MiB | 241 ms |
+| T1 STAGED | 17.8 MiB | 241 ms |
 | T2 Honeyd | 12.0 MiB | 49 ms |
 | T5 inert | 5.7 MiB | 24 ms |
 
@@ -107,13 +107,13 @@ SC_obs per run (deepest TCP session of the run); verdict = the tool's own output
 
 | target | msf_ms12_020 |
 |---|---|
-| T1 honeypoint | 5/5 (R=30)<br>*SAFE ×29; VULNERABLE ×1* |
+| T1 STAGED | 5/5 (R=30)<br>*SAFE ×29; VULNERABLE ×1* |
 | T2 Honeyd | 0/5 (R=30)<br>*Unable to determine MS12-020 vulnerability status ×30* |
 | T5 inert | 0/5 (R=30)<br>*Could not connect to RDP ×30* |
 
 Stages reached (observer), per cell:
 
-- T1 honeypoint × msf_ms12_020: X.224 Connection Request → Security Negotiation → MCS Connect Initial → Second Attach User → Channel Join Check ×30
+- T1 STAGED × msf_ms12_020: X.224 Connection Request → Security Negotiation → MCS Connect Initial → Second Attach User → Channel Join Check ×30
 - T2 Honeyd × msf_ms12_020: (none) ×30
 - T5 inert × msf_ms12_020: (none) ×30
 
@@ -134,6 +134,6 @@ SC_int records overwritten (two sessions, same one-second session id): 0
 
 | target | memory.peak | CPU time |
 |---|---|---|
-| T1 honeypoint | 17.8 MiB | 218 ms |
+| T1 STAGED | 17.8 MiB | 218 ms |
 | T2 Honeyd | 12.1 MiB | 52 ms |
 | T5 inert | 5.7 MiB | 23 ms |

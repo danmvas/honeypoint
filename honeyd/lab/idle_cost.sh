@@ -12,10 +12,10 @@ R="${R:-10}"; IDLE_WAIT="${IDLE_WAIT:-5}"
 OUT="${OUT:-$HERE/results/idle}"; mkdir -p "$OUT"
 
 for i in $(seq 1 "$R"); do
-  for t in XXX Honeyd Inert; do
+  for t in STAGED Honeyd Inert; do
     "$HERE/lab.sh" restart "$t" >/dev/null
     python3 -c "import time; time.sleep($IDLE_WAIT)"
-    case $t in XXX) c=t1-honeypoint;; Honeyd) c=t2-honeyd;; Inert) c=t5-inert;; esac
+    case $t in STAGED) c=t1-staged;; Honeyd) c=t2-honeyd;; Inert) c=t5-inert;; esac
     podman exec "$c" sh -c 'printf "{\"memory_peak_bytes\": %s, \"cpu_usage_usec\": %s, \"memory_current_bytes\": %s}\n" \
         "$(cat /sys/fs/cgroup/memory.peak)" \
         "$(awk "/^usage_usec/{print \$2}" /sys/fs/cgroup/cpu.stat)" \
@@ -31,7 +31,7 @@ python3 - "$OUT" <<'EOF'
 import json, glob, statistics as st, sys, os
 out = sys.argv[1]
 print("target   memory.peak (MiB)  CPU (ms)   [median over runs; min-max]")
-for t in ("XXX", "Honeyd", "Inert"):
+for t in ("STAGED", "Honeyd", "Inert"):
     rs = [json.load(open(f)) for f in sorted(glob.glob(os.path.join(out, f"{t}_idle_r*.cost.json")))]
     m = [r["memory_peak_bytes"] / 2**20 for r in rs]; c = [r["cpu_usage_usec"] / 1000 for r in rs]
     print(f"{t:8} {st.median(m):6.1f} [{min(m):.1f}-{max(m):.1f}]   {st.median(c):5.0f} [{min(c):.0f}-{max(c):.0f}]   R={len(rs)}")

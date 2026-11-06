@@ -11,7 +11,7 @@ IFACE="${IFACE:-lo}"
 
 # ---- edit these -----------------------------------------------------------
 declare -A TARGET=(
-  [XXX]=10.0.0.40            # T1 your honeypoint
+  [STAGED]=10.0.0.40            # T1 STAGED
   [Honeyd]=10.0.0.50         # T2 Related Work baseline
   [Unpatched]=10.0.0.60      # T3 ceiling
   [Patched]=10.0.0.61        # T4 negative reference

@@ -2,7 +2,7 @@
 """
 Driver: EternalBlue (CVE-2017-0144 / MS17-010)
 ===============================================
-Honeypoint que simula um servidor SMB vulnerável ao EternalBlue,
+Decoy que simula um servidor SMB vulnerável ao EternalBlue,
 enganando o scanner Metasploit auxiliary/scanner/smb/smb_ms17_010.
 
 Reusa as stages 1-3 (Negotiate, Session Setup, Tree Connect IPC$) da

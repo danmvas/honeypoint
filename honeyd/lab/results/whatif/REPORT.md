@@ -5,15 +5,15 @@ SC_obs per run (deepest TCP session of the run); verdict = the tool's own output
 
 | target | msf_bluekeep | nmap_rdp_enum | rdpscan |
 |---|---|---|---|
-| T1 honeypoint | 5/5 (R=5)<br>*not reported vulnerable ×5* | 2/5 (R=5)<br>*enumerated ×5* | 5/5 (R=5)<br>*UNKNOWN - RDP protocol error - connection reset by peer ×5* |
+| T1 STAGED | 5/5 (R=5)<br>*not reported vulnerable ×5* | 2/5 (R=5)<br>*enumerated ×5* | 5/5 (R=5)<br>*UNKNOWN - RDP protocol error - connection reset by peer ×5* |
 | T2 Honeyd | - | - | - |
 | T5 inert | - | - | - |
 
 Stages reached (observer), per cell:
 
-- T1 honeypoint × msf_bluekeep: X.224 Connection Request → Security Negotiation → MCS Connect Initial → Channel Join → Exploit PDU ×5
-- T1 honeypoint × nmap_rdp_enum: X.224 Connection Request → Security Negotiation ×4; X.224 Connection Request → MCS Connect Initial ×1
-- T1 honeypoint × rdpscan: X.224 Connection Request → Security Negotiation → MCS Connect Initial → Channel Join → Exploit PDU ×5
+- T1 STAGED × msf_bluekeep: X.224 Connection Request → Security Negotiation → MCS Connect Initial → Channel Join → Exploit PDU ×5
+- T1 STAGED × nmap_rdp_enum: X.224 Connection Request → Security Negotiation ×4; X.224 Connection Request → MCS Connect Initial ×1
+- T1 STAGED × rdpscan: X.224 Connection Request → Security Negotiation → MCS Connect Initial → Channel Join → Exploit PDU ×5
 
 **SC_int vs SC_obs (T1, per session)**
 
@@ -35,7 +35,7 @@ SC_int records overwritten (two sessions, same one-second session id): 36
 
 | target | memory.peak | CPU time |
 |---|---|---|
-| T1 honeypoint | 16.4 MiB | 228 ms |
+| T1 STAGED | 16.4 MiB | 228 ms |
 
 ## ms12_020
 
@@ -43,13 +43,13 @@ SC_obs per run (deepest TCP session of the run); verdict = the tool's own output
 
 | target | msf_ms12_020 |
 |---|---|
-| T1 honeypoint | 3/5 (R=5)<br>*SAFE ×5* |
+| T1 STAGED | 3/5 (R=5)<br>*SAFE ×5* |
 | T2 Honeyd | - |
 | T5 inert | - |
 
 Stages reached (observer), per cell:
 
-- T1 honeypoint × msf_ms12_020: X.224 Connection Request → MCS Connect Initial → Second Attach User ×5
+- T1 STAGED × msf_ms12_020: X.224 Connection Request → MCS Connect Initial → Second Attach User ×5
 
 **SC_int vs SC_obs (T1, per session)**
 
@@ -68,4 +68,4 @@ SC_int records overwritten (two sessions, same one-second session id): 0
 
 | target | memory.peak | CPU time |
 |---|---|---|
-| T1 honeypoint | 16.3 MiB | 217 ms |
+| T1 STAGED | 16.3 MiB | 217 ms |

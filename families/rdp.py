@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Família RDP-Recon — base compartilhada para drivers de honeypoint que
+Família RDP-Recon — base compartilhada para drivers de decoy que
 simulam CVEs cujo reconhecimento RDP começa com a mesma sequência:
 
   1. X.224 Connection Request
@@ -46,7 +46,7 @@ from framework.base import DriverMetadata, StageDefinition
 from framework.tracker import SCTracker
 from framework import family
 
-logger = logging.getLogger("honeypoint.rdp_family")
+logger = logging.getLogger("staged.rdp_family")
 if not logger.handlers:
     logger.setLevel(logging.INFO)
     _sh = logging.StreamHandler()

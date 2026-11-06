@@ -1,5 +1,5 @@
 # Experimental protocol — AINA 2027, Section 5
-## Honeypoint framework, comparative evaluation with Stage Coverage
+## STAGED, comparative evaluation with Stage Coverage
 
 Prepared in response to Vinícius's request: an experimental protocol that uses
 Stage Coverage (SC) **and** includes a comparative test against at least one
@@ -19,7 +19,7 @@ defines a stage as an exchange that is *individually observable*, and Section 4
 states that `N` belongs to the reconnaissance attack, not to the core. The
 driver declares `N` because it models that attack — but the attack, and hence
 the stage list, exists independently of any decoy. The same stage list can
-therefore be scored against our honeypoint, against a third-party honeypot, and
+therefore be scored against STAGED, against a third-party honeypot, and
 against a real host.
 
 Two consequences, both useful:
@@ -27,7 +27,7 @@ Two consequences, both useful:
 1. **Comparability.** Any target that speaks the protocol can be placed on the
    same scale. This is exactly the property Section 3 found missing from prior
    systems, and now it is demonstrated rather than asserted.
-2. **Instrument validation.** For our own honeypoint, SC can be obtained twice:
+2. **Instrument validation.** For STAGED, SC can be obtained twice:
    internally (`SCTracker`) and externally (observer). Agreement is a cheap,
    rigorous check that the framework does not over-report its own performance —
    and it pre-empts the "they only tested themselves" objection.
@@ -43,7 +43,7 @@ decoy-versus-decoy: they anchor the scale to real hosts.
 
 | ID | Target | Role | Expected position |
 |----|--------|------|-------------------|
-| T1 | Our honeypoint driver | system under test | — (to measure) |
+| T1 | STAGED driver | system under test | — (to measure) |
 | T2 | **Honeyd** — the Related Work baseline | comparison, network-layer granularity | — (to measure) |
 | T3 | Real **unpatched** host | ceiling / ground truth | the verdict-bearing stage is reached by construction |
 | T4 | Real **patched** host | negative reference | scanner reports not vulnerable |
@@ -151,7 +151,7 @@ of the procedure, not of one vendor's client.
    was zero across 30 runs, which is a stronger claim than a mean. If it is not,
    report median and range and investigate.
 4. **Pinned versions.** Record exact versions of Metasploit, Nmap, rdpscan,
-   Honeyd, and the honeypoint commit. Publish the pcaps and the scorer.
+   Honeyd, and the STAGED commit. Publish the pcaps and the scorer.
 5. **Cost.** Peak RSS and CPU time per decoy under a fixed scan load, one line
    in the text, supporting the lightweight claim of Section 4.5.
 
@@ -256,8 +256,9 @@ Because the observer stores full stage traces, the experiments can be run before
 this is settled and scored either way afterwards. But the decision must be made
 before the section is written.
 
-**Decision 2 — framework name.** Still `\textcolor{red}{XXX}` in the
-Introduction and in Section 4.5.
+**Decision 2 — framework name.** Settled (2026-11-06): **STAGED** (STage-Aware
+Generic Extensible Decoys). Runs recorded before this carry the placeholder
+`XXX` as the T1 target key; the lab's report and aggregation map it to STAGED.
 
 ---
 

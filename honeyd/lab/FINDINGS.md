@@ -1,10 +1,10 @@
-# Honeypoint vs Honeyd: results of the RUNBOOK run (2026-11-05/06)
+# STAGED vs Honeyd: results of the RUNBOOK run (2026-11-05/06)
 
 Everything in `RUNBOOK.md` and `HONEYD_SETUP.md` that can run on one machine,
 run end to end in the podman lab in this directory. Raw data, per-run pcaps and
 logs: `results/main/` (630 runs). Generated tables: `results/main/REPORT.md`.
 
-**Setup.** Honeypoint at commit `0564e0d` (T1, unmodified), Honeyd V1.6d at
+**Setup.** STAGED at commit `0564e0d` (T1, unmodified), Honeyd V1.6d at
 `a0f3d64` (T2, stock `smb-autofail` on 445, no RDP script, so 3389 resets), and the
 inert socket (T5). Scanners: Metasploit 6.5.9-dev, Nmap 7.99, rdpscan `09db271`.
 The network is internal (no route off-host, checked). R = 30, cell order randomised,
@@ -203,7 +203,7 @@ deterministic: the same value in all 30 runs.
 
 | target | msf `smb_ms17_010` | msf `ms17_010_eternalblue` check | nmap `smb-vuln-ms17-010` |
 |---|---|---|---|
-| T1 honeypoint | **5/5**, VULNERABLE | **5/5**, "The target is vulnerable" | **4/5**, VULNERABLE |
+| T1 STAGED | **5/5**, VULNERABLE | **5/5**, "The target is vulnerable" | **4/5**, VULNERABLE |
 | T2 Honeyd | 2/5, error: STATUS_ACCESS_DENIED at IPC$ | 2/5, Unknown | 1/5, no result |
 | T5 inert | 0/5 | 0/5 | 0/5 |
 
@@ -217,7 +217,7 @@ at the verdict (stage 4), while Metasploit sends the post-verdict transaction.
 
 | target | msf BlueKeep scanner | rdpscan | nmap `rdp-enum-encryption` | msf `ms12_020_check` |
 |---|---|---|---|---|
-| T1 honeypoint | 5/5 (29 runs), 3/5 (1 run); **not vulnerable** (Unknown) | 3/5 (24 runs), 5/5 (6 runs); UNKNOWN | 3/5 | **2/5**; "Could not connect to RDP" |
+| T1 STAGED | 5/5 (29 runs), 3/5 (1 run); **not vulnerable** (Unknown) | 3/5 (24 runs), 5/5 (6 runs); UNKNOWN | 3/5 | **2/5**; "Could not connect to RDP" |
 | T2 Honeyd | 0/5, refused | 0/5, refused | 0/5, port closed | 0/5 |
 | T5 inert | 0/5 | 0/5 | 0/5 | 0/5 |
 
@@ -245,7 +245,7 @@ credit stage 2. It appears as soon as F1 is fixed (see the what-if).
 the run (startup included): T1 ≈ 17 MiB and 210–220 ms CPU; Honeyd 12–15 MiB and
 50–63 ms; inert 5.7 MiB and 24 ms.
 
-## Defects found in the honeypoint (T1) — all fixed in `b02681d`
+## Defects found in STAGED (T1) — all fixed in `b02681d`
 
 Line numbers refer to `0564e0d`. The fix commit also corrects the Connect
 Initial parser, which located CS_CORE inside the GCC header (hence the garbage

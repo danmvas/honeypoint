@@ -17,7 +17,7 @@ mkdir -p "$OUT"; cp "$HERE/results/versions.txt" "$OUT/"
 
 cd "$TK"
 export EXEC="$HERE/lab.sh exec" RESTART="$HERE/lab.sh restart" \
-       COLLECT="$HERE/lab.sh collect" ONLY="XXX Honeyd Inert" \
+       COLLECT="$HERE/lab.sh collect" ONLY="STAGED Honeyd Inert" \
        IFACE=eth0 TCPDUMP_OPTS="-Z root"
 for a in $ATTACKS; do
   echo "########## $a  R=$R  $(date -u +%FT%TZ)"

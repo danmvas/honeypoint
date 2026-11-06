@@ -11,9 +11,9 @@ OUT="${LAB_RESULTS:-$HERE/results}/checks"
 mkdir -p "$OUT"
 LAB="$HERE/lab.sh"
 
-declare -A IP=([Honeyd]=10.0.0.50 [XXX]=10.0.0.40 [Inert]=10.0.0.70)
+declare -A IP=([Honeyd]=10.0.0.50 [STAGED]=10.0.0.40 [Inert]=10.0.0.70)
 
-for t in Honeyd XXX Inert; do
+for t in Honeyd STAGED Inert; do
   ip=${IP[$t]}; tag="check_$t"
   echo "=================== $t ($ip)"
   "$LAB" restart "$t"
@@ -29,7 +29,7 @@ for t in Honeyd XXX Inert; do
   echo "--- 4. sc_observer, real capture"
   python3 "$TK/sc_observer.py" --pcap "$OUT/$tag.real.pcap" --attack eternalblue --target "$t" \
       --json "$OUT/$tag.real.json"
-  if [[ "$t" == XXX ]]; then
+  if [[ "$t" == STAGED ]]; then
     echo "--- SC_int (framework's own sc_*.json)"
     for f in "$OUT/$tag.sc_int"/sc_*.json; do
       [[ -e "$f" ]] || { echo "  none written"; break; }

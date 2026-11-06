@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import os, struct, socket, threading, time, json, glob, sys, tempfile
-LOGDIR = tempfile.mkdtemp(prefix="sc_rdp_"); os.environ["HONEYPOINT_LOG_DIR"]=LOGDIR
+LOGDIR = tempfile.mkdtemp(prefix="sc_rdp_"); os.environ["STAGED_LOG_DIR"]=LOGDIR
 sys.path.insert(0,"hp")
 from framework.tracker import SCTracker
 from drivers.bluekeep import BlueKeepDriver

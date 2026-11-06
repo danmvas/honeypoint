@@ -1,2 +1,2 @@
-# Honeypoint Framework uses only the Python standard library.
+# STAGED uses only the Python standard library.
 # This file is intentionally empty — no third-party dependencies are required.
