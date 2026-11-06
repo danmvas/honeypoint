@@ -1,0 +1,95 @@
+{
+  "session_id": "BlueKeep_20261106_005026",
+  "driver_name": "BlueKeep",
+  "cve": "CVE-2019-0708",
+  "cve_alias": "BlueKeep",
+  "protocol": "RDP",
+  "scanner_tool": "Metasploit Framework",
+  "scanner_module": "auxiliary/scanner/rdp/cve_2019_0708_bluekeep",
+  "total_stages": 5,
+  "completed_stages": 5,
+  "sc_score": 1.0,
+  "start_time": "2026-11-06T00:50:26.858489+00:00",
+  "end_time": "2026-11-06T00:50:26.915955+00:00",
+  "source_ip": "10.0.0.9",
+  "events": [
+    {
+      "stage_number": 1,
+      "stage_name": "X.224 Connection Request",
+      "timestamp": "2026-11-06T00:50:26.858533+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "tpkt_length": 45,
+        "x224_type": "0xe0",
+        "dst_ref": 0,
+        "src_ref": 0,
+        "cookie": "Cookie: mstshash=zIqydOG",
+        "rdp_client_name": "zIqydOG",
+        "tool_guess": "Unknown (zIqydOG)",
+        "requested_protocols": 1,
+        "supports_tls": true,
+        "supports_credssp": true
+      }
+    },
+    {
+      "stage_number": 2,
+      "stage_name": "Security Negotiation",
+      "timestamp": "2026-11-06T00:50:26.858555+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "selected_protocol": "PROTOCOL_RDP (0x00000000)",
+        "nla_required": false
+      }
+    },
+    {
+      "stage_number": 3,
+      "stage_name": "MCS Connect Initial",
+      "timestamp": "2026-11-06T00:50:26.858572+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "cs_core_length": 17408,
+        "rdp_version": "0x81616375",
+        "resolution": "308x55488",
+        "keyboard_layout": "0x58032000",
+        "client_build": 63570178,
+        "client_hostname": "প\u0004⠀\n爀搀攀猀欀琀漀瀀",
+        "timezone_bias_minutes": 0,
+        "timezone_name": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000ĀǊ\u0000\u0000᠀܀Ā"
+      }
+    },
+    {
+      "stage_number": 4,
+      "stage_name": "Channel Join",
+      "timestamp": "2026-11-06T00:50:26.858670+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "channels_joined": [
+          1009,
+          1003,
+          1004,
+          1005,
+          1006,
+          1007,
+          1008
+        ],
+        "ms_t120_attempted": false
+      }
+    },
+    {
+      "stage_number": 5,
+      "stage_name": "Exploit PDU",
+      "timestamp": "2026-11-06T00:50:26.915865+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "payload_size": 87,
+        "payload_hex_preview": "0300005702f08064000803eb70804801000000400000008a637477ac91d748a9d9942d5148576d5628cbe2189d54e2bf168ce525ddc6d8ebfe20be80a4f997eba383643d1cb1783e04d3cff9d0e7070000000000000000"
+      }
+    }
+  ],
+  "deception_success": true
+}

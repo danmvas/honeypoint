@@ -1,0 +1,8 @@
+# lab working state, not results
+results/.state/
+results/.t1_live/
+results/.t1_applogs/
+results/.orphans/
+# the repository ignores *.log; under results/ the logs ARE the evidence
+# (tool verdicts, decoy logs used for the SC_int/SC_obs match)
+!*.log

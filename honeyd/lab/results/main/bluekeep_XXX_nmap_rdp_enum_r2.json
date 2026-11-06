@@ -1,0 +1,334 @@
+[
+  {
+    "target": "XXX",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:48924",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793925023.531219,
+    "end_time": 1793925023.532449,
+    "total_stages": 5,
+    "completed_stages": 2,
+    "stages_completed": [
+      1,
+      2
+    ],
+    "sc_obs": 0.4,
+    "records_seen": 3,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793925023.531428,
+        "t_response": 1793925023.531733
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793925023.531428,
+        "t_response": 1793925023.531733
+      }
+    ]
+  },
+  {
+    "target": "XXX",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:48940",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793925023.732652,
+    "end_time": 1793925023.733322,
+    "total_stages": 5,
+    "completed_stages": 2,
+    "stages_completed": [
+      1,
+      2
+    ],
+    "sc_obs": 0.4,
+    "records_seen": 2,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793925023.732882,
+        "t_response": 1793925023.733123
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793925023.732882,
+        "t_response": 1793925023.733123
+      }
+    ]
+  },
+  {
+    "target": "XXX",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:48948",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793925023.933493,
+    "end_time": 1793925023.934188,
+    "total_stages": 5,
+    "completed_stages": 2,
+    "stages_completed": [
+      1,
+      2
+    ],
+    "sc_obs": 0.4,
+    "records_seen": 2,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793925023.933732,
+        "t_response": 1793925023.933935
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793925023.933732,
+        "t_response": 1793925023.933935
+      }
+    ]
+  },
+  {
+    "target": "XXX",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:48956",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793925024.134359,
+    "end_time": 1793925024.134961,
+    "total_stages": 5,
+    "completed_stages": 2,
+    "stages_completed": [
+      1,
+      2
+    ],
+    "sc_obs": 0.4,
+    "records_seen": 2,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793925024.134546,
+        "t_response": 1793925024.1348
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793925024.134546,
+        "t_response": 1793925024.1348
+      }
+    ]
+  },
+  {
+    "target": "XXX",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:48970",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793925024.335136,
+    "end_time": 1793925024.33579,
+    "total_stages": 5,
+    "completed_stages": 2,
+    "stages_completed": [
+      1,
+      2
+    ],
+    "sc_obs": 0.4,
+    "records_seen": 2,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793925024.335344,
+        "t_response": 1793925024.335568
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793925024.335344,
+        "t_response": 1793925024.335568
+      }
+    ]
+  },
+  {
+    "target": "XXX",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:48982",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793925024.535978,
+    "end_time": 1793925024.537553,
+    "total_stages": 5,
+    "completed_stages": 3,
+    "stages_completed": [
+      1,
+      2,
+      3
+    ],
+    "sc_obs": 0.6,
+    "records_seen": 4,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793925024.536214,
+        "t_response": 1793925024.536401
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793925024.536214,
+        "t_response": 1793925024.536401
+      },
+      {
+        "stage": 3,
+        "name": "MCS Connect Initial",
+        "t_request": 1793925024.536682,
+        "t_response": 1793925024.537377
+      }
+    ]
+  },
+  {
+    "target": "XXX",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:48996",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793925024.737725,
+    "end_time": 1793925024.738982,
+    "total_stages": 5,
+    "completed_stages": 3,
+    "stages_completed": [
+      1,
+      2,
+      3
+    ],
+    "sc_obs": 0.6,
+    "records_seen": 4,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793925024.737973,
+        "t_response": 1793925024.738136
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793925024.737973,
+        "t_response": 1793925024.738136
+      },
+      {
+        "stage": 3,
+        "name": "MCS Connect Initial",
+        "t_request": 1793925024.738486,
+        "t_response": 1793925024.738601
+      }
+    ]
+  },
+  {
+    "target": "XXX",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:49002",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793925024.939153,
+    "end_time": 1793925024.940103,
+    "total_stages": 5,
+    "completed_stages": 3,
+    "stages_completed": [
+      1,
+      2,
+      3
+    ],
+    "sc_obs": 0.6,
+    "records_seen": 4,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793925024.939345,
+        "t_response": 1793925024.939549
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793925024.939345,
+        "t_response": 1793925024.939549
+      },
+      {
+        "stage": 3,
+        "name": "MCS Connect Initial",
+        "t_request": 1793925024.939824,
+        "t_response": 1793925024.939912
+      }
+    ]
+  },
+  {
+    "target": "XXX",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:49012",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793925025.140292,
+    "end_time": 1793925025.14131,
+    "total_stages": 5,
+    "completed_stages": 3,
+    "stages_completed": [
+      1,
+      2,
+      3
+    ],
+    "sc_obs": 0.6,
+    "records_seen": 4,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793925025.140537,
+        "t_response": 1793925025.140727
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793925025.140537,
+        "t_response": 1793925025.140727
+      },
+      {
+        "stage": 3,
+        "name": "MCS Connect Initial",
+        "t_request": 1793925025.141025,
+        "t_response": 1793925025.141109
+      }
+    ]
+  },
+  {
+    "target": "XXX",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:53783",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793925023.315124,
+    "end_time": 1793925023.315153,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 0,
+    "events": []
+  }
+]

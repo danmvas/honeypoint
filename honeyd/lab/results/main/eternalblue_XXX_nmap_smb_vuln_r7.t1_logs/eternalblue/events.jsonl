@@ -1,0 +1,1 @@
+{"timestamp": "2026-11-05T23:56:59.632891+00:00", "event_type": "VULN_CHECK", "src_ip": "10.0.0.9", "src_port": 46074, "details": {"alert": "Scanner verificando vulnerabilidade MS17-010", "pipe_name": "\\PIPE\\", "subcommand": "PeekNamedPipe"}}

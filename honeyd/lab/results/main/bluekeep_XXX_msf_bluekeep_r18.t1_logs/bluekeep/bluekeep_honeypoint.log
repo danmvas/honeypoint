@@ -1,0 +1,9 @@
+2026-11-06 00:50:26,858 [INFO] 📡 [10.0.0.9:42351] MCS Channel Join: 1009
+2026-11-06 00:50:26,858 [INFO] 📡 [10.0.0.9:42351] MCS Channel Join: 1003
+2026-11-06 00:50:26,858 [INFO] 📡 [10.0.0.9:42351] MCS Channel Join: 1004
+2026-11-06 00:50:26,858 [INFO] 📡 [10.0.0.9:42351] MCS Channel Join: 1005
+2026-11-06 00:50:26,858 [INFO] 📡 [10.0.0.9:42351] MCS Channel Join: 1006
+2026-11-06 00:50:26,859 [INFO] 📡 [10.0.0.9:42351] MCS Channel Join: 1007
+2026-11-06 00:50:26,859 [INFO] 📡 [10.0.0.9:42351] MCS Channel Join: 1008
+2026-11-06 00:50:26,915 [INFO] {"timestamp": "2026-11-06T00:50:26.915628+00:00", "event_type": "rdp_possible_exploit", "src_ip": "10.0.0.9", "src_port": 42351, "details": {"alert": "POSSÍVEL EXPLOIT BLUEKEEP", "pdu_size": 87, "channels": [1009, 1003, 1004, 1005, 1006, 1007, 1008]}}
+2026-11-06 00:50:26,915 [WARNING] 🚨 [10.0.0.9:42351] POSSÍVEL EXPLOIT! 87 bytes

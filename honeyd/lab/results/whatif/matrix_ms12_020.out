@@ -1,0 +1,16 @@
+done ms12_020_XXX_msf_ms12_020_r1
+done ms12_020_XXX_msf_ms12_020_r2
+done ms12_020_XXX_msf_ms12_020_r3
+done ms12_020_XXX_msf_ms12_020_r4
+done ms12_020_XXX_msf_ms12_020_r5
+
+attack: ms12_020   sessions: 5
+
+target                                      msf_ms12_020
+--------------------------------------------------------
+XXX                                            3/5 (R=5)
+
+every cell was deterministic across its runs
+
+% --- table rows; paste into 5-Evaluation.tex ---
+XXX & 3/5 \\

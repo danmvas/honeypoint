@@ -1,0 +1,4 @@
+[*] Setting default action Scan - view all 2 actions with the show actions command
+RHOSTS => 10.0.0.50
+[*] 10.0.0.50:3389        - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed

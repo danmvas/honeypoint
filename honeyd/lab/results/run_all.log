@@ -1,0 +1,71 @@
+t1-honeypoint	Up Less than a second	honeylab
+t2-honeyd	Up Less than a second	honeylab
+t5-inert	Up Less than a second	honeylab
+scanner	Up Less than a second	honeylab
+# recorded 2026-11-05T23:47:49Z by honeyd/lab/lab.sh versions
+host: Linux 7.2.15-200.fc44.x86_64, Fedora Linux 44 (KDE Plasma Desktop Edition), podman 5.8.9
+honeypoint: 0564e0d
+msfconsole: Framework Version: 6.5.9-dev
+nmap: Nmap version 7.99 ( https://nmap.org )
+rdpscan: commit 09db2719a76d0fbc535f99fb51304ef060c0e484
+honeyd: Honeyd V1.6d Copyright (c) 2002-2007 Niels Provos, commit a0f3d64834781cf2c02f6d7302638f54c68dfdb0
+T1/T5 python: Python 3.14.10
+images:
+  docker.io/library/python@sha256:ac25e5afbfdb4a94ff99cc24b0345719210133144481480bcba6085efa36a341 d8f0d5177291
+  localhost/honeyd:a0f3d64 1ec9994a1a26
+  localhost/sc-scanner 5c0b8e38d667
+network honeylab internal=true
+scanner routes:
+  10.0.0.0/24 dev eth0 proto kernel scope link src 10.0.0.9 
+ok: scanner cannot reach 1.1.1.1:443 (no route off-host)
+########## eternalblue  R=30  2026-11-05T23:47:51Z
+per-run: each run scored by its deepest session (270 runs)
+attack: eternalblue   sessions: 270
+
+target                                       msf_exploit      msf_smb_ms17_010         nmap_smb_vuln
+----------------------------------------------------------------------------------------------------
+Honeyd                                        2/5 (R=30)            2/5 (R=30)            1/5 (R=30)
+Inert                                         0/5 (R=30)            0/5 (R=30)            0/5 (R=30)
+XXX                                           5/5 (R=30)            5/5 (R=30)            4/5 (R=30)
+
+every cell was deterministic across its runs
+
+% --- table rows; paste into 5-Evaluation.tex ---
+Honeyd & 2/5 & 2/5 & 1/5 \\
+Inert & 0/5 & 0/5 & 0/5 \\
+XXX & 5/5 & 5/5 & 4/5 \\
+########## bluekeep  R=30  2026-11-06T00:28:27Z
+per-run: each run scored by its deepest session (270 runs)
+attack: bluekeep   sessions: 270
+
+target                                      msf_bluekeep         nmap_rdp_enum               rdpscan
+----------------------------------------------------------------------------------------------------
+Honeyd                                        0/5 (R=30)            0/5 (R=30)            0/5 (R=30)
+Inert                                         0/5 (R=30)            0/5 (R=30)            0/5 (R=30)
+XXX                                            5/5 [3-5]            3/5 (R=30)             3/5 [3-5]
+
+NON-DETERMINISTIC cells (investigate before reporting):
+  XXX x msf_bluekeep: [3, 5]
+  XXX x rdpscan: [3, 5]
+
+% --- table rows; paste into 5-Evaluation.tex ---
+Honeyd & 0/5 & 0/5 & 0/5 \\
+Inert & 0/5 & 0/5 & 0/5 \\
+XXX & 5/5 & 3/5 & 3/5 \\
+########## ms12_020  R=30  2026-11-06T01:05:43Z
+per-run: each run scored by its deepest session (90 runs)
+attack: ms12_020   sessions: 90
+
+target                                      msf_ms12_020
+--------------------------------------------------------
+Honeyd                                        0/5 (R=30)
+Inert                                         0/5 (R=30)
+XXX                                           2/5 (R=30)
+
+every cell was deterministic across its runs
+
+% --- table rows; paste into 5-Evaluation.tex ---
+Honeyd & 0/5 \\
+Inert & 0/5 \\
+XXX & 2/5 \\
+########## finished 2026-11-06T01:16:38Z

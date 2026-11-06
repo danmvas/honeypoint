@@ -1,0 +1,71 @@
+# Honeyd (T2 baseline), built from a pinned commit on a pinned toolchain.
+#
+# Build (from the repo root, no root needed):
+#   podman build -t honeyd:a0f3d64 -f honeyd/Containerfile honeyd/
+#
+# Run on a real interface (needs root: raw sockets on the host's NIC):
+#   sudo podman run --rm --network host --cap-add NET_RAW --cap-add NET_ADMIN \
+#        -e HONEYD_IFACE=<lab-nic> -e HONEYD_IP=10.0.0.50 \
+#        -v /var/log/honeyd:/var/log/honeyd:Z localhost/honeyd:a0f3d64
+#
+# See honeyd/HONEYD_SETUP.md for why each flag is here.
+
+FROM docker.io/library/debian:bookworm
+
+ARG HONEYD_REPO=https://github.com/DataSoft/Honeyd.git
+ARG HONEYD_COMMIT=a0f3d64834781cf2c02f6d7302638f54c68dfdb0
+
+# Build-Depends from Honeyd's own debian/control, plus autotools (autogen.sh
+# calls them) and python3 (the ported stock SMB script).
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      ca-certificates git build-essential automake autoconf libtool \
+      libevent-dev libpcap-dev libdumbnet-dev zlib1g-dev libpcre3-dev \
+      libreadline-dev flex bison \
+      python3 iproute2 tcpdump iputils-ping netcat-openbsd ethtool \
+ && rm -rf /var/lib/apt/lists/*
+
+# -fcommon: Honeyd defines globals in headers (libevent_base, personalities,
+# ...). GCC >= 10 defaults to -fno-common and the link fails with
+# "multiple definition of `libevent_base'". The flag goes in CC, not CFLAGS,
+# because Makefile.am hard-codes CFLAGS and per-target *_CFLAGS, which
+# silently discard anything passed to configure as CFLAGS.
+#
+# autoreconf -fi instead of ./autogen.sh: the repo commits ltmain.sh as a
+# symlink to /usr/share/libtool/config/ltmain.sh, a 2013 libtool path that no
+# longer exists. autogen.sh runs libtoolize without --force, leaving a stale or
+# missing ltmain.sh and a "libtool: Version mismatch error" at make time.
+# autoreconf -fi regenerates every autotools file from the same installed
+# version. Same inputs (configure.in, Makefile.am); no source change.
+#
+# make -j1: under parallel make, fdpass.o is built both for libhoneyd (via
+# libtool) and for the honeyd binary; the two race and the link intermittently
+# fails with "cannot find fdpass.o" (seen 1 in 3 clean builds at -j). Serial
+# make is deterministic and the whole build takes about a minute.
+#
+# python -> /bin/true during install: "make install" ends by running the
+# Python 2 scripts/lib/init.py, which only seeds a names DB used by some other
+# stock scripts (not the SMB one). No Python 2 exists here, so that step is
+# skipped rather than patched.
+RUN git clone "$HONEYD_REPO" /src/honeyd \
+ && cd /src/honeyd \
+ && git checkout --detach "$HONEYD_COMMIT" \
+ && rm -f ltmain.sh \
+ && autoreconf -fi \
+ && ./configure --prefix=/usr/local CC="gcc -fcommon" \
+ && make -j1 \
+ && ln -s /bin/true /usr/local/bin/python \
+ && make install \
+ && rm /usr/local/bin/python \
+ && git rev-parse HEAD > /usr/local/share/honeyd/BUILT_FROM_COMMIT
+
+COPY sc_toolkit/honeyd/smb-autofail-py3.py sc_toolkit/honeyd/smb.conf /opt/scripts/
+COPY windows.conf.in entrypoint.sh /opt/honeyd/
+RUN chmod 0755 /opt/scripts/smb-autofail-py3.py /opt/honeyd/entrypoint.sh \
+ && mkdir -p /var/log/honeyd
+
+ENV HONEYD_IFACE=eth0 \
+    HONEYD_IP=10.0.0.50 \
+    HONEYD_MAC=00:1b:21:3a:4f:50
+
+ENTRYPOINT ["/opt/honeyd/entrypoint.sh"]

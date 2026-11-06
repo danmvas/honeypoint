@@ -1,0 +1,34 @@
+[
+  {
+    "target": "XXX",
+    "tool": "msf_ms12_020",
+    "attack": "ms12_020",
+    "cve": "CVE-2012-0002",
+    "client": "10.0.0.9:37991",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793927567.63782,
+    "end_time": 1793927567.638616,
+    "total_stages": 5,
+    "completed_stages": 2,
+    "stages_completed": [
+      1,
+      2
+    ],
+    "sc_obs": 0.4,
+    "records_seen": 2,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793927567.638339,
+        "t_response": 1793927567.638459
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793927567.638339,
+        "t_response": 1793927567.638459
+      }
+    ]
+  }
+]

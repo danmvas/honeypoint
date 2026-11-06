@@ -1,0 +1,90 @@
+[
+  {
+    "target": "XXX",
+    "tool": "msf_bluekeep",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:33501",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793925196.0158,
+    "end_time": 1793925196.086763,
+    "total_stages": 5,
+    "completed_stages": 5,
+    "stages_completed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "sc_obs": 1.0,
+    "records_seen": 23,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793925196.01643,
+        "t_response": 1793925196.016713
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793925196.01643,
+        "t_response": 1793925196.016713
+      },
+      {
+        "stage": 3,
+        "name": "MCS Connect Initial",
+        "t_request": 1793925196.01827,
+        "t_response": 1793925196.018862
+      },
+      {
+        "stage": 4,
+        "name": "Channel Join",
+        "t_request": 1793925196.02093,
+        "t_response": 1793925196.021179,
+        "channel_id": 1009,
+        "ms_t120_attempted": false
+      },
+      {
+        "stage": 5,
+        "name": "Exploit PDU",
+        "t_request": 1793925196.080895,
+        "t_response": null,
+        "payload_bytes": 87
+      }
+    ]
+  },
+  {
+    "target": "XXX",
+    "tool": "msf_bluekeep",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:46257",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793925196.014435,
+    "end_time": 1793925196.016351,
+    "total_stages": 5,
+    "completed_stages": 2,
+    "stages_completed": [
+      1,
+      2
+    ],
+    "sc_obs": 0.4,
+    "records_seen": 2,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793925196.015358,
+        "t_response": 1793925196.015467
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793925196.015358,
+        "t_response": 1793925196.015467
+      }
+    ]
+  }
+]

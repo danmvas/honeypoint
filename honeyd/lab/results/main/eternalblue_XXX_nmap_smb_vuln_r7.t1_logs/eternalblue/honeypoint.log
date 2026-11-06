@@ -1,0 +1,3 @@
+2026-11-05 23:56:59,632 [INFO] 🔍 [10.0.0.9:46074] SMB1 Command: TRANSACTION
+2026-11-05 23:56:59,632 [INFO] {"timestamp": "2026-11-05T23:56:59.632891+00:00", "event_type": "VULN_CHECK", "src_ip": "10.0.0.9", "src_port": 46074, "details": {"alert": "Scanner verificando vulnerabilidade MS17-010", "pipe_name": "\\PIPE\\", "subcommand": "PeekNamedPipe"}}
+2026-11-05 23:56:59,632 [WARNING] 🔍 [10.0.0.9:46074] VULN CHECK: Pipe=\PIPE\ SubCmd=PeekNamedPipe
