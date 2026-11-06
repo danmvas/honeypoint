@@ -1,0 +1,45 @@
+[
+  {
+    "target": "XXX",
+    "tool": "msf_ms12_020",
+    "attack": "ms12_020",
+    "cve": "CVE-2012-0002",
+    "client": "10.0.0.9:42619",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793927880.433513,
+    "end_time": 1793927880.434678,
+    "total_stages": 5,
+    "completed_stages": 3,
+    "stages_completed": [
+      1,
+      3,
+      4
+    ],
+    "sc_obs": 0.6,
+    "records_seen": 10,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793927880.434048,
+        "t_response": 1793927880.434152
+      },
+      {
+        "stage": 3,
+        "name": "MCS Connect Initial",
+        "t_request": 1793927880.434205,
+        "t_response": 1793927880.434313
+      },
+      {
+        "stage": 4,
+        "name": "Second Attach User",
+        "t_request": 1793927880.43437,
+        "t_response": 1793927880.434409,
+        "attached_user_ids": [
+          1001,
+          1002
+        ]
+      }
+    ]
+  }
+]

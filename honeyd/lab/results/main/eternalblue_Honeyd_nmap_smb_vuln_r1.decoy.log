@@ -1,0 +1,14 @@
+honeyd commit: a0f3d64834781cf2c02f6d7302638f54c68dfdb0
+interface=eth0 virtual_ip=10.0.0.50 mac=00:1b:21:3a:4f:50 config=/etc/honeyd/windows.conf
+Honeyd V1.6d Copyright (c) 2002-2007 Niels Provos
+honeyd[1]: started with -d -i eth0 -p /usr/local/share/honeyd/nmap-os-db -x /usr/local/share/honeyd/xprobe2.conf -a /usr/local/share/honeyd/nmap.assoc -f /etc/honeyd/windows.conf -l /var/log/honeyd/honeyd.log -s /var/log/honeyd/service.log 10.0.0.50
+honeyd[1]: listening promiscuously on eth0: (arp or ip proto 47 or (udp and src port 67 and dst port 68) or (ip and (host 10.0.0.50))) and not ether src 02:00:0a:00:00:02
+honeyd[1]: Demoting process privileges to uid 65534, gid 65534
+honeyd[1]: arp reply 10.0.0.50 is-at 00:1b:21:3a:4f:50
+honeyd[1]: Connection request: tcp (10.0.0.9:38391 - 10.0.0.50:445)
+honeyd[1]: Connection dropped by reset: tcp (10.0.0.9:38391 - 10.0.0.50:445)
+honeyd[1]: Connection to closed port: udp (10.0.0.9:38914 - 10.0.0.50:137)
+honeyd[1]: Connection request: tcp (10.0.0.9:45590 - 10.0.0.50:445)
+honeyd[1]: Connection established: tcp (10.0.0.9:45590 - 10.0.0.50:445) <-> /usr/bin/python3 /opt/scripts/smb-autofail-py3.py x /opt/scripts/smb.conf
+honeyd[1]: Connection closed: tcp (10.0.0.9:45590 - 10.0.0.50:445)
+honeyd[1]: exiting on signal 15

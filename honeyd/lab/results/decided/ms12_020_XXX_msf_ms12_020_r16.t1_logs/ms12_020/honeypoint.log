@@ -1,0 +1,4 @@
+2026-11-06 14:46:15,976 [INFO] {"timestamp": "2026-11-06T14:46:15.976481+00:00", "event_type": "second_attach_user", "src_ip": "10.0.0.9", "src_port": 35407, "details": {"attached_user_ids": [1001, 1002]}}
+2026-11-06 14:46:15,976 [INFO] {"timestamp": "2026-11-06T14:46:15.976613+00:00", "event_type": "VULN_CHECK", "src_ip": "10.0.0.9", "src_port": 35407, "details": {"alert": "Scanner verificando vulnerabilidade MS12-020 (Channel Join após 2 Attach User)", "initiator": 33281, "channel_id": 2003, "cross_user": false}}
+2026-11-06 14:46:15,976 [WARNING] 🚨 [10.0.0.9:35407] Channel Join após 2 Attach User: initiator 33281 -> canal 2003 (cross-user: False)
+2026-11-06 14:46:15,976 [WARNING] 🚨 [10.0.0.9:35407] Channel Join após 2 Attach User: initiator 1002 -> canal 2003 (cross-user: False)

@@ -1,4 +1,4 @@
-# Honeypoint Drivers
+# STAGED Drivers
 
 ## Como criar um novo driver
 
@@ -8,9 +8,9 @@ Um driver é um módulo Python que implementa a simulação de um protocolo espe
 
 ```python
 # drivers/meu_protocolo.py
-from framework import HoneyPointDriver, DriverMetadata, StageDefinition, SCTracker
+from framework import StagedDriver, DriverMetadata, StageDefinition, SCTracker
 
-class MeuProtocoloDriver(HoneyPointDriver):
+class MeuProtocoloDriver(StagedDriver):
     
     def get_metadata(self) -> DriverMetadata:
         return DriverMetadata(

@@ -1,0 +1,64 @@
+[
+  {
+    "target": "XXX",
+    "tool": "msf_smb_ms17_010",
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:34615",
+    "server": "10.0.0.40:445",
+    "start_time": 1793972332.872702,
+    "end_time": 1793972333.191819,
+    "total_stages": 5,
+    "completed_stages": 5,
+    "stages_completed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "sc_obs": 1.0,
+    "records_seen": 10,
+    "events": [
+      {
+        "stage": 1,
+        "name": "SMB Negotiate",
+        "t_request": 1793972332.886229,
+        "t_response": 1793972332.886934
+      },
+      {
+        "stage": 2,
+        "name": "Session Setup",
+        "t_request": 1793972332.897055,
+        "t_response": 1793972332.897162
+      },
+      {
+        "stage": 3,
+        "name": "Tree Connect IPC$",
+        "t_request": 1793972332.904113,
+        "t_response": 1793972332.904182
+      },
+      {
+        "stage": 4,
+        "name": "PeekNamedPipe",
+        "t_request": 1793972332.912951,
+        "t_response": 1793972332.913564,
+        "status": "0xc0000205"
+      },
+      {
+        "stage": 5,
+        "name": "Vuln Check Response",
+        "t_request": 1793972332.912951,
+        "t_response": 1793972332.913564,
+        "verdict": "STATUS_INSUFF_SERVER_RESOURCES"
+      }
+    ],
+    "activity_beyond_n": [
+      {
+        "t": 1793972332.922645,
+        "command": "0x32",
+        "note": "transaction after the verdict"
+      }
+    ]
+  }
+]

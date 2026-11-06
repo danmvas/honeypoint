@@ -1,0 +1,1 @@
+{"timestamp": "2026-11-06T00:29:03.142257+00:00", "event_type": "rdp_possible_exploit", "src_ip": "10.0.0.9", "src_port": 45438, "details": {"alert": "POSSÍVEL EXPLOIT BLUEKEEP", "pdu_size": 31, "channels": [2002, 1003, 1004]}}

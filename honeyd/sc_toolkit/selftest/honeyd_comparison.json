@@ -1,0 +1,89 @@
+{
+  "honeyd_stock": {
+    "target": "Honeyd (stock smb-autofail)",
+    "tool": "probe_smb",
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.2:50000",
+    "server": "10.0.0.1:14456",
+    "start_time": 1793206025.642537,
+    "end_time": 1793206025.843386,
+    "total_stages": 5,
+    "completed_stages": 2,
+    "stages_completed": [
+      1,
+      2
+    ],
+    "sc_obs": 0.4,
+    "records_seen": 8,
+    "events": [
+      {
+        "stage": 1,
+        "name": "SMB Negotiate",
+        "t_request": 1793206025.642537,
+        "t_response": 1793206025.692622
+      },
+      {
+        "stage": 2,
+        "name": "Session Setup",
+        "t_request": 1793206025.692637,
+        "t_response": 1793206025.742743
+      }
+    ]
+  },
+  "xxx": {
+    "target": "XXX (EternalBlue driver)",
+    "tool": "probe_smb",
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.2:50000",
+    "server": "10.0.0.1:14457",
+    "start_time": 1793206026.932934,
+    "end_time": 1793206027.183622,
+    "total_stages": 5,
+    "completed_stages": 5,
+    "stages_completed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "sc_obs": 1.0,
+    "records_seen": 10,
+    "events": [
+      {
+        "stage": 1,
+        "name": "SMB Negotiate",
+        "t_request": 1793206026.932934,
+        "t_response": 1793206026.983015
+      },
+      {
+        "stage": 2,
+        "name": "Session Setup",
+        "t_request": 1793206026.983026,
+        "t_response": 1793206027.033111
+      },
+      {
+        "stage": 3,
+        "name": "Tree Connect IPC$",
+        "t_request": 1793206027.033347,
+        "t_response": 1793206027.083433
+      },
+      {
+        "stage": 4,
+        "name": "PeekNamedPipe",
+        "t_request": 1793206027.083447,
+        "t_response": 1793206027.133531,
+        "verdict": "STATUS_INSUFF_SERVER_RESOURCES"
+      },
+      {
+        "stage": 5,
+        "name": "Post-verdict Transaction",
+        "t_request": 1793206027.133541,
+        "t_response": null,
+        "note": "continued past the verdict"
+      }
+    ]
+  }
+}

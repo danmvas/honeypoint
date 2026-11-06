@@ -1,0 +1,51 @@
+{
+  "session_id": "RDP-Recon_20261106_141420_632962_b79708",
+  "driver_name": "RDP-Recon",
+  "cve": "unresolved",
+  "cve_alias": "RDP-Recon (unresolved)",
+  "protocol": "RDP",
+  "scanner_tool": "",
+  "scanner_module": "",
+  "total_stages": 5,
+  "completed_stages": 2,
+  "sc_score": 0.4,
+  "start_time": "2026-11-06T14:14:20.632962+00:00",
+  "end_time": "2026-11-06T14:14:20.633110+00:00",
+  "source_ip": "10.0.0.9",
+  "source_port": 44979,
+  "events": [
+    {
+      "stage_number": 1,
+      "stage_name": "X.224 Connection Request",
+      "timestamp": "2026-11-06T14:14:20.633052+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 44979,
+      "data_captured": {
+        "tpkt_length": 45,
+        "x224_type": "0xe0",
+        "dst_ref": 0,
+        "src_ref": 0,
+        "cookie": "Cookie: mstshash=pMSzWtn",
+        "rdp_client_name": "pMSzWtn",
+        "tool_guess": "Unknown (pMSzWtn)",
+        "requested_protocols": 11,
+        "supports_tls": true,
+        "supports_credssp": true
+      }
+    },
+    {
+      "stage_number": 2,
+      "stage_name": "Security Negotiation",
+      "timestamp": "2026-11-06T14:14:20.633085+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 44979,
+      "data_captured": {
+        "selected_protocol": "PROTOCOL_RDP (0x00000000)",
+        "nla_required": false,
+        "negotiation": "RDP_NEG_RSP"
+      }
+    }
+  ],
+  "deception_success": false,
+  "activity_beyond_n": []
+}

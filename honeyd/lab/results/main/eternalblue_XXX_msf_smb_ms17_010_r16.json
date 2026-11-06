@@ -1,0 +1,57 @@
+[
+  {
+    "target": "XXX",
+    "tool": "msf_smb_ms17_010",
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:37793",
+    "server": "10.0.0.40:445",
+    "start_time": 1793923774.895308,
+    "end_time": 1793923775.223981,
+    "total_stages": 5,
+    "completed_stages": 5,
+    "stages_completed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "sc_obs": 1.0,
+    "records_seen": 10,
+    "events": [
+      {
+        "stage": 1,
+        "name": "SMB Negotiate",
+        "t_request": 1793923774.902726,
+        "t_response": 1793923774.903483
+      },
+      {
+        "stage": 2,
+        "name": "Session Setup",
+        "t_request": 1793923774.908436,
+        "t_response": 1793923774.908585
+      },
+      {
+        "stage": 3,
+        "name": "Tree Connect IPC$",
+        "t_request": 1793923774.912877,
+        "t_response": 1793923774.913016
+      },
+      {
+        "stage": 4,
+        "name": "PeekNamedPipe",
+        "t_request": 1793923774.917251,
+        "t_response": 1793923774.917668,
+        "verdict": "STATUS_INSUFF_SERVER_RESOURCES"
+      },
+      {
+        "stage": 5,
+        "name": "Post-verdict Transaction",
+        "t_request": 1793923774.918856,
+        "t_response": null,
+        "note": "continued past the verdict"
+      }
+    ]
+  }
+]

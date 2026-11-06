@@ -1,0 +1,4 @@
+RHOSTS => 10.0.0.70
+[*] 10.0.0.70:3389        - 10.0.0.70:3389 - Cannot reliably check exploitability. Could not connect to RDP
+[*] 10.0.0.70:3389        - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed

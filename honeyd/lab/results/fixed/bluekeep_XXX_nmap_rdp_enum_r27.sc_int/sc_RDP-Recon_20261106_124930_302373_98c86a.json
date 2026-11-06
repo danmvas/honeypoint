@@ -1,0 +1,69 @@
+{
+  "session_id": "RDP-Recon_20261106_124930_302373_98c86a",
+  "driver_name": "RDP-Recon",
+  "cve": "unresolved",
+  "cve_alias": "RDP-Recon (unresolved)",
+  "protocol": "RDP",
+  "scanner_tool": "",
+  "scanner_module": "",
+  "total_stages": 5,
+  "completed_stages": 3,
+  "sc_score": 0.6,
+  "start_time": "2026-11-06T12:49:30.302373+00:00",
+  "end_time": "2026-11-06T12:49:30.302494+00:00",
+  "source_ip": "10.0.0.9",
+  "source_port": 49592,
+  "events": [
+    {
+      "stage_number": 1,
+      "stage_name": "X.224 Connection Request",
+      "timestamp": "2026-11-06T12:49:30.302421+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 49592,
+      "data_captured": {
+        "tpkt_length": 34,
+        "x224_type": "0xe0",
+        "dst_ref": 0,
+        "src_ref": 0,
+        "cookie": "Cookie: mstshash=nmap",
+        "rdp_client_name": "nmap",
+        "tool_guess": "Nmap RDP scanner"
+      }
+    },
+    {
+      "stage_number": 2,
+      "stage_name": "Security Negotiation",
+      "timestamp": "2026-11-06T12:49:30.302448+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 49592,
+      "data_captured": {
+        "selected_protocol": "PROTOCOL_RDP (0x00000000)",
+        "nla_required": false,
+        "negotiation": "legacy (pedido sem RDP_NEG_REQ)"
+      }
+    },
+    {
+      "stage_number": 3,
+      "stage_name": "MCS Connect Initial",
+      "timestamp": "2026-11-06T12:49:30.302469+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 49592,
+      "data_captured": {
+        "cs_core_length": 216,
+        "rdp_version": "RDP 5.x-8.0",
+        "resolution": "1280x800",
+        "keyboard_layout": "en-US",
+        "client_build": 2600,
+        "client_hostname": "EMP-LAP-0014",
+        "timezone_bias_minutes": 0,
+        "timezone_name": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000쨁\u0001\u0000\u0000\u0018\u0007\u0001",
+        "static_channels": [
+          "rdpdr",
+          "cliprdr",
+          "rdpsnd"
+        ]
+      }
+    }
+  ],
+  "deception_success": false
+}

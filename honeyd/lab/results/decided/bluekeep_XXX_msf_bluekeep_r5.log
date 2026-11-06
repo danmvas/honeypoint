@@ -1,0 +1,5 @@
+[*] Setting default action Scan - view all 2 actions with the show actions command
+RHOSTS => 10.0.0.40
+[+] 10.0.0.40:3389        - The target is vulnerable. The target attempted cleanup of the incorrectly-bound MS_T120 channel.
+[*] 10.0.0.40:3389        - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed

@@ -1,0 +1,28 @@
+done bluekeep_XXX_nmap_rdp_enum_r1
+done bluekeep_XXX_msf_bluekeep_r1
+done bluekeep_XXX_rdpscan_r1
+done bluekeep_XXX_nmap_rdp_enum_r2
+done bluekeep_XXX_msf_bluekeep_r2
+done bluekeep_XXX_rdpscan_r2
+done bluekeep_XXX_nmap_rdp_enum_r3
+done bluekeep_XXX_msf_bluekeep_r3
+done bluekeep_XXX_rdpscan_r3
+done bluekeep_XXX_nmap_rdp_enum_r4
+done bluekeep_XXX_msf_bluekeep_r4
+done bluekeep_XXX_rdpscan_r4
+done bluekeep_XXX_nmap_rdp_enum_r5
+done bluekeep_XXX_msf_bluekeep_r5
+done bluekeep_XXX_rdpscan_r5
+
+attack: bluekeep   sessions: 65
+
+target                                      msf_bluekeep         nmap_rdp_enum               rdpscan
+----------------------------------------------------------------------------------------------------
+XXX                                            3/5 [2-5]             2/5 [0-2]             5/5 (R=5)
+
+NON-DETERMINISTIC cells (investigate before reporting):
+  XXX x msf_bluekeep: [2, 5]
+  XXX x nmap_rdp_enum: [0, 2]
+
+% --- table rows; paste into 5-Evaluation.tex ---
+XXX & 3/5 & 2/5 & 5/5 \\

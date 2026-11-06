@@ -1,0 +1,1 @@
+{"timestamp": "2026-11-06T13:01:20.411614+00:00", "event_type": "second_attach_user", "src_ip": "10.0.0.9", "src_port": 46239, "details": {"attached_user_ids": [1001, 1002]}}

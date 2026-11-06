@@ -1,0 +1,15 @@
+per-run: each run scored by its deepest session (270 runs)
+attack: bluekeep   sessions: 270
+
+target                                      msf_bluekeep         nmap_rdp_enum               rdpscan
+----------------------------------------------------------------------------------------------------
+Honeyd                                        0/5 (R=30)            0/5 (R=30)            0/5 (R=30)
+Inert                                         0/5 (R=30)            0/5 (R=30)            0/5 (R=30)
+STAGED                                        5/5 (R=30)            3/5 (R=30)            5/5 (R=30)
+
+every cell was deterministic across its runs
+
+% --- table rows; paste into 5-Evaluation.tex ---
+Honeyd & 0/5 & 0/5 & 0/5 \\
+Inert & 0/5 & 0/5 & 0/5 \\
+STAGED & 5/5 & 3/5 & 5/5 \\

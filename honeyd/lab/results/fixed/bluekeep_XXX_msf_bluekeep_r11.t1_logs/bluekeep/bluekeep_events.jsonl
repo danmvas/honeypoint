@@ -1,0 +1,1 @@
+{"timestamp": "2026-11-06T12:31:18.175606+00:00", "event_type": "rdp_possible_exploit", "src_ip": "10.0.0.9", "src_port": 37563, "details": {"alert": "DADOS NO CANAL MS_T120 (sonda BlueKeep ou exploit)", "pdu_size": 51, "channel_id": 1005}}

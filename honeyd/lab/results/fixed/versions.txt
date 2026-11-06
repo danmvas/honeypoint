@@ -1,0 +1,12 @@
+# recorded 2026-11-06T11:38:51Z by honeyd/lab/lab.sh versions
+host: Linux 7.2.15-200.fc44.x86_64, Fedora Linux 44 (KDE Plasma Desktop Edition), podman 5.8.9
+honeypoint: b02681d
+msfconsole: Framework Version: 6.5.9-dev
+nmap: Nmap version 7.99 ( https://nmap.org )
+rdpscan: commit 09db2719a76d0fbc535f99fb51304ef060c0e484
+honeyd: Honeyd V1.6d Copyright (c) 2002-2007 Niels Provos, commit a0f3d64834781cf2c02f6d7302638f54c68dfdb0
+T1/T5 python: Python 3.14.10
+images:
+  docker.io/library/python@sha256:ac25e5afbfdb4a94ff99cc24b0345719210133144481480bcba6085efa36a341 d8f0d5177291
+  localhost/honeyd:a0f3d64 1ec9994a1a26
+  localhost/sc-scanner 5c0b8e38d667

@@ -1,0 +1,18 @@
+[
+  {
+    "target": "Inert",
+    "tool": "msf_bluekeep",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:38837",
+    "server": "10.0.0.70:3389",
+    "start_time": 1793926073.308756,
+    "end_time": 1793926078.35491,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 1,
+    "events": []
+  }
+]

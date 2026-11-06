@@ -1,0 +1,15 @@
+[*] Setting default action Scan - view all 2 actions with the show actions command
+RHOSTS => 10.0.0.40
+VERBOSE => true
+[*] 10.0.0.40:3389        - Verifying RDP protocol...
+[*] 10.0.0.40:3389        - Attempting to connect using TLS security
+[*] 10.0.0.40:3389        - Verifying RDP protocol...
+[*] 10.0.0.40:3389        - Attempting to connect using TLS security
+[*] 10.0.0.40:3389        - Detected RDP on 10.0.0.40:3389        (Windows version: N/A) (Requires NLA: No)
+[*] 10.0.0.40:3389        - Sending erect domain request
+[*] 10.0.0.40:3389        - Sending security exchange PDU
+[*] 10.0.0.40:3389        - Sending client info PDU
+[-] 10.0.0.40:3389        - Error communicating RDP protocol.
+[*] 10.0.0.40:3389        - Cannot reliably check exploitability. Error communicating RDP protocol
+[*] 10.0.0.40:3389        - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed

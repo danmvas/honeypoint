@@ -1,10 +1,10 @@
-# Honeypoint Framework
+# STAGED — STage-Aware Generic Extensible Decoys
 
 Framework genérico e extensível para defesa por deception contra reconhecimento multi-estágio.
 
-Desenvolvido como parte da dissertação de mestrado no PPGInf/UFPR. O framework provê a infraestrutura para criar, executar e avaliar **honeypoints** — serviços falsos que simulam vulnerabilidades conhecidas para enganar scanners de reconhecimento e capturar seu comportamento.
+Desenvolvido como parte da dissertação de mestrado no PPGInf/UFPR. O framework provê a infraestrutura para criar, executar e avaliar **decoys** — serviços falsos que simulam vulnerabilidades conhecidas para enganar scanners de reconhecimento e capturar seu comportamento.
 
-A arquitetura tem duas camadas obrigatórias e uma opcional: o core do framework é genérico (tracking de estágios, logging, métricas, launcher); cada CVE específica é implementada como um driver fino que herda diretamente de `HoneyPointDriver`; e famílias de protocolo (`families/`) são uma camada *opcional* — concentram o tronco de reconhecimento compartilhado por várias CVEs do mesmo protocolo e permitem que múltiplos drivers compartilhem a mesma porta com dispatch dinâmico. Novas famílias e drivers podem ser adicionados sem modificar o framework.
+A arquitetura tem duas camadas obrigatórias e uma opcional: o core do framework é genérico (tracking de estágios, logging, métricas, launcher); cada CVE específica é implementada como um driver fino que herda diretamente de `StagedDriver`; e famílias de protocolo (`families/`) são uma camada *opcional* — concentram o tronco de reconhecimento compartilhado por várias CVEs do mesmo protocolo e permitem que múltiplos drivers compartilhem a mesma porta com dispatch dinâmico. Novas famílias e drivers podem ser adicionados sem modificar o framework.
 
 ---
 
@@ -13,7 +13,7 @@ A arquitetura tem duas camadas obrigatórias e uma opcional: o core do framework
 ```
 framework/                 ← Core genérico (não sabe de protocolos)
 ├── __init__.py
-├── base.py                ← HoneyPointDriver: classe base abstrata (contrato do driver)
+├── base.py                ← StagedDriver: classe base abstrata (contrato do driver)
 ├── family.py              ← FamilyDriver + PortListener: orquestração genérica de múltiplas variantes por porta
 ├── tracker.py             ← SCTracker: tracking de stages + cálculo de SC + logs JSON
 └── launcher.py            ← Discovery automático de drivers + execução em threads
@@ -31,7 +31,7 @@ drivers/                   ← CVE específica (arquivo fino, só a divergência
 └── README.md               ← Como criar um novo driver
 ```
 
-![Arquitetura do Honeypoint Framework](framework_architecture.svg)
+![Arquitetura do STAGED](framework_architecture.svg)
 
 A analogia é com IDS como Snort/Suricata: o motor é genérico, a comunidade cria as assinaturas. Aqui, o framework provê o motor de deception, `families/` provê os "decoders" de protocolo compartilhados entre assinaturas relacionadas, e o usuário implementa drivers finos para as CVEs que deseja simular.
 
@@ -39,7 +39,7 @@ A analogia é com IDS como Snort/Suricata: o motor é genérico, a comunidade cr
 
 ## Stage Coverage (SC)
 
-**Stage Coverage** é a métrica central do framework. Ela mede quantas etapas do protocolo de reconhecimento um scanner consegue completar contra o honeypoint:
+**Stage Coverage** é a métrica central do framework. Ela mede quantas etapas do protocolo de reconhecimento um scanner consegue completar contra o decoy:
 
 ```
 SC = etapas completadas / total de etapas (N)
@@ -75,11 +75,11 @@ Três drivers de referência são incluídos, formando uma família completa (RD
 
 ### Famílias de driver e dispatch dinâmico
 
-Famílias são opcionais. Um driver pode herdar diretamente de `HoneyPointDriver` e rodar de forma standalone — sem família, sem compartilhamento de porta. Famílias só são necessárias quando dois ou mais drivers precisam escutar na mesma porta com dispatch dinâmico de variante.
+Famílias são opcionais. Um driver pode herdar diretamente de `StagedDriver` e rodar de forma standalone — sem família, sem compartilhamento de porta. Famílias só são necessárias quando dois ou mais drivers precisam escutar na mesma porta com dispatch dinâmico de variante.
 
 **SMB1-Recon** — hoje só EternalBlue, mas a base (`families/smb.py`, `SMBFamilyDriver`) já foi extraída como tronco compartilhado (Negotiate → Session Setup → Tree Connect IPC$) para quando uma segunda CVE SMBv1 com scanner dedicado seguro for encontrada — nesse momento os dois dividiriam a porta 445 com resolução dinâmica de variante, do mesmo jeito que a família RDP-Recon já faz abaixo.
 
-**RDP-Recon** — BlueKeep e MS12-020 compartilham X.224 Connection Request → Security Negotiation → MCS Connect Initial (`families/rdp.py`, `RDPFamilyDriver`) e **dividem a porta 3389**. Aqui o sinal de divergência não cabe num único pacote: só fica claro no primeiro Channel Join Request, depois de observar quantos IDs de usuário MCS foram alocados (BlueKeep = fluxo normal de 1 usuário; MS12-020 = 2 Attach User Requests seguidas de um bind de canal cross-user, o comportamento real verificado pelo scanner `ms12_020_check`).
+**RDP-Recon** — BlueKeep e MS12-020 compartilham X.224 Connection Request → Security Negotiation → MCS Connect Initial (`families/rdp.py`, `RDPFamilyDriver`) e **dividem a porta 3389**. Aqui o sinal de divergência não cabe num único pacote: o MS12-020 se revela no 2º Attach User Request (seguido de um bind de canal cross-user, o comportamento verificado pelo scanner `ms12_020_check`); o BlueKeep é o fluxo normal de 1 usuário e assume no primeiro Channel Join que nenhuma outra variante reconheça. Conexões que terminam antes disso são registradas sob a família (`RDP-Recon`).
 
 Em ambos os casos, isso é o "attach" dinâmico ao driver certo assim que a família é reconhecida, sem exigir dois sockets na mesma porta. Ver `families/smb.py` e `families/rdp.py` para o mecanismo completo, e `drivers/README.md` para como registrar uma nova variante numa família existente (ou criar uma família nova).
 
@@ -101,7 +101,7 @@ O sinal comportamental que distingue reconhecimento automatizado de tráfego leg
 |-------|------|--------------|
 | B1-B3 | (compartilhadas com MS12-020) | X.224 Connection Request (cookie, protocolos suportados), Security Negotiation (ausência de NLA), MCS Connect Initial (hostname, resolução, teclado, timezone) |
 | B4 | Channel Join | Canais virtuais solicitados |
-| B5 | Exploit PDU | Tentativa de bind no canal 0x1F/0 (MS_T120) seguida de payload de exploit (MCS Send Data) |
+| B5 | MS_T120 Probe | Dados no canal virtual MS_T120 (sonda do scanner ou payload), depois da sequência de conexão completa; o decoy responde MCS Disconnect Provider Ultimatum, como um alvo vulnerável |
 
 ### Etapas do MS12-020 (RDP)
 
@@ -133,7 +133,7 @@ python3 -m framework.launcher --list
 Saída esperada:
 
 ```
-  Honeypoint Framework — Drivers Disponíveis
+  STAGED — Drivers Disponíveis
   Nome                 CVE                Protocolo  Porta    Stages   Família
   ────────────────────────────────────────────────────────────────────────────────
   BlueKeep             CVE-2019-0708      RDP        3389     5        RDP-Recon
@@ -168,28 +168,28 @@ sudo systemctl stop xrdp        # libera porta 3389 (xrdp)
 
 ## Como testar
 
-> **IMPORTANTE:** `nmap -p 445,3389 <IP>` é um scan de porta simples — verifica apenas se o TCP está aberto. Não envia dados de protocolo, então o honeypoint não consegue progredir além da conexão TCP. Para gerar Stage Coverage, é necessário usar ferramentas que **falam o protocolo**.
+> **IMPORTANTE:** `nmap -p 445,3389 <IP>` é um scan de porta simples — verifica apenas se o TCP está aberto. Não envia dados de protocolo, então o decoy não consegue progredir além da conexão TCP. Para gerar Stage Coverage, é necessário usar ferramentas que **falam o protocolo**.
 
 ### Testar EternalBlue
 
 ```bash
-# Scanner nmap (SC = 4/5 — para após confirmar "VULNERABLE")
+# Scanner nmap (SC = 5/5 — para após o veredito)
 nmap --script smb-vuln-ms17-010 -p 445 127.0.0.1
 
-# Scanner Metasploit (SC = 4/5 — mesmo comportamento)
+# Scanner Metasploit (SC = 5/5 — continua depois do veredito: "atividade além de N")
 msfconsole -x 'use auxiliary/scanner/smb/smb_ms17_010; set RHOSTS 127.0.0.1; run'
 
-# Exploit Metasploit (SC = 5/5 — envia payload TRANSACTION2 malformado)
+# Exploit Metasploit (SC = 5/5 — continua depois do veredito: "atividade além de N")
 msfconsole -x 'use exploit/windows/smb/ms17_010_eternalblue; set RHOSTS 127.0.0.1; set PAYLOAD generic/shell_reverse_tcp; set LHOST 127.0.0.1; run'
 ```
 
 | Ferramenta | SC | Comportamento |
 |---|---|---|
-| `nmap smb-vuln-ms17-010` | 4/5 = 80% | Scanner: para após confirmar "VULNERABLE" em E4 |
-| `metasploit smb_ms17_010` (auxiliary) | 4/5 = 80% | Scanner: mesmo comportamento do nmap |
-| `metasploit ms17_010_eternalblue` (exploit) | 5/5 = 100% | Exploiter: envia pacotes TRANSACTION2 malformados |
+| `nmap smb-vuln-ms17-010` | 5/5 = 100% | Para após a resposta do PeekNamedPipe (o veredito) |
+| `metasploit smb_ms17_010` (auxiliary) | 5/5 = 100% | Continua com transações depois do veredito (atividade além de N) |
+| `metasploit ms17_010_eternalblue` (exploit) | 5/5 = 100% | Idem |
 
-> **Nota:** a distinção 4/5 vs 5/5 permite diferenciar scanners de reconhecimento (que param após confirmar a vulnerabilidade) de ferramentas de exploração real.
+> **Nota:** a stage N é a troca da qual o scanner tira o veredito (aqui, a resposta STATUS_INSUFF_SERVER_RESOURCES ao PeekNamedPipe), então o SC é limitado a ela. O que a ferramenta faz depois não conta para o SC; fica registrado em `activity_beyond_n` no JSON da sessão, e é isso que diferencia uma ferramenta que para no veredito de uma que segue adiante.
 
 ### Testar BlueKeep
 
@@ -216,17 +216,17 @@ msfconsole -x 'use auxiliary/scanner/rdp/cve_2019_0708_bluekeep; set RHOSTS 127.
 
 ```bash
 # Logs em tempo real
-tail -f ./logs/eternalblue/honeypoint.log
-tail -f ./logs/bluekeep/bluekeep_honeypoint.log
+tail -f ./logs/eternalblue/staged.log
+tail -f ./logs/bluekeep/bluekeep_staged.log
 
 # Eventos JSON estruturados (um por sessão)
-ls /var/log/honeypoint/sc_*.json
+ls /var/log/staged/sc_*.json
 
 # Relatório agregado de todas as sessões
 python3 -m framework.launcher --report
 ```
 
-Cada sessão de scanning gera um arquivo JSON em `/var/log/honeypoint/` com timestamps, dados capturados por etapa, ferramenta identificada e SC final.
+Cada sessão de scanning gera um arquivo JSON em `/var/log/staged/` com timestamps, dados capturados por etapa, ferramenta identificada e SC final.
 
 ---
 
@@ -236,9 +236,9 @@ Para adicionar suporte a um novo protocolo ou CVE, crie um arquivo em `drivers/`
 
 ```python
 # drivers/meu_protocolo.py
-from framework import HoneyPointDriver, DriverMetadata, StageDefinition, SCTracker
+from framework import StagedDriver, DriverMetadata, StageDefinition, SCTracker
 
-class MeuProtocoloDriver(HoneyPointDriver):
+class MeuProtocoloDriver(StagedDriver):
 
     def get_metadata(self) -> DriverMetadata:
         return DriverMetadata(

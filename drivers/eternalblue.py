@@ -2,7 +2,7 @@
 """
 Driver: EternalBlue (CVE-2017-0144 / MS17-010)
 ===============================================
-Honeypoint que simula um servidor SMB vulnerável ao EternalBlue,
+Decoy que simula um servidor SMB vulnerável ao EternalBlue,
 enganando o scanner Metasploit auxiliary/scanner/smb/smb_ms17_010.
 
 Reusa as stages 1-3 (Negotiate, Session Setup, Tree Connect IPC$) da
@@ -47,7 +47,7 @@ class EternalBlueDriver(smb.SMBFamilyDriver):
             stages=smb.SHARED_SMB_STAGES + [
                 StageDefinition(4, "PeekNamedPipe",
                     "Scanner envia Trans PeekNamedPipe para testar named pipes", "SMB"),
-                StageDefinition(5, "Vuln Check",
+                StageDefinition(5, "Vuln Check Response",
                     "Scanner recebe STATUS_INSUFF_SERVER_RESOURCES indicando vulnerabilidade", "SMB"),
             ]
         )
@@ -67,28 +67,35 @@ class EternalBlueDriver(smb.SMBFamilyDriver):
         trans_info = parsed if parsed else smb.parse_transaction(data)
         pipe_name = trans_info.get("pipe_name", "")
         subcmd = trans_info.get("subcommand_name", "")
-        e4_done = 4 in handler.tracker._completed
+        verdict_given = 5 in handler.tracker._completed
 
-        if not e4_done and command == 0x25:
-            # E4: PeekNamedPipe (vuln check)
+        if not verdict_given and command == 0x25 and subcmd == "PeekNamedPipe":
+            # E4: o scanner envia o PeekNamedPipe; E5: a resposta carrega o
+            # veredito (STATUS_INSUFF_SERVER_RESOURCES = vulnerável). As stages
+            # terminam na troca que carrega o veredito (Decision 1, opção a).
             handler.tracker.complete_stage(4, "PeekNamedPipe",
                 source_ip=handler.ip, data={"pipe_name": pipe_name, "subcommand": subcmd})
+            handler.tracker.complete_stage(5, "Vuln Check Response",
+                source_ip=handler.ip, data={"status": "STATUS_INSUFF_SERVER_RESOURCES"})
             log_event("VULN_CHECK", handler.ip, handler.port, {
                 "alert": "Scanner verificando vulnerabilidade MS17-010",
                 "pipe_name": pipe_name, "subcommand": subcmd
             })
             logger.warning(f"🔍 [{handler.ip}:{handler.port}] VULN CHECK: Pipe={pipe_name} SubCmd={subcmd}")
-        else:
-            # E5: exploit attempt
-            handler.tracker.complete_stage(5, "Vuln Check Response",
-                source_ip=handler.ip, data={
-                    "command": cmd_name, "pipe_name": pipe_name,
-                    "payload_size": len(data), "payload_hex_preview": data[:128].hex()
-                })
+        elif verdict_given:
+            # Depois do veredito: o scanner continua (ex.: teste do
+            # DoublePulsar) ou um exploit começa. Registrado, fora do SC.
+            handler.tracker.note_activity_beyond_n(f"SMB1 {cmd_name} após o veredito", {
+                "command": cmd_name, "pipe_name": pipe_name,
+                "payload_size": len(data), "payload_hex_preview": data[:128].hex()
+            })
             log_event("EXPLOIT_ATTEMPT", handler.ip, handler.port, {
-                "alert": "TENTATIVA DE EXPLOIT ETERNALBLUE",
+                "alert": "ATIVIDADE APÓS O VEREDITO (possível exploit EternalBlue)",
                 "command": cmd_name, "raw_hex": data.hex()
             })
-            logger.warning(f"🚨 [{handler.ip}:{handler.port}] EXPLOIT ATTEMPT! Cmd={cmd_name}")
+            logger.warning(f"🚨 [{handler.ip}:{handler.port}] Atividade após o veredito: Cmd={cmd_name}")
+        else:
+            logger.info(f"🔍 [{handler.ip}:{handler.port}] Transação antes do PeekNamedPipe: "
+                        f"{cmd_name} {subcmd}")
 
         return handler.build_error_response(command, 0xC0000205)

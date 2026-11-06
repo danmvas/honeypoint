@@ -1,0 +1,42 @@
+{
+  "session_id": "BlueKeep_20261106_011624",
+  "driver_name": "BlueKeep",
+  "cve": "CVE-2019-0708",
+  "cve_alias": "BlueKeep",
+  "protocol": "RDP",
+  "scanner_tool": "Metasploit Framework",
+  "scanner_module": "auxiliary/scanner/rdp/cve_2019_0708_bluekeep",
+  "total_stages": 5,
+  "completed_stages": 2,
+  "sc_score": 0.4,
+  "start_time": "2026-11-06T01:16:24.182405+00:00",
+  "end_time": "2026-11-06T01:16:24.182567+00:00",
+  "source_ip": "10.0.0.9",
+  "events": [
+    {
+      "stage_number": 1,
+      "stage_name": "X.224 Connection Request",
+      "timestamp": "2026-11-06T01:16:24.182486+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "tpkt_length": 11,
+        "x224_type": "0xe0",
+        "dst_ref": 0,
+        "src_ref": 0
+      }
+    },
+    {
+      "stage_number": 2,
+      "stage_name": "Security Negotiation",
+      "timestamp": "2026-11-06T01:16:24.182531+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "selected_protocol": "PROTOCOL_RDP (0x00000000)",
+        "nla_required": false
+      }
+    }
+  ],
+  "deception_success": false
+}

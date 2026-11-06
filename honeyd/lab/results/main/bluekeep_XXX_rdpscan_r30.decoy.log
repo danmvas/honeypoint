@@ -1,0 +1,53 @@
+
+  Honeypoint Framework — Iniciando 3 driver(s)
+
+01:05:00 [root] INFO: Iniciando EternalBlue (CVE-2017-0144) na porta 445
+01:05:00 [root] INFO:   Scanner esperado: auxiliary/scanner/smb/smb_ms17_010
+01:05:00 [root] INFO:   Total de stages: 5
+01:05:00 [root] INFO: Iniciando BlueKeep (CVE-2019-0708) na porta 3389
+01:05:00 [root] INFO:   Scanner esperado: auxiliary/scanner/rdp/cve_2019_0708_bluekeep
+01:05:00 [root] INFO:   Total de stages: 5
+01:05:00 [root] INFO: Iniciando MS12020 (CVE-2012-0002) na porta 3389
+01:05:00 [root] INFO:   Scanner esperado: auxiliary/scanner/rdp/ms12_020_check
+01:05:00 [root] INFO:   Total de stages: 5
+2026-11-06 01:05:00,593 [INFO] 🍯 Family Honeypoint escutando na porta 3389
+01:05:00 [honeypoint.family] INFO: 🍯 Family Honeypoint escutando na porta 3389
+2026-11-06 01:05:00,593 [INFO] 🍯 Family Honeypoint escutando na porta 445
+01:05:00 [honeypoint.family] INFO: 🍯 Family Honeypoint escutando na porta 445
+2026-11-06 01:05:00,893 [INFO] 🍯 Variantes ativas na porta 3389: ['BlueKeep', 'MS12020']
+01:05:00 [honeypoint.family] INFO: 🍯 Variantes ativas na porta 3389: ['BlueKeep', 'MS12020']
+2026-11-06 01:05:00,893 [INFO] 🍯 Variantes ativas na porta 445: ['EternalBlue']
+01:05:00 [honeypoint.family] INFO: 🍯 Variantes ativas na porta 445: ['EternalBlue']
+2026-11-06 01:05:01,776 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:57996
+01:05:01 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:57996
+2026-11-06 01:05:01,776 [INFO] 🔍 [10.0.0.9:57996] X.224 CR: cookie=Cookie: mstshash=2faq21fu
+01:05:01 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:57996] X.224 CR: cookie=Cookie: mstshash=2faq21fu
+2026-11-06 01:05:01,776 [INFO] 🔓 [10.0.0.9:57996] Security: RDP nativo (sem NLA)
+01:05:01 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:57996] Security: RDP nativo (sem NLA)
+2026-11-06 01:05:01,777 [INFO] 🕵️ [10.0.0.9:57996] MCS: host='প⠀
+爀搀瀀猀挀愀渀'
+01:05:01 [honeypoint.rdp_family] INFO: 🕵️ [10.0.0.9:57996] MCS: host='প⠀
+爀搀瀀猀挀愀渀'
+2026-11-06 01:05:01,777 [INFO] 📡 [10.0.0.9:57996] MCS Erect Domain Request
+01:05:01 [honeypoint.rdp_family] INFO: 📡 [10.0.0.9:57996] MCS Erect Domain Request
+01:05:14 [honeypoint.BlueKeep] INFO: Nova sessão: BlueKeep_20261106_010514 de 10.0.0.9
+01:05:14 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+01:05:14 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+01:05:14 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 3/5 (MCS Connect Initial) completada — SC = 3/5
+01:05:14 [honeypoint.BlueKeep] INFO: Sessão finalizada: SC = 3/5 (PARCIAL) → /logs/sc_BlueKeep_20261106_010514.json
+
+============================================================
+  BlueKeep (CVE-2019-0708) — SC = 3/5 (60%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ✅ Stage 3: MCS Connect Initial
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 01:05:14,790 [INFO] 🔒 [10.0.0.9:57996] Encerrada
+01:05:14 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:57996] Encerrada
+
+
+Parando todos os drivers...

@@ -1,6 +1,6 @@
-# Core do Honeypoint Framework
+# Core do STAGED
 
-Este diretório contém o **core genérico** do framework. Ele provê toda a infraestrutura necessária para criar, executar e avaliar honeypoints, sem saber nada sobre protocolos específicos.
+Este diretório contém o **core genérico** do framework. Ele provê toda a infraestrutura necessária para criar, executar e avaliar decoys, sem saber nada sobre protocolos específicos.
 
 **Este código não deve ser modificado para adicionar suporte a novos protocolos ou CVEs.** Para isso, crie um novo driver em `drivers/`. Veja `drivers/README.md`.
 
@@ -12,7 +12,7 @@ Este diretório contém o **core genérico** do framework. Ele provê toda a inf
 
 Define as classes que todo driver deve usar:
 
-- **`HoneyPointDriver`** — classe base abstrata. Todo driver herda dela e implementa três métodos: `get_metadata()`, `start()` e `stop()`.
+- **`StagedDriver`** — classe base abstrata. Todo driver herda dela e implementa três métodos: `get_metadata()`, `start()` e `stop()`.
 - **`DriverMetadata`** — dataclass que descreve o driver: nome, CVE, protocolo, porta padrão, scanner esperado, e a lista de stages.
 - **`StageDefinition`** — dataclass que define uma etapa do protocolo de reconhecimento: número, nome, descrição e camada de protocolo.
 
@@ -21,7 +21,7 @@ Define as classes que todo driver deve usar:
 Rastreia a progressão de um scanner pelas etapas do protocolo e calcula a métrica SC.
 
 - **`SCTracker`** — instanciado pelo launcher a partir do `DriverMetadata` do driver. O driver chama `tracker.complete_stage(n, ...)` conforme o scanner progride. Ao final, `tracker.finalize_session()` salva um JSON com todos os dados da sessão.
-- Cada sessão gera um arquivo `sc_<driver>_<timestamp>.json` em `/var/log/honeypoint/`.
+- Cada sessão gera um arquivo `sc_<driver>_<timestamp>.json` em `/var/log/staged/`.
 
 O tracker é genérico — ele não sabe se está rastreando SMB, RDP, ou qualquer outro protocolo. Ele recebe o total de stages do driver e conta quantas foram completadas.
 
@@ -29,7 +29,7 @@ O tracker é genérico — ele não sabe se está rastreando SMB, RDP, ou qualqu
 
 Descobre automaticamente todos os drivers em `drivers/`, instancia e executa em threads separadas.
 
-- Percorre `drivers/*.py`, importa cada módulo, e coleta classes que herdam de `HoneyPointDriver`.
+- Percorre `drivers/*.py`, importa cada módulo, e coleta classes que herdam de `StagedDriver`.
 - Cria um `SCTracker` para cada driver a partir do seu `DriverMetadata`.
 - Suporta execução de todos os drivers simultaneamente ou de um driver específico via `--driver`.
 
@@ -46,9 +46,9 @@ Se a lógica de um protocolo específico estiver dentro do framework, a arquitet
 ## API para drivers
 
 ```python
-from framework import HoneyPointDriver, DriverMetadata, StageDefinition, SCTracker
+from framework import StagedDriver, DriverMetadata, StageDefinition, SCTracker
 
-class MeuDriver(HoneyPointDriver):
+class MeuDriver(StagedDriver):
 
     def get_metadata(self) -> DriverMetadata:
         return DriverMetadata(

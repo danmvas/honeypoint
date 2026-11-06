@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Honeypoint Framework — Stage Coverage (SC) Tracker
+STAGED — Stage Coverage (SC) Tracker
 ====================================================
 Rastreia a progressão de um scanner pelas etapas do protocolo
 e calcula a métrica Stage Coverage.
@@ -16,11 +16,12 @@ import json
 import os
 import datetime
 import logging
+import secrets
 from dataclasses import dataclass, field, asdict
 from typing import Optional
 from pathlib import Path
 
-LOG_DIR = os.environ.get("HONEYPOINT_LOG_DIR", "/var/log/honeypoint")
+LOG_DIR = os.environ.get("STAGED_LOG_DIR", "/var/log/staged")
 
 
 @dataclass
@@ -50,8 +51,12 @@ class SessionReport:
     start_time: str = ""
     end_time: str = ""
     source_ip: str = ""
+    source_port: int = 0
     events: list[StageEvent] = field(default_factory=list)
     deception_success: bool = False
+    # Atividade depois da troca que carrega o veredito (ex.: transações após
+    # o PeekNamedPipe): registrada, mas fora do SC (Decision 1, opção a).
+    activity_beyond_n: list[dict] = field(default_factory=list)
 
 
 class SCTracker:
@@ -88,7 +93,7 @@ class SCTracker:
         self._session: Optional[SessionReport] = None
         self._completed: set[int] = set()
         
-        self.logger = logging.getLogger(f"honeypoint.{driver_name}")
+        self.logger = logging.getLogger(f"staged.{driver_name}")
         
         os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -105,11 +110,26 @@ class SCTracker:
             scanner_module=metadata.scanner_module,
         )
 
-    def new_session(self, source_ip: str = "") -> None:
+    def fork(self) -> 'SCTracker':
+        """Um tracker novo, com os mesmos metadados, para UMA conexão.
+
+        O tracker passado a `start()` é um só por driver; se as conexões o
+        compartilhassem, uma conexão nova (`new_session`) zeraria o estado
+        de outra ainda aberta. As famílias usam um fork por conexão.
+        """
+        return SCTracker(self.driver_name, self.cve, self.cve_alias,
+                         self.protocol, self.total_stages,
+                         self.scanner_tool, self.scanner_module)
+
+    def new_session(self, source_ip: str = "", source_port: int = 0) -> None:
         """Inicia uma nova sessão de tracking."""
         now = datetime.datetime.now(datetime.timezone.utc)
-        session_id = f"{self.driver_name}_{now.strftime('%Y%m%d_%H%M%S')}"
-        
+        # Microssegundos + sufixo aleatório: com resolução de 1 s, duas
+        # sessões encerradas no mesmo segundo gravavam o mesmo
+        # sc_<id>.json e a segunda apagava a primeira.
+        session_id = (f"{self.driver_name}_{now.strftime('%Y%m%d_%H%M%S_%f')}"
+                      f"_{secrets.token_hex(3)}")
+
         self._session = SessionReport(
             session_id=session_id,
             driver_name=self.driver_name,
@@ -121,10 +141,11 @@ class SCTracker:
             total_stages=self.total_stages,
             start_time=now.isoformat(),
             source_ip=source_ip,
+            source_port=source_port,
         )
         self._completed = set()
-        
-        self.logger.info(f"Nova sessão: {session_id} de {source_ip}")
+
+        self.logger.info(f"Nova sessão: {session_id} de {source_ip}:{source_port}")
 
     def complete_stage(self, stage_number: int, stage_name: str = "",
                        source_ip: str = "", source_port: int = 0,
@@ -143,7 +164,7 @@ class SCTracker:
             stage_name=stage_name,
             timestamp=datetime.datetime.now(datetime.timezone.utc).isoformat(),
             source_ip=source_ip or self._session.source_ip,
-            source_port=source_port,
+            source_port=source_port or self._session.source_port,
             data_captured=data or {},
         )
         
@@ -156,6 +177,17 @@ class SCTracker:
             f"[{self.driver_name}] Stage {stage_number}/{self.total_stages} "
             f"({stage_name}) completada — SC = {sc_display}"
         )
+
+    def note_activity_beyond_n(self, description: str, data: Optional[dict] = None) -> None:
+        """Registra atividade além da stage N (não conta para o SC)."""
+        if self._session is None:
+            return
+        self._session.activity_beyond_n.append({
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "description": description,
+            "data": data or {},
+        })
+        self.logger.info(f"[{self.driver_name}] Atividade além da stage N: {description}")
 
     def get_sc(self) -> float:
         """Retorna o Stage Coverage atual (0.0 a 1.0)."""

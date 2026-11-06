@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Honeypoint Framework — Family Dispatch (genérico, sem protocolo)
+STAGED — Family Dispatch (genérico, sem protocolo)
 ====================================================================
 Infraestrutura genérica para famílias de driver: múltiplas variantes
 (CVEs) de um mesmo protocolo compartilhando uma única porta TCP, com
@@ -38,10 +38,10 @@ import time
 from builtins import NotImplementedError
 from typing import Optional
 
-from framework.base import HoneyPointDriver
+from framework.base import StagedDriver
 from framework.tracker import SCTracker
 
-logger = logging.getLogger("honeypoint.family")
+logger = logging.getLogger("staged.family")
 if not logger.handlers:
     logger.setLevel(logging.INFO)
     _sh = logging.StreamHandler()
@@ -49,7 +49,7 @@ if not logger.handlers:
     logger.addHandler(_sh)
 
 
-class FamilyDriver(HoneyPointDriver):
+class FamilyDriver(StagedDriver):
     """Base genérica para drivers que simulam CVEs de uma mesma família
     de protocolo, compartilhando porta com outras variantes.
 
@@ -143,6 +143,18 @@ class PortListener:
     def effective_default_variant(self) -> FamilyDriver:
         return self.default_variant or self.variants[0]
 
+    def unresolved_tracker(self) -> SCTracker:
+        """Tracker (um por conexão) para uma conexão encerrada antes de
+        qualquer variante poder ser distinguida: só o tronco da família foi
+        exercitado, então o registro vai para a família, não para a
+        variante default — que nunca foi de fato acionada."""
+        metas = [v.get_metadata() for v in self.variants]
+        fam = next((m.family for m in metas if m.family), "") or f"port-{self.port}"
+        return SCTracker(
+            driver_name=fam, cve="unresolved", cve_alias=f"{fam} (unresolved)",
+            protocol=metas[0].protocol if metas else "",
+            total_stages=max((m.total_stages for m in metas), default=0))
+
     def wait_until_stopped(self) -> None:
         self._stopped_event.wait()
 
@@ -152,7 +164,7 @@ class PortListener:
         self._sock.bind(("0.0.0.0", self.port))
         self._sock.listen(10)
         self._running = True
-        logger.info(f"🍯 Family Honeypoint escutando na porta {self.port}")
+        logger.info(f"🍯 Família STAGED escutando na porta {self.port}")
 
         # As threads dos drivers sobem quase simultaneamente no launcher,
         # mas sem garantia de ordem — uma pequena janela evita aceitar a

@@ -1,0 +1,15 @@
+per-run: each run scored by its deepest session (90 runs)
+attack: ms12_020   sessions: 90
+
+target                                      msf_ms12_020
+--------------------------------------------------------
+Honeyd                                        0/5 (R=30)
+Inert                                         0/5 (R=30)
+STAGED                                        2/5 (R=30)
+
+every cell was deterministic across its runs
+
+% --- table rows; paste into 5-Evaluation.tex ---
+Honeyd & 0/5 \\
+Inert & 0/5 \\
+STAGED & 2/5 \\

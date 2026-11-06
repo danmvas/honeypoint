@@ -1,0 +1,18 @@
+[
+  {
+    "target": "Inert",
+    "tool": "rdpscan",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:41410",
+    "server": "10.0.0.70:3389",
+    "start_time": 1793969451.823187,
+    "end_time": 1793969464.876926,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 1,
+    "events": []
+  }
+]

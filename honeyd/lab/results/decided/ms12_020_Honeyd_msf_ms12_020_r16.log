@@ -1,0 +1,4 @@
+RHOSTS => 10.0.0.50
+[*] 10.0.0.50:3389        - 10.0.0.50:3389 - Cannot reliably check exploitability. Unable to determine MS12-020 vulnerability status
+[*] 10.0.0.50:3389        - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed

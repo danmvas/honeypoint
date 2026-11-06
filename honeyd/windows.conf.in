@@ -1,0 +1,25 @@
+# Honeyd T2 baseline. @HONEYD_IP@ is filled in by entrypoint.sh.
+#
+# Personality matches the real unpatched target (T3); the string must equal a
+# "Fingerprint" line in nmap-os-db exactly or Honeyd refuses to start.
+create windows
+set windows personality "Microsoft Windows 7"
+set windows default tcp action reset
+set windows default udp action reset
+
+# Honeyd's only stock SMB script (scripts/misc/smb-autofail.py), ported to
+# Python 3. It reads its config from argv[2], hence the "x" placeholder.
+add windows tcp port 445 "/usr/bin/python3 /opt/scripts/smb-autofail-py3.py x /opt/scripts/smb.conf"
+
+# Honeyd ships no RDP script. 3389 is left to the default action (reset), which
+# is the honest "stock Honeyd" answer. State this in the paper.
+
+bind @HONEYD_IP@ windows
+
+# Giving the host a MAC makes Honeyd answer ARP for it itself (honeyd.8:
+# "integrate virtual honeypots ... without running arpd"). Without it nothing
+# answers ARP and the scanner gets "No route to host".
+# It is set on the bound address, AFTER bind, on purpose: "bind" clones the
+# template and randomises the low 3 bytes of a template-level MAC on every
+# start (config.c, ethernetcode_clone). Set here, the MAC is fixed.
+set @HONEYD_IP@ ethernet "@HONEYD_MAC@"
