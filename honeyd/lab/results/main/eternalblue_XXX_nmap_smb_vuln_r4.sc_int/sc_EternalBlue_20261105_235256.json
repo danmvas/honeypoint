@@ -1,0 +1,64 @@
+{
+  "session_id": "EternalBlue_20261105_235256",
+  "driver_name": "EternalBlue",
+  "cve": "CVE-2017-0144",
+  "cve_alias": "MS17-010",
+  "protocol": "SMB",
+  "scanner_tool": "Metasploit Framework",
+  "scanner_module": "auxiliary/scanner/smb/smb_ms17_010",
+  "total_stages": 5,
+  "completed_stages": 4,
+  "sc_score": 0.8,
+  "start_time": "2026-11-05T23:52:56.806994+00:00",
+  "end_time": "2026-11-05T23:52:56.807840+00:00",
+  "source_ip": "10.0.0.9",
+  "events": [
+    {
+      "stage_number": 1,
+      "stage_name": "SMB Negotiate",
+      "timestamp": "2026-11-05T23:52:56.807076+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "dialect_index": 0
+      }
+    },
+    {
+      "stage_number": 2,
+      "stage_name": "Session Setup",
+      "timestamp": "2026-11-05T23:52:56.807110+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "word_count": 13,
+        "capabilities": "0x00000050",
+        "account_name": "guest",
+        "primary_domain": "Nmap",
+        "native_os": "Native Lanman",
+        "native_lan_manager": ""
+      }
+    },
+    {
+      "stage_number": 3,
+      "stage_name": "Tree Connect IPC$",
+      "timestamp": "2026-11-05T23:52:56.807138+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "share_path": "\\\\10.0.0.40\\IPC$"
+      }
+    },
+    {
+      "stage_number": 4,
+      "stage_name": "PeekNamedPipe",
+      "timestamp": "2026-11-05T23:52:56.807298+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "pipe_name": "\\PIPE\\",
+        "subcommand": "PeekNamedPipe"
+      }
+    }
+  ],
+  "deception_success": true
+}

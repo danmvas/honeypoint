@@ -1,0 +1,50 @@
+[
+  {
+    "target": "Honeyd",
+    "tool": null,
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:53260",
+    "server": "10.0.0.50:445",
+    "start_time": 1793921973.374736,
+    "end_time": 1793921973.67542,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 0,
+    "events": []
+  },
+  {
+    "target": "Honeyd",
+    "tool": null,
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:53276",
+    "server": "10.0.0.50:445",
+    "start_time": 1793921973.445212,
+    "end_time": 1793921973.943609,
+    "total_stages": 5,
+    "completed_stages": 2,
+    "stages_completed": [
+      1,
+      2
+    ],
+    "sc_obs": 0.4,
+    "records_seen": 8,
+    "events": [
+      {
+        "stage": 1,
+        "name": "SMB Negotiate",
+        "t_request": 1793921973.703698,
+        "t_response": 1793921973.73371
+      },
+      {
+        "stage": 2,
+        "name": "Session Setup",
+        "t_request": 1793921973.7338,
+        "t_response": 1793921973.763692
+      }
+    ]
+  }
+]

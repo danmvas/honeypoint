@@ -1,0 +1,91 @@
+--- a/families/rdp.py	2026-11-05 20:52:07.770691304 -0300
++++ b/families/rdp.py	2026-11-05 22:07:29.728268931 -0300
+@@ -54,17 +54,18 @@
+     return struct.pack(">BBH", 3, 0, length) + payload
+ 
+ 
+-def x224_cc(src_ref: int = 0x0000, dst_ref: int = 0x1234) -> bytes:
+-    cc = struct.pack(">B", 11)
+-    cc += struct.pack(">B", 0xD0)
+-    cc += struct.pack(">H", dst_ref)
+-    cc += struct.pack(">H", src_ref)
+-    cc += struct.pack(">B", 0x00)
+-    cc += struct.pack("<B", 0x02)
+-    cc += struct.pack("<B", 0x00)
+-    cc += struct.pack("<H", 0x0008)
+-    cc += struct.pack("<I", 0x00000000)
+-    return tpkt_wrap(cc)
++def x224_cc(dst_ref: int = 0x0000, src_ref: int = 0x1234, neg_rsp: bool = True) -> bytes:
++    """X.224 Connection Confirm, as Windows sends it.
++
++    DST-REF echoes the client's SRC-REF; SRC-REF is the server's own (0x1234).
++    RDP_NEG_RSP is present only if the request carried RDP_NEG_REQ
++    (MS-RDPBCGR 2.2.1.2); a legacy request gets the 11-byte legacy confirm.
++    LI counts the header after itself: 6, or 14 with RDP_NEG_RSP.
++    """
++    body = struct.pack(">BHHB", 0xD0, dst_ref, src_ref, 0x00)
++    if neg_rsp:
++        body += struct.pack("<BBHI", 0x02, 0x00, 0x0008, 0x00000000)
++    return tpkt_wrap(struct.pack(">B", len(body)) + body)
+ 
+ 
+ def x224_data_wrap(payload: bytes) -> bytes:
+@@ -90,9 +91,11 @@
+ 
+     # SC_SECURITY with RSA cert
+     key_len = 64
+-    modulus = bytes(range(1, key_len + 1))
++    # MS-RDPBCGR 2.2.1.4.3.1.1.1: keylen counts the modulus plus 8 bytes of
++    # zero padding (72 for a 512-bit key); without it clients read 448 bits.
++    modulus = bytes(range(1, key_len + 1)) + b"\x00" * 8
+     pubkey_blob = b'RSA1'
+-    pubkey_blob += struct.pack("<I", key_len)
++    pubkey_blob += struct.pack("<I", key_len + 8)
+     pubkey_blob += struct.pack("<I", key_len * 8)
+     pubkey_blob += struct.pack("<I", key_len - 1)
+     pubkey_blob += struct.pack("<I", 0x10001)
+@@ -404,7 +407,8 @@
+             cr_info = parse_x224_cr(data)
+             self._pending_stages.append((1, "X.224 Connection Request", cr_info))
+             logger.info(f"🔍 [{self.ip}:{self.port}] X.224 CR: cookie={cr_info.get('cookie', 'none')}")
+-            self.sock.sendall(x224_cc(src_ref=cr_info.get("src_ref", 0)))
++            self.sock.sendall(x224_cc(dst_ref=cr_info.get("src_ref", 0),
++                                    neg_rsp="requested_protocols" in cr_info))
+ 
+             # ═══ B2: Security Negotiation (sintética — sem troca de dados) ═══
+             self._pending_stages.append((2, "Security Negotiation", {
+@@ -485,9 +489,32 @@
+             logger.info(f"🔒 [{self.ip}:{self.port}] Encerrada")
+ 
+     def _recv(self) -> Optional[bytes]:
++        """Return exactly one TPKT PDU (RFC 1006 length), however TCP cut it.
++
++        Clients send Erect Domain and Attach User Request back to back. When
++        both land in one recv() they used to be handled as a single PDU and
++        the Attach User Request was dropped, stalling the client until its
++        timeout (timing-dependent: 24/30 rdpscan runs, 1/30 msf runs).
++        Non-TPKT bytes (e.g. a TLS ClientHello) are handed over unchanged.
++        """
++        buf = getattr(self, "_rxbuf", b"")
+         try:
+-            data = self.sock.recv(8192)
+-            return data if data else None
++            while True:
++                if buf and buf[0] != 0x03:
++                    self._rxbuf = b""
++                    return buf
++                if len(buf) >= 4:
++                    n = struct.unpack(">H", buf[2:4])[0]
++                    if n < 4:
++                        self._rxbuf = b""
++                        return buf
++                    if len(buf) >= n:
++                        self._rxbuf = buf[n:]
++                        return buf[:n]
++                chunk = self.sock.recv(8192)
++                if not chunk:
++                    return None
++                buf += chunk
+         except (socket.timeout, ConnectionResetError, OSError):
+             return None
+ 

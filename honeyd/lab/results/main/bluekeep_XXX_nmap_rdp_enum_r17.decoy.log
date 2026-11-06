@@ -1,0 +1,253 @@
+
+  Honeypoint Framework — Iniciando 3 driver(s)
+
+00:48:49 [root] INFO: Iniciando EternalBlue (CVE-2017-0144) na porta 445
+00:48:49 [root] INFO:   Scanner esperado: auxiliary/scanner/smb/smb_ms17_010
+00:48:49 [root] INFO:   Total de stages: 5
+00:48:49 [root] INFO: Iniciando BlueKeep (CVE-2019-0708) na porta 3389
+00:48:49 [root] INFO:   Scanner esperado: auxiliary/scanner/rdp/cve_2019_0708_bluekeep
+00:48:49 [root] INFO:   Total de stages: 5
+2026-11-06 00:48:49,798 [INFO] 🍯 Family Honeypoint escutando na porta 445
+00:48:49 [honeypoint.family] INFO: 🍯 Family Honeypoint escutando na porta 445
+00:48:49 [root] INFO: Iniciando MS12020 (CVE-2012-0002) na porta 3389
+00:48:49 [root] INFO:   Scanner esperado: auxiliary/scanner/rdp/ms12_020_check
+00:48:49 [root] INFO:   Total de stages: 5
+2026-11-06 00:48:49,799 [INFO] 🍯 Family Honeypoint escutando na porta 3389
+00:48:49 [honeypoint.family] INFO: 🍯 Family Honeypoint escutando na porta 3389
+2026-11-06 00:48:50,099 [INFO] 🍯 Variantes ativas na porta 445: ['EternalBlue']
+00:48:50 [honeypoint.family] INFO: 🍯 Variantes ativas na porta 445: ['EternalBlue']
+2026-11-06 00:48:50,099 [INFO] 🍯 Variantes ativas na porta 3389: ['BlueKeep', 'MS12020']
+00:48:50 [honeypoint.family] INFO: 🍯 Variantes ativas na porta 3389: ['BlueKeep', 'MS12020']
+2026-11-06 00:48:51,194 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:56160
+00:48:51 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:56160
+2026-11-06 00:48:51,194 [INFO] 🔍 [10.0.0.9:56160] X.224 CR: cookie=Cookie: mstshash=nmap
+00:48:51 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:56160] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 00:48:51,194 [INFO] 🔓 [10.0.0.9:56160] Security: RDP nativo (sem NLA)
+00:48:51 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:56160] Security: RDP nativo (sem NLA)
+00:48:51 [honeypoint.BlueKeep] INFO: Nova sessão: BlueKeep_20261106_004851 de 10.0.0.9
+00:48:51 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+00:48:51 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+00:48:51 [honeypoint.BlueKeep] INFO: Sessão finalizada: SC = 2/5 (PARCIAL) → /logs/sc_BlueKeep_20261106_004851.json
+
+============================================================
+  BlueKeep (CVE-2019-0708) — SC = 2/5 (40%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ⬜ Stage 3: 
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 00:48:51,195 [INFO] 🔒 [10.0.0.9:56160] Encerrada
+00:48:51 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:56160] Encerrada
+2026-11-06 00:48:51,395 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:56176
+00:48:51 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:56176
+2026-11-06 00:48:51,395 [INFO] 🔍 [10.0.0.9:56176] X.224 CR: cookie=Cookie: mstshash=nmap
+00:48:51 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:56176] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 00:48:51,395 [INFO] 🔓 [10.0.0.9:56176] Security: RDP nativo (sem NLA)
+00:48:51 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:56176] Security: RDP nativo (sem NLA)
+00:48:51 [honeypoint.BlueKeep] INFO: Nova sessão: BlueKeep_20261106_004851 de 10.0.0.9
+00:48:51 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+00:48:51 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+00:48:51 [honeypoint.BlueKeep] INFO: Sessão finalizada: SC = 2/5 (PARCIAL) → /logs/sc_BlueKeep_20261106_004851.json
+
+============================================================
+  BlueKeep (CVE-2019-0708) — SC = 2/5 (40%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ⬜ Stage 3: 
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 00:48:51,396 [INFO] 🔒 [10.0.0.9:56176] Encerrada
+00:48:51 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:56176] Encerrada
+2026-11-06 00:48:51,596 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:56186
+00:48:51 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:56186
+2026-11-06 00:48:51,596 [INFO] 🔍 [10.0.0.9:56186] X.224 CR: cookie=Cookie: mstshash=nmap
+00:48:51 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:56186] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 00:48:51,596 [INFO] 🔓 [10.0.0.9:56186] Security: RDP nativo (sem NLA)
+00:48:51 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:56186] Security: RDP nativo (sem NLA)
+00:48:51 [honeypoint.BlueKeep] INFO: Nova sessão: BlueKeep_20261106_004851 de 10.0.0.9
+00:48:51 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+00:48:51 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+00:48:51 [honeypoint.BlueKeep] INFO: Sessão finalizada: SC = 2/5 (PARCIAL) → /logs/sc_BlueKeep_20261106_004851.json
+
+============================================================
+  BlueKeep (CVE-2019-0708) — SC = 2/5 (40%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ⬜ Stage 3: 
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 00:48:51,596 [INFO] 🔒 [10.0.0.9:56186] Encerrada
+00:48:51 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:56186] Encerrada
+2026-11-06 00:48:51,796 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:56188
+00:48:51 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:56188
+2026-11-06 00:48:51,796 [INFO] 🔍 [10.0.0.9:56188] X.224 CR: cookie=Cookie: mstshash=nmap
+00:48:51 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:56188] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 00:48:51,796 [INFO] 🔓 [10.0.0.9:56188] Security: RDP nativo (sem NLA)
+00:48:51 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:56188] Security: RDP nativo (sem NLA)
+2026-11-06 00:48:51,797 [INFO] 🕵️ [10.0.0.9:56188] MCS: host=''
+00:48:51 [honeypoint.rdp_family] INFO: 🕵️ [10.0.0.9:56188] MCS: host=''
+00:48:51 [honeypoint.BlueKeep] INFO: Nova sessão: BlueKeep_20261106_004851 de 10.0.0.9
+00:48:51 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+00:48:51 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+00:48:51 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 3/5 (MCS Connect Initial) completada — SC = 3/5
+00:48:51 [honeypoint.BlueKeep] INFO: Sessão finalizada: SC = 3/5 (PARCIAL) → /logs/sc_BlueKeep_20261106_004851.json
+
+============================================================
+  BlueKeep (CVE-2019-0708) — SC = 3/5 (60%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ✅ Stage 3: MCS Connect Initial
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 00:48:51,798 [INFO] 🔒 [10.0.0.9:56188] Encerrada
+00:48:51 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:56188] Encerrada
+2026-11-06 00:48:51,998 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:56194
+00:48:51 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:56194
+2026-11-06 00:48:51,998 [INFO] 🔍 [10.0.0.9:56194] X.224 CR: cookie=Cookie: mstshash=nmap
+00:48:51 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:56194] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 00:48:51,998 [INFO] 🔓 [10.0.0.9:56194] Security: RDP nativo (sem NLA)
+00:48:51 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:56194] Security: RDP nativo (sem NLA)
+00:48:51 [honeypoint.BlueKeep] INFO: Nova sessão: BlueKeep_20261106_004851 de 10.0.0.9
+00:48:51 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+00:48:51 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+00:48:51 [honeypoint.BlueKeep] INFO: Sessão finalizada: SC = 2/5 (PARCIAL) → /logs/sc_BlueKeep_20261106_004851.json
+
+============================================================
+  BlueKeep (CVE-2019-0708) — SC = 2/5 (40%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ⬜ Stage 3: 
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 00:48:51,999 [INFO] 🔒 [10.0.0.9:56194] Encerrada
+00:48:51 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:56194] Encerrada
+2026-11-06 00:48:52,199 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:56208
+00:48:52 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:56208
+2026-11-06 00:48:52,199 [INFO] 🔍 [10.0.0.9:56208] X.224 CR: cookie=Cookie: mstshash=nmap
+00:48:52 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:56208] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 00:48:52,199 [INFO] 🔓 [10.0.0.9:56208] Security: RDP nativo (sem NLA)
+00:48:52 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:56208] Security: RDP nativo (sem NLA)
+2026-11-06 00:48:52,200 [INFO] 🕵️ [10.0.0.9:56208] MCS: host='প⠀
+䔀䴀倀ⴀ䰀䄀倀ⴀ　　㄀㐀'
+00:48:52 [honeypoint.rdp_family] INFO: 🕵️ [10.0.0.9:56208] MCS: host='প⠀
+䔀䴀倀ⴀ䰀䄀倀ⴀ　　㄀㐀'
+00:48:52 [honeypoint.BlueKeep] INFO: Nova sessão: BlueKeep_20261106_004852 de 10.0.0.9
+00:48:52 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+00:48:52 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+00:48:52 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 3/5 (MCS Connect Initial) completada — SC = 3/5
+00:48:52 [honeypoint.BlueKeep] INFO: Sessão finalizada: SC = 3/5 (PARCIAL) → /logs/sc_BlueKeep_20261106_004852.json
+
+============================================================
+  BlueKeep (CVE-2019-0708) — SC = 3/5 (60%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ✅ Stage 3: MCS Connect Initial
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 00:48:52,201 [INFO] 🔒 [10.0.0.9:56208] Encerrada
+00:48:52 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:56208] Encerrada
+2026-11-06 00:48:52,401 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:56222
+00:48:52 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:56222
+2026-11-06 00:48:52,401 [INFO] 🔍 [10.0.0.9:56222] X.224 CR: cookie=Cookie: mstshash=nmap
+00:48:52 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:56222] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 00:48:52,401 [INFO] 🔓 [10.0.0.9:56222] Security: RDP nativo (sem NLA)
+00:48:52 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:56222] Security: RDP nativo (sem NLA)
+2026-11-06 00:48:52,401 [INFO] 🕵️ [10.0.0.9:56222] MCS: host='প⠀
+䔀䴀倀ⴀ䰀䄀倀ⴀ　　㄀㐀'
+00:48:52 [honeypoint.rdp_family] INFO: 🕵️ [10.0.0.9:56222] MCS: host='প⠀
+䔀䴀倀ⴀ䰀䄀倀ⴀ　　㄀㐀'
+00:48:52 [honeypoint.BlueKeep] INFO: Nova sessão: BlueKeep_20261106_004852 de 10.0.0.9
+00:48:52 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+00:48:52 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+00:48:52 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 3/5 (MCS Connect Initial) completada — SC = 3/5
+00:48:52 [honeypoint.BlueKeep] INFO: Sessão finalizada: SC = 3/5 (PARCIAL) → /logs/sc_BlueKeep_20261106_004852.json
+
+============================================================
+  BlueKeep (CVE-2019-0708) — SC = 3/5 (60%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ✅ Stage 3: MCS Connect Initial
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 00:48:52,402 [INFO] 🔒 [10.0.0.9:56222] Encerrada
+00:48:52 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:56222] Encerrada
+2026-11-06 00:48:52,602 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:56232
+00:48:52 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:56232
+2026-11-06 00:48:52,602 [INFO] 🔍 [10.0.0.9:56232] X.224 CR: cookie=Cookie: mstshash=nmap
+00:48:52 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:56232] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 00:48:52,602 [INFO] 🔓 [10.0.0.9:56232] Security: RDP nativo (sem NLA)
+00:48:52 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:56232] Security: RDP nativo (sem NLA)
+2026-11-06 00:48:52,602 [INFO] 🕵️ [10.0.0.9:56232] MCS: host='প⠀
+䔀䴀倀ⴀ䰀䄀倀ⴀ　　㄀㐀'
+00:48:52 [honeypoint.rdp_family] INFO: 🕵️ [10.0.0.9:56232] MCS: host='প⠀
+䔀䴀倀ⴀ䰀䄀倀ⴀ　　㄀㐀'
+00:48:52 [honeypoint.BlueKeep] INFO: Nova sessão: BlueKeep_20261106_004852 de 10.0.0.9
+00:48:52 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+00:48:52 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+00:48:52 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 3/5 (MCS Connect Initial) completada — SC = 3/5
+00:48:52 [honeypoint.BlueKeep] INFO: Sessão finalizada: SC = 3/5 (PARCIAL) → /logs/sc_BlueKeep_20261106_004852.json
+
+============================================================
+  BlueKeep (CVE-2019-0708) — SC = 3/5 (60%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ✅ Stage 3: MCS Connect Initial
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 00:48:52,603 [INFO] 🔒 [10.0.0.9:56232] Encerrada
+00:48:52 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:56232] Encerrada
+2026-11-06 00:48:52,803 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:56244
+00:48:52 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:56244
+2026-11-06 00:48:52,803 [INFO] 🔍 [10.0.0.9:56244] X.224 CR: cookie=Cookie: mstshash=nmap
+00:48:52 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:56244] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 00:48:52,803 [INFO] 🔓 [10.0.0.9:56244] Security: RDP nativo (sem NLA)
+00:48:52 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:56244] Security: RDP nativo (sem NLA)
+2026-11-06 00:48:52,803 [INFO] 🕵️ [10.0.0.9:56244] MCS: host='প⠀
+䔀䴀倀ⴀ䰀䄀倀ⴀ　　㄀㐀'
+00:48:52 [honeypoint.rdp_family] INFO: 🕵️ [10.0.0.9:56244] MCS: host='প⠀
+䔀䴀倀ⴀ䰀䄀倀ⴀ　　㄀㐀'
+00:48:52 [honeypoint.BlueKeep] INFO: Nova sessão: BlueKeep_20261106_004852 de 10.0.0.9
+00:48:52 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+00:48:52 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+00:48:52 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 3/5 (MCS Connect Initial) completada — SC = 3/5
+00:48:52 [honeypoint.BlueKeep] INFO: Sessão finalizada: SC = 3/5 (PARCIAL) → /logs/sc_BlueKeep_20261106_004852.json
+
+============================================================
+  BlueKeep (CVE-2019-0708) — SC = 3/5 (60%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ✅ Stage 3: MCS Connect Initial
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 00:48:52,804 [INFO] 🔒 [10.0.0.9:56244] Encerrada
+00:48:52 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:56244] Encerrada
+
+
+Parando todos os drivers...

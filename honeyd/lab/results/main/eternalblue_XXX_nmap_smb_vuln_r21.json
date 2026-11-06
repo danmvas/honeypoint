@@ -1,0 +1,65 @@
+[
+  {
+    "target": "XXX",
+    "tool": "nmap_smb_vuln",
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:47228",
+    "server": "10.0.0.40:445",
+    "start_time": 1793924148.790076,
+    "end_time": 1793924148.793667,
+    "total_stages": 5,
+    "completed_stages": 4,
+    "stages_completed": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "sc_obs": 0.8,
+    "records_seen": 8,
+    "events": [
+      {
+        "stage": 1,
+        "name": "SMB Negotiate",
+        "t_request": 1793924148.790415,
+        "t_response": 1793924148.791189
+      },
+      {
+        "stage": 2,
+        "name": "Session Setup",
+        "t_request": 1793924148.791617,
+        "t_response": 1793924148.791718
+      },
+      {
+        "stage": 3,
+        "name": "Tree Connect IPC$",
+        "t_request": 1793924148.792332,
+        "t_response": 1793924148.792428
+      },
+      {
+        "stage": 4,
+        "name": "PeekNamedPipe",
+        "t_request": 1793924148.792755,
+        "t_response": 1793924148.793268,
+        "verdict": "STATUS_INSUFF_SERVER_RESOURCES"
+      }
+    ]
+  },
+  {
+    "target": "XXX",
+    "tool": "nmap_smb_vuln",
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:49149",
+    "server": "10.0.0.40:445",
+    "start_time": 1793924148.772266,
+    "end_time": 1793924148.772304,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 0,
+    "events": []
+  }
+]

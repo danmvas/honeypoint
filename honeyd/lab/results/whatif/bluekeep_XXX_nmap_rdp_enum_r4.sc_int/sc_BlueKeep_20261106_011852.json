@@ -1,0 +1,62 @@
+{
+  "session_id": "BlueKeep_20261106_011852",
+  "driver_name": "BlueKeep",
+  "cve": "CVE-2019-0708",
+  "cve_alias": "BlueKeep",
+  "protocol": "RDP",
+  "scanner_tool": "Metasploit Framework",
+  "scanner_module": "auxiliary/scanner/rdp/cve_2019_0708_bluekeep",
+  "total_stages": 5,
+  "completed_stages": 3,
+  "sc_score": 0.6,
+  "start_time": "2026-11-06T01:18:52.162714+00:00",
+  "end_time": "2026-11-06T01:18:52.162819+00:00",
+  "source_ip": "10.0.0.9",
+  "events": [
+    {
+      "stage_number": 1,
+      "stage_name": "X.224 Connection Request",
+      "timestamp": "2026-11-06T01:18:52.162766+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "tpkt_length": 34,
+        "x224_type": "0xe0",
+        "dst_ref": 0,
+        "src_ref": 0,
+        "cookie": "Cookie: mstshash=nmap",
+        "rdp_client_name": "nmap",
+        "tool_guess": "Nmap RDP scanner"
+      }
+    },
+    {
+      "stage_number": 2,
+      "stage_name": "Security Negotiation",
+      "timestamp": "2026-11-06T01:18:52.162789+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "selected_protocol": "PROTOCOL_RDP (0x00000000)",
+        "nla_required": false
+      }
+    },
+    {
+      "stage_number": 3,
+      "stage_name": "MCS Connect Initial",
+      "timestamp": "2026-11-06T01:18:52.162805+00:00",
+      "source_ip": "10.0.0.9",
+      "source_port": 0,
+      "data_captured": {
+        "cs_core_length": 17408,
+        "rdp_version": "0x81616375",
+        "resolution": "284x55488",
+        "keyboard_layout": "0x20050000",
+        "client_build": 63570179,
+        "client_hostname": "প\u0004⠀\n䔀䴀倀ⴀ䰀䄀倀ⴀ　　㄀㐀",
+        "timezone_bias_minutes": 0,
+        "timezone_name": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000ĀǊ\u0000\u0000᠀܀Ā"
+      }
+    }
+  ],
+  "deception_success": false
+}

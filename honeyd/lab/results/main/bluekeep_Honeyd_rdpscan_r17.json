@@ -1,0 +1,18 @@
+[
+  {
+    "target": "Honeyd",
+    "tool": "rdpscan",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:60348",
+    "server": "10.0.0.50:3389",
+    "start_time": 1793926152.583658,
+    "end_time": 1793926152.613754,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 0,
+    "events": []
+  }
+]

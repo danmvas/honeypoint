@@ -1,0 +1,55 @@
+[
+  {
+    "target": "XXX (EternalBlue driver)",
+    "tool": "selftest probe",
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.2:50000",
+    "server": "10.0.0.1:14455",
+    "start_time": 1793198303.311428,
+    "end_time": 1793198303.312529,
+    "total_stages": 5,
+    "completed_stages": 5,
+    "stages_completed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "sc_obs": 1.0,
+    "records_seen": 10,
+    "events": [
+      {
+        "stage": 1,
+        "name": "SMB Negotiate",
+        "t_request": 1793198303.311428,
+        "t_response": 1793198303.311985
+      },
+      {
+        "stage": 2,
+        "name": "Session Setup",
+        "t_request": 1793198303.311993,
+        "t_response": 1793198303.312075
+      },
+      {
+        "stage": 3,
+        "name": "Tree Connect IPC$",
+        "t_request": 1793198303.312083,
+        "t_response": 1793198303.312137
+      },
+      {
+        "stage": 4,
+        "name": "PeekNamedPipe",
+        "t_request": 1793198303.312144,
+        "t_response": 1793198303.312398
+      },
+      {
+        "stage": 5,
+        "name": "Post-verdict Transaction",
+        "t_request": 1793198303.312402,
+        "t_response": 1793198303.312529
+      }
+    ]
+  }
+]

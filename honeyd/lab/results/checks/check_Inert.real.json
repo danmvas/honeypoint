@@ -1,0 +1,34 @@
+[
+  {
+    "target": "Inert",
+    "tool": null,
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:57808",
+    "server": "10.0.0.70:445",
+    "start_time": 1793921982.505463,
+    "end_time": 1793921982.505888,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 0,
+    "events": []
+  },
+  {
+    "target": "Inert",
+    "tool": null,
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:57820",
+    "server": "10.0.0.70:445",
+    "start_time": 1793921982.54452,
+    "end_time": 1793922007.854899,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 5,
+    "events": []
+  }
+]
