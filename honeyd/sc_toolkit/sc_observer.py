@@ -366,7 +366,7 @@ ETERNALBLUE_STAGES = {1: "SMB Negotiate", 2: "Session Setup",
 
 BLUEKEEP_STAGES = {1: "X.224 Connection Request", 2: "Security Negotiation",
                    3: "MCS Connect Initial", 4: "Channel Join",
-                   5: "Exploit PDU"}
+                   5: "MS_T120 Probe"}
 
 MS12020_STAGES = {1: "X.224 Connection Request", 2: "Security Negotiation",
                   3: "MCS Connect Initial", 4: "Second Attach User",

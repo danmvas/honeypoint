@@ -105,6 +105,26 @@ column, as the tables here do.
   ones); the baselines don't move under them; and the rationale (verdict-bearing
   exchange) is stated independently of any one scanner.
 
+### Changed after this run (labels and the success flag only, no re-run needed)
+
+- **α = 1.** A session's `deception_success` is now true only at SC = N
+  (`families/smb.py`, `families/rdp.py`; it was SC ≥ 0.8). At 4/5 the scanner
+  hasn't reached the exchange it decides on. No flag in `results/decided`
+  changes: its 480 SC_int records are 180 at 5/5 (true) and 300 RDP-Recon at
+  2/5 or 3/5 (false), with none at 4/5.
+- **BlueKeep stage 5 renamed "Exploit PDU" → "MS_T120 Probe"** in the driver
+  and the observer: it is the scanner's probe, and the drivers only imitate
+  safe scanners. The records in `results/` keep the old label. Rescoring
+  `results/decided` with the renamed observer gives the stored report with
+  only the label changed.
+- `lab.sh versions` now also records Honeyd's personality string, the
+  nmap-os-db entry it resolves to, the database's `$Id`, and the SMB script's
+  OS strings. For the runs here: "Microsoft Windows 7", 12 entries share the
+  name and Honeyd keeps the last ("Windows 7 Ultimate N - Version 6.1 (Build
+  7600)"), `nmap-os-db 28604 2012-05-17`; SMB announces NATIVE_OS "Windows 5.1"
+  and LAN_MANAGER "Windows 2000 LAN Manager" (a mismatch in our `smb.conf`, not
+  Honeyd's; no score depends on it).
+
 ## Update (2026-11-06): after the fixes, framework commit `b02681d`
 
 Defects F1–F8 below are fixed in `b02681d`; the RDP connection is now carried

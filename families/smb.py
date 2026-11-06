@@ -635,7 +635,10 @@ class SMBConnectionHandler:
             return
 
         if tracker is not None and len(tracker._completed) > 0:
-            tracker.finalize_session(deception_success=(tracker.get_sc() >= 0.8))
+            # α = 1: sucesso só quando o scanner passou pela troca da qual tira
+            # o veredito (stage N). Em 4/5 ele ainda não decidiu.
+            tracker.finalize_session(
+                deception_success=(len(tracker._completed) == tracker.total_stages))
             tracker.print_status()
 
     def _build_tree_connect_success(self) -> bytes:
