@@ -54,6 +54,9 @@ class SessionReport:
     source_port: int = 0
     events: list[StageEvent] = field(default_factory=list)
     deception_success: bool = False
+    # Atividade depois da troca que carrega o veredito (ex.: transações após
+    # o PeekNamedPipe): registrada, mas fora do SC (Decision 1, opção a).
+    activity_beyond_n: list[dict] = field(default_factory=list)
 
 
 class SCTracker:
@@ -174,6 +177,17 @@ class SCTracker:
             f"[{self.driver_name}] Stage {stage_number}/{self.total_stages} "
             f"({stage_name}) completada — SC = {sc_display}"
         )
+
+    def note_activity_beyond_n(self, description: str, data: Optional[dict] = None) -> None:
+        """Registra atividade além da stage N (não conta para o SC)."""
+        if self._session is None:
+            return
+        self._session.activity_beyond_n.append({
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "description": description,
+            "data": data or {},
+        })
+        self.logger.info(f"[{self.driver_name}] Atividade além da stage N: {description}")
 
     def get_sc(self) -> float:
         """Retorna o Stage Coverage atual (0.0 a 1.0)."""

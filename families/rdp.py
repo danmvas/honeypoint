@@ -36,8 +36,10 @@ compartilhado por várias).
 
 import logging
 import os
+import select
 import socket
 import struct
+import time
 from typing import Optional
 
 from framework.base import DriverMetadata, StageDefinition
@@ -590,6 +592,8 @@ class RDPConnectionHandler:
     Active, finalização) até o ponto em que o scanner envia sua sonda."""
 
     MAX_PDUS = 300
+    # Quanto o Connect Response espera por um PDU seguinte do cliente (ver _hold).
+    CONNECT_RESPONSE_HOLD = 0.1
 
     def __init__(self, listener: _RDPPortListener, sock: socket.socket, addr: tuple):
         self.listener = listener
@@ -605,6 +609,8 @@ class RDPConnectionHandler:
         self._resolved: Optional[RDPFamilyDriver] = None
         self._rxbuf = b""
         self._session_state = "mcs"                   # mcs -> secured -> demand_sent -> active
+        self._held = b""                              # resposta segurada (ver _hold)
+        self._hold_deadline = 0.0
 
     def handle(self) -> None:
         logger.info(f"🎯 Nova conexão RDP: {self.ip}:{self.port}")
@@ -623,7 +629,7 @@ class RDPConnectionHandler:
             negotiated = "requested_protocols" in cr_info
             self._pending_stages.append((1, "X.224 Connection Request", cr_info))
             logger.info(f"🔍 [{self.ip}:{self.port}] X.224 CR: cookie={cr_info.get('cookie', 'none')}")
-            self.sock.sendall(x224_cc(dst_ref=cr_info.get("src_ref", 0), neg_rsp=negotiated))
+            self._out(x224_cc(dst_ref=cr_info.get("src_ref", 0), neg_rsp=negotiated))
 
             # ═══ B2: Security Negotiation (sintética — sem troca de dados) ═══
             self._pending_stages.append((2, "Security Negotiation", {
@@ -648,7 +654,7 @@ class RDPConnectionHandler:
             self._pending_stages.append((3, "MCS Connect Initial", mcs_info))
             logger.info(f"🕵️ [{self.ip}:{self.port}] MCS: host='{mcs_info.get('client_hostname','')}' "
                         f"canais={names}")
-            self.sock.sendall(build_mcs_connect_response(len(names)))
+            self._hold(build_mcs_connect_response(len(names)))
 
             # ═══ Domain / Attach User / Channel Join / sessão — dispatch dinâmico ═══
             for _ in range(self.MAX_PDUS):
@@ -665,7 +671,7 @@ class RDPConnectionHandler:
                     new_id = self.user_id_counter
                     self.attached_user_ids.append(new_id)
                     logger.info(f"📡 [{self.ip}:{self.port}] MCS Attach User Request -> ID {new_id}")
-                    self.sock.sendall(build_mcs_attach_confirm(new_id))
+                    self._out(build_mcs_attach_confirm(new_id))
                     context = {"attached_user_ids": list(self.attached_user_ids)}
                     if self._resolved is None:
                         variant = self._match_variant("attach_user", context)
@@ -728,7 +734,7 @@ class RDPConnectionHandler:
         context = {"channel_id": channel_id, "channel_name": name}
         response = self._resolved.handle_variant_stages(self, "channel_data", data, context)
         if response:
-            self.sock.sendall(response)
+            self._out(response)
             if is_disconnect_provider_ultimatum(response):
                 self._graceful_close()
                 return False
@@ -743,12 +749,12 @@ class RDPConnectionHandler:
             self._session_state = "secured"
         elif flags & SEC_INFO_PKT:
             logger.info(f"🪪 [{self.ip}:{self.port}] Client Info PDU -> licença (valid client) + Demand Active")
-            self.sock.sendall(build_license_valid_client() + build_demand_active())
+            self._out(build_license_valid_client() + build_demand_active())
             self._session_state = "demand_sent"
         elif self._session_state == "demand_sent":
             user = self.attached_user_ids[0] if self.attached_user_ids else MCS_SERVER_CHANNEL
             logger.info(f"🖥️ [{self.ip}:{self.port}] Confirm Active -> finalização + 1ª atualização de tela")
-            self.sock.sendall(b"".join(build_server_finalization(user)) + build_orders_update_memblt())
+            self._out(b"".join(build_server_finalization(user)) + build_orders_update_memblt())
             self._session_state = "active"
 
     def _graceful_close(self) -> None:
@@ -768,7 +774,37 @@ class RDPConnectionHandler:
 
     def _send(self, response: Optional[bytes]) -> None:
         if response:
-            self.sock.sendall(response)
+            self._out(response)
+
+    def _out(self, data: bytes) -> None:
+        """Envia uma resposta — junto com a resposta segurada, se houver."""
+        if self._held:
+            data, self._held = self._held + data, b""
+        if data:
+            self.sock.sendall(data)
+
+    def _hold(self, data: bytes) -> None:
+        """Segura o Connect Response por até CONNECT_RESPONSE_HOLD segundos.
+
+        Se o cliente já mandou o PDU seguinte sem esperar (o ms12_020_check
+        envia Connect Initial e Attach User Request em sequência), a resposta
+        a esse PDU sai no MESMO envio que o Connect Response. O módulo lê uma
+        resposta por pedido e pega o user id dos bytes 9-10 da primeira
+        leitura; com as duas respostas juntas, as leituras seguintes ficam
+        alinhadas e ele lê o Channel Join Confirm do qual tira o veredito.
+        Com as respostas separadas ele ficava uma resposta atrás e concluía
+        "Not vulnerable" (29 de 30 execuções). Clientes que esperam o Connect
+        Response (mstsc, rdesktop, nmap, o scanner de BlueKeep) o recebem
+        quando a janela expira. TCP_QUICKACK faz o ACK do Connect Initial
+        sair na hora, para o Nagle do cliente liberar o próximo PDU já.
+        """
+        self._held = data
+        self._hold_deadline = time.monotonic() + self.CONNECT_RESPONSE_HOLD
+        if hasattr(socket, "TCP_QUICKACK"):
+            try:
+                self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_QUICKACK, 1)
+            except OSError:
+                pass
 
     def _recv(self) -> Optional[bytes]:
         """Exatamente um PDU TPKT (comprimento RFC 1006), como quer que o TCP
@@ -795,6 +831,11 @@ class RDPConnectionHandler:
                     if len(buf) >= n:
                         self._rxbuf = buf[n:]
                         return buf[:n]
+                if self._held:
+                    wait = max(0.0, self._hold_deadline - time.monotonic())
+                    readable, _, _ = select.select([self.sock], [], [], wait)
+                    if not readable:
+                        self._out(b"")          # janela expirou: envia o que estava segurado
                 chunk = self.sock.recv(8192)
                 if not chunk:
                     return None

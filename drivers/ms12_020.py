@@ -14,8 +14,9 @@ O ponto de divergência começa na fase de Attach User / Channel Join:
   M4: Second Attach User Request — Scanner pede um 2º ID de usuário MCS
                                     (é aqui que a conexão é resolvida
                                     para esta variante)
-  M5: Cross-User Channel Bind    — Scanner vincula o 1º usuário a um
-                                    canal do 2º usuário; servidor aceita
+  M5: Channel Join Check         — Channel Join após o 2º Attach User,
+                                    aceito pelo servidor (a troca da qual o
+                                    scanner tira o veredito)
 
 Diferente do BlueKeep (que faz um único Attach User e testa o canal
 MS_T120 31/0), o MS12-020 depende de obter DOIS IDs de usuário
@@ -70,8 +71,9 @@ class MS12020Driver(rdp.RDPFamilyDriver):
             stages=rdp.SHARED_RDP_STAGES + [
                 StageDefinition(4, "Second Attach User Request",
                     "Scanner solicita um segundo ID de usuário MCS", "RDP"),
-                StageDefinition(5, "Cross-User Channel Bind",
-                    "Scanner vincula o 1º usuário a um canal do 2º usuário — servidor aceita", "RDP"),
+                StageDefinition(5, "Channel Join Check",
+                    "Channel Join após o 2º Attach User, aceito pelo servidor (Confirm com "
+                    "resultado 0) — a troca da qual o scanner tira o veredito", "RDP"),
             ]
         )
 
@@ -111,23 +113,26 @@ class MS12020Driver(rdp.RDPFamilyDriver):
         if event == "channel_join":
             initiator = context.get("initiator", 0)
             channel_id = context.get("channel_id", 0)
+            cross_user = self._is_cross_user_bind(context)
 
-            if self._is_cross_user_bind(context):
-                logger.warning(f"🚨 [{handler.ip}:{handler.port}] Cross-user channel bind: "
-                                f"usuário {initiator} (anexados: {attached}) -> canal {channel_id}")
-                if 5 not in handler.tracker._completed:
-                    handler.tracker.complete_stage(5, "Cross-User Channel Bind",
-                        source_ip=handler.ip, data={
-                            "initiator": initiator, "channel_id": channel_id,
-                            "attached_user_ids": attached,
-                        })
-                    log_event("VULN_CHECK", handler.ip, handler.port, {
-                        "alert": "Scanner verificando vulnerabilidade MS12-020 (cross-user channel bind)",
+            # M5 (Decision 1, opção a): o Channel Join que segue o 2º Attach
+            # User é a troca da qual o ms12_020_check tira o veredito (ele lê
+            # o Channel Join Confirm com resultado 0). O initiator que o
+            # módulo envia vem de bytes do Connect Response e nunca é um
+            # usuário anexado — por isso "cross-user" é registrado, não exigido.
+            if len(attached) >= 2 and 5 not in handler.tracker._completed:
+                handler.tracker.complete_stage(5, "Channel Join Check",
+                    source_ip=handler.ip, data={
                         "initiator": initiator, "channel_id": channel_id,
+                        "attached_user_ids": attached, "cross_user": cross_user,
                     })
-            else:
-                logger.info(f"📡 [{handler.ip}:{handler.port}] Channel Join (não cross-user): "
-                            f"initiator {initiator} (anexados: {attached}) -> canal {channel_id}")
+                log_event("VULN_CHECK", handler.ip, handler.port, {
+                    "alert": "Scanner verificando vulnerabilidade MS12-020 (Channel Join após 2 Attach User)",
+                    "initiator": initiator, "channel_id": channel_id, "cross_user": cross_user,
+                })
+            logger.warning(f"🚨 [{handler.ip}:{handler.port}] Channel Join após {len(attached)} "
+                           f"Attach User: initiator {initiator} -> canal {channel_id} "
+                           f"(cross-user: {cross_user})")
 
             # Resposta "vulnerável": aceita o bind normalmente (o sinal do
             # scanner real é ver um Channel Join Confirm com resultado 0).
