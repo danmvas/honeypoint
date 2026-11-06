@@ -44,21 +44,29 @@ está pronta para quando uma CVE assim for encontrada.
 - No ponto em que o sinal de divergência aparece (varia por protocolo — ver
   abaixo), cada variante registrada é consultada via `matches_variant()`; a
   primeira que reconhecer o sinal "recebe" a conexão — os eventos
-  bufferizados são reproduzidos no `SCTracker` daquela variante, e o
+  bufferizados são reproduzidos num `SCTracker` só daquela conexão
+  (`tracker.fork()` do tracker da variante, com IP e porta de origem), e o
   restante da conexão é delegado a `handle_variant_stages()`.
 - Se nenhuma variante reconhecer o sinal, a variante marcada como
   `is_default_variant()` trata a conexão (fallback).
+- Uma conexão que termina **antes** do ponto de divergência só exercitou o
+  tronco: é registrada sob a família (`PortListener.unresolved_tracker()`,
+  ex. `sc_RDP-Recon_*.json`), não sob a variante default.
 
 O ponto em que o sinal fica claro **não é igual em toda família**:
 
 - **SMB1-Recon**: um único comando pós-Tree-Connect já basta
   (`matches_variant(command, parsed)`).
-- **RDP-Recon**: o sinal (ex: MS12-020 exige uma 2ª Attach User Request e um
-  Channel Join cross-user) só fica claro depois de uma sequência curta de
-  PDUs MCS — por isso `RDPConnectionHandler` mantém um pequeno estado de
-  sessão (IDs de usuário já alocados) e só resolve no primeiro Channel Join
-  Request, passando esse estado (`context`) para `matches_variant()`/
-  `handle_variant_stages()` em vez de só `(command, parsed)`.
+- **RDP-Recon**: o sinal só fica claro depois de uma sequência curta de PDUs
+  MCS — por isso `RDPConnectionHandler` mantém um pequeno estado de sessão
+  (IDs de usuário já alocados, canais estáticos do CS_NET) e consulta as
+  variantes a cada Attach User Request (o MS12-020 se revela no 2º) e no
+  primeiro Channel Join Request, passando esse estado (`context`) para
+  `matches_variant()`/`handle_variant_stages()` em vez de só
+  `(command, parsed)`. Depois dos Channel Joins, a família conduz a
+  sequência de conexão RDP (Security Exchange, licença, Demand Active,
+  finalização) e entrega às variantes os dados dos canais virtuais
+  (evento `"channel_data"`).
 
 Isso é o "attach" dinâmico ao driver certo assim que a família é reconhecida
 — sem exigir dois sockets na mesma porta, e sem o launcher (`framework/
