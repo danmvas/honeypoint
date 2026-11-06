@@ -16,6 +16,95 @@ image on this machine, so the top of the scale is not anchored yet. Every
 "VULNERABLE" below is the scanner's verdict on a decoy. Nothing was checked
 against a real host.
 
+## Update 2 (2026-11-06): stage rules settled, framework commit `6e183c4`
+
+**These are the numbers to cite.** Data: `results/decided/` (630 runs, R = 30,
+provenance in `results/decided/versions.txt`, tables in
+`results/decided/REPORT.md`). Pilot at R = 3, T1 only: `results/pilot-decided/`.
+
+### Rules (set after seeing `results/main` and `results/fixed`; applied to every attack, every target, and to the older runs too)
+
+1. **Stages end at the verdict-bearing exchange (Decision 1, option a).** Stage N
+   is the request/response pair the scanner derives its verdict from. Anything
+   the scanner does after that is recorded as `activity_beyond_n` in both the
+   observer output and the SC_int JSON, and is not counted in SC.
+   - EternalBlue: stage 4 = first PeekNamedPipe (TRANS, subcommand 0x23);
+     stage 5 = its response carrying STATUS_INSUFF_SERVER_RESOURCES
+     (0xC0000205). Metasploit's later transactions are "activity beyond N";
+     nmap stops at the verdict, so it now reaches 5/5 (it was 4/5 under the old
+     list, which put a post-verdict transaction at stage 5).
+   - BlueKeep: stage 5 = client Send Data on the MS_T120 channel followed by a
+     server Disconnect Provider Ultimatum (unchanged).
+   - MS12-020: stage 5 = the first Channel Join after the second Attach User,
+     confirmed with result 0. Whether the bind is cross-user is recorded
+     (`cross_user`), not required: Metasploit's initiator comes from bytes
+     9–10 of its first read, so it is never an attached user (see I1/I5 below).
+2. **Stage 2 on RDP, observer side (I1).** A valid X.224 Connection Confirm
+   counts as stage 2 when the request carried no RDP_NEG_REQ (a legacy
+   request). The confirm itself is the server's answer to the security
+   negotiation in that case. Before this, the observer gave 2/5 to sessions
+   the tracker scored 3/5 (all of I1's 150 + 30 disagreements).
+
+### Framework change that affects the verdict: reply batching (MS12-020)
+
+`ms12_020_check` reads at fixed offsets from whatever its first `recv` returns.
+Under `b02681d` the Connect Response and the first Attach User Confirm arrived in
+separate reads in 29 of 30 runs, and the module said SAFE. `6e183c4` holds the
+MCS Connect Response for up to 100 ms (`CONNECT_RESPONSE_HOLD`) and sends it in
+the same segment as the next reply, so the module's offsets land where it
+expects. **This is tuned to Metasploit's parser, and without a T3 capture we
+don't know whether Windows batches the same way.** It has to be disclosed as a
+deception choice, not presented as protocol fidelity.
+
+### Results (T1; T2 and T5 are unchanged from the earlier runs)
+
+| T1, R = 30, every cell deterministic | SC_obs | tool verdict | SC_int = SC_obs |
+|---|---|---|---|
+| EternalBlue, msf scanner / msf check / nmap | 5/5, 5/5, 5/5 | VULNERABLE ×30 each | 90/90 |
+| BlueKeep, msf / rdpscan | 5/5, 5/5 | VULNERABLE ×30 each | 60/60, 30/30 |
+| BlueKeep, nmap `rdp-enum-encryption` | 3/5 | enumerated (no vuln verdict) | 270/270 |
+| MS12-020, msf | 5/5 | VULNERABLE ×30 | 30/30 |
+
+Honeyd: SMB 2/5, 2/5, 1/5; RDP 0/5 everywhere (port 3389 resets). Inert: 0/5
+everywhere. SC_int records overwritten: 0. Cost (median per run): T1 ~17.8 MiB
+and 225–249 ms CPU, Honeyd 12–14.5 MiB and 51–61 ms, inert 5.7 MiB and ~23 ms.
+
+nmap `rdp-enum-encryption` tops out at 3/5 by design: it negotiates and
+enumerates security layers, and never attaches a user or joins a channel. It is
+a recon probe, not a BlueKeep check, and shouldn't be counted as a third
+BlueKeep tool.
+
+### Older runs rescored under the same rules (`report.py --rescore`)
+
+`results/main/REPORT-rescored.md` and `results/fixed/REPORT-rescored.md`; the
+stored observer JSON is left as it was recorded.
+
+| T1 | `main` (0564e0d) | `fixed` (b02681d) | `decided` (6e183c4) |
+|---|---|---|---|
+| EternalBlue msf / msf / nmap | 5/5, 5/5, 5/5 | 5/5, 5/5, 5/5 | 5/5, 5/5, 5/5 |
+| BlueKeep msf | 4/5 [3–4], not vulnerable | 5/5, VULNERABLE | 5/5, VULNERABLE |
+| BlueKeep rdpscan | 3/5 [3–4], UNKNOWN | 5/5, VULNERABLE | 5/5, VULNERABLE |
+| BlueKeep nmap | 3/5 | 3/5 | 3/5 |
+| MS12-020 msf | 2/5, "Could not connect" | **5/5, SAFE ×29 / VULNERABLE ×1** | 5/5, VULNERABLE ×30 |
+
+T2 and T5 are identical, stored and rescored, in both older runs.
+
+The `fixed` MS12-020 row matters for the paper: the verdict-bearing exchange
+happened on the wire in all 30 runs (SC_obs = 5/5), yet the scanner said SAFE in
+29. **SC_obs = N means the scanner was carried through the exchange it decides
+on, not that it decided VULNERABLE.** The verdict has to be reported in its own
+column, as the tables here do.
+
+### Still open
+
+- **T3/T4 (real Windows) are not run**, so this is a limitation, not an open task
+  on this machine. The top of the scale and the MS12-020 batching can't be
+  validated against a real host here.
+- The stage rules were fixed after the data was seen. Mitigations: they're
+  applied uniformly (all attacks, targets and runs, including the rescored old
+  ones); the baselines don't move under them; and the rationale (verdict-bearing
+  exchange) is stated independently of any one scanner.
+
 ## Update (2026-11-06): after the fixes, framework commit `b02681d`
 
 Defects F1–F8 below are fixed in `b02681d`; the RDP connection is now carried
@@ -214,6 +303,8 @@ user) is reachable with this module at all.
 podman build -t localhost/honeyd:a0f3d64 -f honeyd/Containerfile honeyd/   # once
 ./honeyd/lab/run_all.sh                       # RUNBOOK s0, s7, s2, s4; ~90 min at R=30
 OUT=$PWD/honeyd/lab/results/fixed ./honeyd/lab/run_all.sh   # what produced results/fixed
+OUT=$PWD/honeyd/lab/results/decided ./honeyd/lab/run_all.sh # what produced results/decided
+python3 honeyd/lab/report.py --rescore honeyd/lab/results/main > REPORT-rescored.md
 python3 honeyd/lab/report.py honeyd/lab/results/main > REPORT.md
 ./honeyd/lab/diag_bluekeep_verbose.sh         # verbose verdicts
 ./honeyd/lab/whatif/run_whatif.sh             # patched copy, R=5

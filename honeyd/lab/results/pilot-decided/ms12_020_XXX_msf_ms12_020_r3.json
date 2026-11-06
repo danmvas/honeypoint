@@ -1,0 +1,64 @@
+[
+  {
+    "target": "XXX",
+    "tool": "msf_ms12_020",
+    "attack": "ms12_020",
+    "cve": "CVE-2012-0002",
+    "client": "10.0.0.9:35995",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793971420.166617,
+    "end_time": 1793971420.168063,
+    "total_stages": 5,
+    "completed_stages": 5,
+    "stages_completed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "sc_obs": 1.0,
+    "records_seen": 12,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793971420.1671,
+        "t_response": 1793971420.167292
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793971420.1671,
+        "t_response": 1793971420.167292,
+        "negotiation": "legacy confirm"
+      },
+      {
+        "stage": 3,
+        "name": "MCS Connect Initial",
+        "t_request": 1793971420.167363,
+        "t_response": 1793971420.167513
+      },
+      {
+        "stage": 4,
+        "name": "Second Attach User",
+        "t_request": 1793971420.167539,
+        "t_response": 1793971420.167578,
+        "attached_user_ids": [
+          1001,
+          1002
+        ]
+      },
+      {
+        "stage": 5,
+        "name": "Channel Join Check",
+        "t_request": 1793971420.167607,
+        "t_response": 1793971420.167961,
+        "initiator": 33281,
+        "channel_id": 2003,
+        "cross_user": false
+      }
+    ],
+    "activity_beyond_n": []
+  }
+]

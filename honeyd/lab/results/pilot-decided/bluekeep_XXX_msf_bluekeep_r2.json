@@ -1,0 +1,95 @@
+[
+  {
+    "target": "XXX",
+    "tool": "msf_bluekeep",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:32827",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793971450.431113,
+    "end_time": 1793971450.432938,
+    "total_stages": 5,
+    "completed_stages": 2,
+    "stages_completed": [
+      1,
+      2
+    ],
+    "sc_obs": 0.4,
+    "records_seen": 2,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793971450.43273,
+        "t_response": 1793971450.43286
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793971450.43273,
+        "t_response": 1793971450.43286,
+        "negotiation": "RDP_NEG_RSP"
+      }
+    ],
+    "activity_beyond_n": []
+  },
+  {
+    "target": "XXX",
+    "tool": "msf_bluekeep",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:44357",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793971450.433136,
+    "end_time": 1793971455.601748,
+    "total_stages": 5,
+    "completed_stages": 5,
+    "stages_completed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "sc_obs": 1.0,
+    "records_seen": 39,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793971450.433859,
+        "t_response": 1793971450.433941
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793971450.433859,
+        "t_response": 1793971450.433941,
+        "negotiation": "RDP_NEG_RSP"
+      },
+      {
+        "stage": 3,
+        "name": "MCS Connect Initial",
+        "t_request": 1793971450.434561,
+        "t_response": 1793971450.535355
+      },
+      {
+        "stage": 4,
+        "name": "Channel Join",
+        "t_request": 1793971450.536263,
+        "t_response": 1793971450.536525,
+        "channel_id": 1009,
+        "ms_t120_attempted": false
+      },
+      {
+        "stage": 5,
+        "name": "Exploit PDU",
+        "t_request": 1793971455.601163,
+        "t_response": 1793971455.60162,
+        "channel_id": 1005,
+        "payload_bytes": 51
+      }
+    ],
+    "activity_beyond_n": []
+  }
+]

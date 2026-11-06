@@ -1,0 +1,19 @@
+[
+  {
+    "target": "Inert",
+    "tool": "msf_ms12_020",
+    "attack": "ms12_020",
+    "cve": "CVE-2012-0002",
+    "client": "10.0.0.9:33105",
+    "server": "10.0.0.70:3389",
+    "start_time": 1793976230.582947,
+    "end_time": 1793976235.648903,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 1,
+    "events": [],
+    "activity_beyond_n": []
+  }
+]

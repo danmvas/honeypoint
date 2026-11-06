@@ -1,0 +1,19 @@
+[
+  {
+    "target": "Honeyd",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:33020",
+    "server": "10.0.0.50:3389",
+    "start_time": 1793975283.559245,
+    "end_time": 1793975283.582276,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 0,
+    "events": [],
+    "activity_beyond_n": []
+  }
+]

@@ -1,0 +1,108 @@
+
+  Honeypoint Framework — Iniciando 3 driver(s)
+
+14:33:53 [root] INFO: Iniciando EternalBlue (CVE-2017-0144) na porta 445
+14:33:53 [root] INFO:   Scanner esperado: auxiliary/scanner/smb/smb_ms17_010
+14:33:53 [root] INFO:   Total de stages: 5
+14:33:53 [root] INFO: Iniciando BlueKeep (CVE-2019-0708) na porta 3389
+14:33:53 [root] INFO:   Scanner esperado: auxiliary/scanner/rdp/cve_2019_0708_bluekeep
+14:33:53 [root] INFO:   Total de stages: 5
+14:33:53 [root] INFO: Iniciando MS12020 (CVE-2012-0002) na porta 3389
+14:33:53 [root] INFO:   Scanner esperado: auxiliary/scanner/rdp/ms12_020_check
+14:33:53 [root] INFO:   Total de stages: 5
+2026-11-06 14:33:53,887 [INFO] 🍯 Family Honeypoint escutando na porta 3389
+14:33:53 [honeypoint.family] INFO: 🍯 Family Honeypoint escutando na porta 3389
+2026-11-06 14:33:53,887 [INFO] 🍯 Family Honeypoint escutando na porta 445
+14:33:53 [honeypoint.family] INFO: 🍯 Family Honeypoint escutando na porta 445
+2026-11-06 14:33:54,187 [INFO] 🍯 Variantes ativas na porta 445: ['EternalBlue']
+14:33:54 [honeypoint.family] INFO: 🍯 Variantes ativas na porta 445: ['EternalBlue']
+2026-11-06 14:33:54,187 [INFO] 🍯 Variantes ativas na porta 3389: ['BlueKeep', 'MS12020']
+14:33:54 [honeypoint.family] INFO: 🍯 Variantes ativas na porta 3389: ['BlueKeep', 'MS12020']
+2026-11-06 14:33:56,935 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:36139
+14:33:56 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:36139
+2026-11-06 14:33:56,936 [INFO] 🔍 [10.0.0.9:36139] X.224 CR: cookie=Cookie: mstshash=ZxXwaGn
+14:33:56 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:36139] X.224 CR: cookie=Cookie: mstshash=ZxXwaGn
+2026-11-06 14:33:56,936 [INFO] 🔓 [10.0.0.9:36139] Security: RDP nativo (sem NLA)
+14:33:56 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:36139] Security: RDP nativo (sem NLA)
+14:33:56 [honeypoint.RDP-Recon] INFO: Nova sessão: RDP-Recon_20261106_143356_936770_25270d de 10.0.0.9:36139
+14:33:56 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+14:33:56 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+
+============================================================
+14:33:56 [honeypoint.RDP-Recon] INFO: Sessão finalizada: SC = 2/5 (PARCIAL) → /logs/sc_RDP-Recon_20261106_143356_936770_25270d.json
+2026-11-06 14:33:56,937 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:42447
+14:33:56 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:42447
+  RDP-Recon (unresolved) — SC = 2/5 (40%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ⬜ Stage 3: 
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 14:33:56,937 [INFO] 🔒 [10.0.0.9:36139] Encerrada
+14:33:56 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:36139] Encerrada
+2026-11-06 14:33:56,937 [INFO] 🔍 [10.0.0.9:42447] X.224 CR: cookie=Cookie: mstshash=vEyMfek
+14:33:56 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:42447] X.224 CR: cookie=Cookie: mstshash=vEyMfek
+2026-11-06 14:33:56,937 [INFO] 🔓 [10.0.0.9:42447] Security: RDP nativo (sem NLA)
+14:33:56 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:42447] Security: RDP nativo (sem NLA)
+2026-11-06 14:33:56,938 [INFO] 🕵️ [10.0.0.9:42447] MCS: host='rdesktop' canais=['cliprdr', 'MS_T120', 'rdpsnd', 'snddbg', 'rdpdr']
+14:33:56 [honeypoint.rdp_family] INFO: 🕵️ [10.0.0.9:42447] MCS: host='rdesktop' canais=['cliprdr', 'MS_T120', 'rdpsnd', 'snddbg', 'rdpdr']
+2026-11-06 14:33:57,039 [INFO] 📡 [10.0.0.9:42447] MCS Erect Domain Request
+14:33:57 [honeypoint.rdp_family] INFO: 📡 [10.0.0.9:42447] MCS Erect Domain Request
+2026-11-06 14:33:57,039 [INFO] 📡 [10.0.0.9:42447] MCS Attach User Request -> ID 1001
+14:33:57 [honeypoint.rdp_family] INFO: 📡 [10.0.0.9:42447] MCS Attach User Request -> ID 1001
+14:33:57 [honeypoint.BlueKeep] INFO: Nova sessão: BlueKeep_20261106_143357_040133_1956bc de 10.0.0.9:42447
+14:33:57 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+14:33:57 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+14:33:57 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 3/5 (MCS Connect Initial) completada — SC = 3/5
+2026-11-06 14:33:57,040 [INFO] ➡️  [10.0.0.9:42447] Conexão resolvida para variante: BlueKeep
+14:33:57 [honeypoint.rdp_family] INFO: ➡️  [10.0.0.9:42447] Conexão resolvida para variante: BlueKeep
+2026-11-06 14:33:57,040 [INFO] 📡 [10.0.0.9:42447] MCS Channel Join: 1009
+14:33:57 [honeypoint.bluekeep] INFO: 📡 [10.0.0.9:42447] MCS Channel Join: 1009
+14:33:57 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 4/5 (Channel Join) completada — SC = 4/5
+2026-11-06 14:33:57,040 [INFO] 📡 [10.0.0.9:42447] MCS Channel Join: 1003
+14:33:57 [honeypoint.bluekeep] INFO: 📡 [10.0.0.9:42447] MCS Channel Join: 1003
+2026-11-06 14:33:57,040 [INFO] 📡 [10.0.0.9:42447] MCS Channel Join: 1004
+14:33:57 [honeypoint.bluekeep] INFO: 📡 [10.0.0.9:42447] MCS Channel Join: 1004
+2026-11-06 14:33:57,040 [WARNING] 🚨 [10.0.0.9:42447] MS_T120 channel bind! (canal 1005)
+14:33:57 [honeypoint.bluekeep] WARNING: 🚨 [10.0.0.9:42447] MS_T120 channel bind! (canal 1005)
+2026-11-06 14:33:57,040 [INFO] 📡 [10.0.0.9:42447] MCS Channel Join: 1005
+14:33:57 [honeypoint.bluekeep] INFO: 📡 [10.0.0.9:42447] MCS Channel Join: 1005
+2026-11-06 14:33:57,040 [INFO] 📡 [10.0.0.9:42447] MCS Channel Join: 1006
+14:33:57 [honeypoint.bluekeep] INFO: 📡 [10.0.0.9:42447] MCS Channel Join: 1006
+2026-11-06 14:33:57,040 [INFO] 📡 [10.0.0.9:42447] MCS Channel Join: 1007
+14:33:57 [honeypoint.bluekeep] INFO: 📡 [10.0.0.9:42447] MCS Channel Join: 1007
+2026-11-06 14:33:57,041 [INFO] 📡 [10.0.0.9:42447] MCS Channel Join: 1008
+14:33:57 [honeypoint.bluekeep] INFO: 📡 [10.0.0.9:42447] MCS Channel Join: 1008
+2026-11-06 14:33:57,093 [INFO] 🔐 [10.0.0.9:42447] Security Exchange PDU (client random cifrado)
+14:33:57 [honeypoint.rdp_family] INFO: 🔐 [10.0.0.9:42447] Security Exchange PDU (client random cifrado)
+2026-11-06 14:33:57,096 [INFO] 🪪 [10.0.0.9:42447] Client Info PDU -> licença (valid client) + Demand Active
+14:33:57 [honeypoint.rdp_family] INFO: 🪪 [10.0.0.9:42447] Client Info PDU -> licença (valid client) + Demand Active
+2026-11-06 14:33:57,096 [INFO] 🖥️ [10.0.0.9:42447] Confirm Active -> finalização + 1ª atualização de tela
+14:33:57 [honeypoint.rdp_family] INFO: 🖥️ [10.0.0.9:42447] Confirm Active -> finalização + 1ª atualização de tela
+2026-11-06 14:34:02,106 [INFO] 📨 [10.0.0.9:42447] Dados no canal virtual MS_T120 (1005): 36 bytes
+14:34:02 [honeypoint.rdp_family] INFO: 📨 [10.0.0.9:42447] Dados no canal virtual MS_T120 (1005): 36 bytes
+2026-11-06 14:34:02,106 [INFO] {"timestamp": "2026-11-06T14:34:02.106348+00:00", "event_type": "rdp_possible_exploit", "src_ip": "10.0.0.9", "src_port": 42447, "details": {"alert": "DADOS NO CANAL MS_T120 (sonda BlueKeep ou exploit)", "pdu_size": 51, "channel_id": 1005}}
+14:34:02 [honeypoint.bluekeep.json] INFO: {"timestamp": "2026-11-06T14:34:02.106348+00:00", "event_type": "rdp_possible_exploit", "src_ip": "10.0.0.9", "src_port": 42447, "details": {"alert": "DADOS NO CANAL MS_T120 (sonda BlueKeep ou exploit)", "pdu_size": 51, "channel_id": 1005}}
+2026-11-06 14:34:02,106 [WARNING] 🚨 [10.0.0.9:42447] Dados no canal MS_T120 (51 bytes) -> Disconnect Provider Ultimatum
+14:34:02 [honeypoint.bluekeep] WARNING: 🚨 [10.0.0.9:42447] Dados no canal MS_T120 (51 bytes) -> Disconnect Provider Ultimatum
+14:34:02 [honeypoint.BlueKeep] INFO: [BlueKeep] Stage 5/5 (Exploit PDU) completada — SC = 5/5
+14:34:02 [honeypoint.BlueKeep] INFO: Sessão finalizada: SC = 5/5 (SUCESSO) → /logs/sc_BlueKeep_20261106_143357_040133_1956bc.json
+
+============================================================
+  BlueKeep (CVE-2019-0708) — SC = 5/5 (100%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ✅ Stage 3: MCS Connect Initial
+  ✅ Stage 4: Channel Join
+  ✅ Stage 5: Exploit PDU
+============================================================
+
+2026-11-06 14:34:02,107 [INFO] 🔒 [10.0.0.9:42447] Encerrada
+14:34:02 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:42447] Encerrada
+
+
+Parando todos os drivers...
