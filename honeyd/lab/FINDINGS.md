@@ -125,6 +125,16 @@ column, as the tables here do.
   and LAN_MANAGER "Windows 2000 LAN Manager" (a mismatch in our `smb.conf`, not
   Honeyd's; no score depends on it).
 
+### Cost with no scan (`idle_cost.sh`, R = 10, `results/idle/`)
+
+Each decoy restarted as before a run, left idle 5 s, same cgroup counters:
+T1 17.8 MiB and 235 ms, Honeyd 12.0 MiB and 47 ms, inert 5.6 MiB and 25 ms.
+Against the per-run medians above, a scan adds nothing measurable to T1 (the
+cost is the Python interpreter and drivers starting); Honeyd's SMB runs rise to
+14.5 MiB and 61 ms from the Python script it spawns per connection. The cgroup
+is not charged for shared pages already in the page cache, so resident sets
+(PID 1, `VmHWM`) are larger: T1 ~27 MiB, Honeyd ~17 MiB, inert ~10 MiB.
+
 ## Update (2026-11-06): after the fixes, framework commit `b02681d`
 
 Defects F1–F8 below are fixed in `b02681d`; the RDP connection is now carried
