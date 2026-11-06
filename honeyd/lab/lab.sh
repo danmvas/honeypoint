@@ -9,13 +9,13 @@
 #   lab.sh restart <target>         stop, clear logs, start, wait until it listens
 #   lab.sh collect <target> <tag> <outdir>
 #                                   keep the decoy's own records with the run:
-#                                   its log, SC_int JSONs (XXX), cgroup cost
+#                                   its log, SC_int JSONs (STAGED), cgroup cost
 #   lab.sh exec <cmd...>            run in the scanner (same paths as the host)
 #
 # run_matrix.sh drives it through its EXEC / RESTART / COLLECT hooks, e.g.:
 #   cd honeyd/sc_toolkit
 #   EXEC="../lab/lab.sh exec" RESTART="../lab/lab.sh restart" \
-#   COLLECT="../lab/lab.sh collect" ONLY="XXX Honeyd Inert" IFACE=eth0 \
+#   COLLECT="../lab/lab.sh collect" ONLY="STAGED Honeyd Inert" IFACE=eth0 \
 #   TCPDUMP_OPTS="-Z root" OUT=../lab/results ./run_matrix.sh eternalblue
 #
 # Addresses are the runbook's. T3/T4 (real Windows VMs) do not exist here.
@@ -27,7 +27,7 @@ T1_SRC="${T1_SRC:-$REPO}"      # what T1 runs; whatif/run_whatif.sh points it at
 TOOLKIT="$REPO/honeyd/sc_toolkit"
 RESULTS="${LAB_RESULTS:-$HERE/results}"
 STATE="$RESULTS/.state"
-T1LOGS="$RESULTS/.t1_live"          # HONEYPOINT_LOG_DIR: sc_*.json (SC_int)
+T1LOGS="$RESULTS/.t1_live"          # STAGED_LOG_DIR: sc_*.json (SC_int)
 T1APPLOGS="$RESULTS/.t1_applogs"    # mounted over the repo's logs/ (driver text + events.jsonl)
 
 NET=honeylab
@@ -38,7 +38,7 @@ NOLABEL=(--security-opt label=disable)   # bind-mount the repo without relabelli
 
 cname() {
   case "$1" in
-    XXX)    echo t1-honeypoint ;;
+    STAGED|XXX) echo t1-staged ;;   # XXX: the placeholder name in older runs
     Honeyd) echo t2-honeyd ;;
     Inert)  echo t5-inert ;;
     Unpatched|Patched) echo "lab.sh: $1 (real Windows VM) does not exist in this lab" >&2; return 1 ;;
@@ -79,7 +79,7 @@ cmd_up() {
   podman image exists "$HONEYD_IMG" || podman build -t "$HONEYD_IMG" -f "$REPO/honeyd/Containerfile" "$REPO/honeyd"
   podman image exists "$SCANNER_IMG" || podman build --cap-add NET_RAW -t "$SCANNER_IMG" -f "$HERE/scanner.Containerfile" "$HERE"
 
-  podman rm -f t1-honeypoint t2-honeyd t5-inert scanner >/dev/null 2>&1 || true
+  podman rm -f t1-staged t2-honeyd t5-inert scanner >/dev/null 2>&1 || true
 
   # --internal: no NAT, no default route -> no path off this host (RUNBOOK s0, s7)
   # --disable-dns: otherwise nmap's reverse lookup returns container names for
@@ -87,10 +87,10 @@ cmd_up() {
   podman network rm -f "$NET" >/dev/null 2>&1 || true
   podman network create --internal --disable-dns --subnet 10.0.0.0/24 "$NET" >/dev/null
 
-  # T1 - the honeypoint framework, all drivers (445 + both RDP variants on 3389)
-  podman create --name t1-honeypoint --network "$NET" --ip 10.0.0.40 --mac-address 02:00:0a:00:00:28 \
+  # T1 - STAGED, all drivers (445 + both RDP variants on 3389)
+  podman create --name t1-staged --network "$NET" --ip 10.0.0.40 --mac-address 02:00:0a:00:00:28 \
     "${NOLABEL[@]}" -v "$T1_SRC:/app:ro" -v "$T1APPLOGS:/app/logs" -v "$T1LOGS:/logs" -w /app \
-    -e HONEYPOINT_LOG_DIR=/logs -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONUNBUFFERED=1 \
+    -e STAGED_LOG_DIR=/logs -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONUNBUFFERED=1 \
     "$PY" python3 -m framework.launcher >/dev/null
 
   # T2 - Honeyd, virtual host 10.0.0.50 (the container itself is 10.0.0.2)
@@ -103,7 +103,7 @@ cmd_up() {
   podman create --name t5-inert --network "$NET" --ip 10.0.0.70 --mac-address 02:00:0a:00:00:46 \
     "${NOLABEL[@]}" -v "$HERE/inert.py:/inert.py:ro" "$PY" python3 /inert.py >/dev/null
 
-  for c in t1-honeypoint t2-honeyd t5-inert; do start_decoy "$c"; done
+  for c in t1-staged t2-honeyd t5-inert; do start_decoy "$c"; done
 
   # Scanner. Toolkit and results mounted at the SAME absolute paths as on the
   # host, so run_matrix.sh's relative paths mean the same thing on both sides.
@@ -118,17 +118,17 @@ cmd_up() {
   cmd_status
 }
 
-cmd_down() { podman rm -f t1-honeypoint t2-honeyd t5-inert scanner >/dev/null 2>&1 || true; echo "containers removed; results kept in $RESULTS"; }
+cmd_down() { podman rm -f t1-staged t2-honeyd t5-inert scanner >/dev/null 2>&1 || true; echo "containers removed; results kept in $RESULTS"; }
 
 cmd_status() {
-  podman ps -a --filter name='t1-honeypoint|t2-honeyd|t5-inert|scanner' \
+  podman ps -a --filter name='t1-staged|t2-honeyd|t5-inert|scanner' \
     --format '{{.Names}}\t{{.Status}}\t{{.Networks}}'
 }
 
 cmd_restart() {
   local c; c=$(cname "$1")
   podman stop -t 3 "$c" >/dev/null 2>&1 || true
-  if [[ "$c" == t1-honeypoint ]]; then
+  if [[ "$c" == t1-staged ]]; then
     # anything left here was not collected with a run: keep it, but apart
     local d; d="$RESULTS/.orphans/$(date +%s%N)"
     for src in "$T1LOGS" "$T1APPLOGS"; do
@@ -147,7 +147,7 @@ cmd_collect() {
       > "$out/$tag.cost.json" 2>/dev/null || true
   podman stop -t 3 "$c" >/dev/null 2>&1 || true          # nothing late can leak into the next run
   podman logs --since "$(cat "$STATE/$c.since")" "$c" > "$out/$tag.decoy.log" 2>&1 || true
-  if [[ "$c" == t1-honeypoint ]]; then
+  if [[ "$c" == t1-staged ]]; then
     mkdir -p "$out/$tag.sc_int" "$out/$tag.t1_logs"
     if compgen -G "$T1LOGS/sc_*.json" >/dev/null; then mv "$T1LOGS"/sc_*.json "$out/$tag.sc_int/"; fi
     if compgen -G "$T1APPLOGS/*" >/dev/null; then mv "$T1APPLOGS"/* "$out/$tag.t1_logs/"; fi
@@ -179,12 +179,12 @@ cmd_versions() {
   {
     echo "# recorded $(date -u +%FT%TZ) by honeyd/lab/lab.sh versions"
     echo "host: $(uname -sr), $(. /etc/os-release; echo "$PRETTY_NAME"), podman $(podman version --format '{{.Client.Version}}')"
-    echo "honeypoint: $(git -C "$REPO" rev-parse --short HEAD)$(git -C "$REPO" diff --quiet -- framework families drivers || echo ' (+ uncommitted changes in framework/families/drivers)')"
+    echo "STAGED: $(git -C "$REPO" rev-parse --short HEAD)$(git -C "$REPO" diff --quiet -- framework families drivers || echo ' (+ uncommitted changes in framework/families/drivers)')"
     echo "msfconsole: $(podman exec scanner msfconsole --version 2>&1 | tail -1)"
     echo "nmap: $(podman exec scanner nmap --version | head -1)"
     echo "rdpscan: commit $(podman exec scanner git -C /src/rdpscan rev-parse HEAD)"
     echo "honeyd: $(podman exec t2-honeyd honeyd --version 2>&1 | head -1), commit $(podman exec t2-honeyd cat /usr/local/share/honeyd/BUILT_FROM_COMMIT)"
-    echo "T1/T5 python: $(podman exec t1-honeypoint python3 -V)"
+    echo "T1/T5 python: $(podman exec t1-staged python3 -V)"
     honeyd_persona
     echo "images:"
     for i in "$PY" "$HONEYD_IMG" "$SCANNER_IMG"; do

@@ -11,10 +11,10 @@ TK="$(cd "$HERE/../sc_toolkit" && pwd)"
 OUT="${OUT:-$HERE/results/diag}"
 mkdir -p "$OUT"
 LAB="$HERE/lab.sh"
-declare -A IP=([XXX]=10.0.0.40 [Honeyd]=10.0.0.50 [Inert]=10.0.0.70)
+declare -A IP=([STAGED]=10.0.0.40 [Honeyd]=10.0.0.50 [Inert]=10.0.0.70)
 
 cd "$TK"
-for t in XXX Honeyd Inert; do
+for t in STAGED Honeyd Inert; do
   ip=${IP[$t]}; tag="bluekeep_${t}_msf_bluekeep_verbose_r1"
   "$LAB" restart "$t"
   "$LAB" exec bash -c '

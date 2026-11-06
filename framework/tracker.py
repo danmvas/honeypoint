@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Honeypoint Framework — Stage Coverage (SC) Tracker
+STAGED — Stage Coverage (SC) Tracker
 ====================================================
 Rastreia a progressão de um scanner pelas etapas do protocolo
 e calcula a métrica Stage Coverage.
@@ -21,7 +21,7 @@ from dataclasses import dataclass, field, asdict
 from typing import Optional
 from pathlib import Path
 
-LOG_DIR = os.environ.get("HONEYPOINT_LOG_DIR", "/var/log/honeypoint")
+LOG_DIR = os.environ.get("STAGED_LOG_DIR", "/var/log/staged")
 
 
 @dataclass
@@ -93,7 +93,7 @@ class SCTracker:
         self._session: Optional[SessionReport] = None
         self._completed: set[int] = set()
         
-        self.logger = logging.getLogger(f"honeypoint.{driver_name}")
+        self.logger = logging.getLogger(f"staged.{driver_name}")
         
         os.makedirs(LOG_DIR, exist_ok=True)
 

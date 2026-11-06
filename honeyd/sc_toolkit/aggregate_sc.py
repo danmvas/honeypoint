@@ -67,7 +67,10 @@ def main():
 
     cells = defaultdict(list)
     for r in rows:
-        cells[(r.get("target") or "?", r.get("tool") or "?")].append(r)
+        # "XXX" was the framework's placeholder name in runs recorded before it was named
+        t = r.get("target") or "?"
+        t = "STAGED" if t == "XXX" else t
+        cells[(t, r.get("tool") or "?")].append(r)
 
     targets = sorted({t for t, _ in cells})
     tools = sorted({w for _, w in cells})

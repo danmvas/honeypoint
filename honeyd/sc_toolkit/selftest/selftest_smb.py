@@ -3,7 +3,7 @@
 import os, struct, socket, threading, time, json, sys, glob, tempfile
 
 LOGDIR = tempfile.mkdtemp(prefix="sc_selftest_")
-os.environ["HONEYPOINT_LOG_DIR"] = LOGDIR
+os.environ["STAGED_LOG_DIR"] = LOGDIR
 sys.path.insert(0, "hp")
 
 from framework.tracker import SCTracker

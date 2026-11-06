@@ -14,7 +14,7 @@ from typing import Callable
 
 
 def setup_driver_logging(short_name: str, log_dir: str,
-                          log_filename: str = "honeypoint.log",
+                          log_filename: str = "staged.log",
                           events_filename: str = "events.jsonl"
                           ) -> tuple[logging.Logger, logging.Logger, Callable]:
     """Cria (ou reaproveita) um logger de texto e um logger JSONL para um driver.
@@ -24,7 +24,7 @@ def setup_driver_logging(short_name: str, log_dir: str,
     """
     os.makedirs(log_dir, exist_ok=True)
 
-    logger = logging.getLogger(f"honeypoint.{short_name}")
+    logger = logging.getLogger(f"staged.{short_name}")
     if not logger.handlers:
         logger.setLevel(logging.INFO)
         fh = logging.FileHandler(f"{log_dir}/{log_filename}")
@@ -34,7 +34,7 @@ def setup_driver_logging(short_name: str, log_dir: str,
         sh.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
         logger.addHandler(sh)
 
-    json_logger = logging.getLogger(f"honeypoint.{short_name}.json")
+    json_logger = logging.getLogger(f"staged.{short_name}.json")
     if not json_logger.handlers:
         json_logger.setLevel(logging.INFO)
         jh = logging.FileHandler(f"{log_dir}/{events_filename}")

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run_whatif.sh - the RDP matrices again, T1 only, against the honeypoint at
+# run_whatif.sh - the RDP matrices again, T1 only, against STAGED at
 # HEAD with rdp-fixes.patch applied in a temporary copy. The repository is not
 # modified. Results: honeyd/lab/results/whatif (score with ../report.py).
 #
@@ -20,7 +20,7 @@ echo "T1 = $(git -C "$REPO" rev-parse --short HEAD) + rdp-fixes.patch, from $SRC
 T1_SRC="$SRC" "$LAB/lab.sh" up
 cd "$TK"
 export EXEC="$LAB/lab.sh exec" RESTART="$LAB/lab.sh restart" \
-       COLLECT="$LAB/lab.sh collect" ONLY="XXX" IFACE=eth0 TCPDUMP_OPTS="-Z root"
+       COLLECT="$LAB/lab.sh collect" ONLY="STAGED" IFACE=eth0 TCPDUMP_OPTS="-Z root"
 for a in ms12_020 bluekeep; do
   ./run_matrix.sh "$a" > "$OUT/matrix_$a.out" 2>&1
 done

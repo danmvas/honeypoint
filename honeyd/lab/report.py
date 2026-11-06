@@ -6,14 +6,16 @@ report.py - turn a lab results directory into the comparison report.
 
 Per attack: SC_obs per (target, tool) cell, each run scored by its deepest TCP
 session (aggregate_sc.py --per-run), the scanner's own verdict, RUNBOOK s5
-(SC_int vs SC_obs for our honeypoint), session-file collisions, and decoy cost.
+(SC_int vs SC_obs for STAGED), session-file collisions, and decoy cost.
 Reads only files written by run_matrix.sh and lab.sh; stdlib only.
 """
 import collections, datetime, glob, json, os, re, statistics, sys
 
-TARGETS = ["XXX", "Honeyd", "Inert"]
-LABEL = {"XXX": "T1 honeypoint", "Honeyd": "T2 Honeyd", "Inert": "T5 inert"}
-RUN_RE = re.compile(r"^(eternalblue|bluekeep|ms12_020)_(XXX|Honeyd|Inert|Unpatched|Patched)_(.+)_r(\d+)$")
+TARGETS = ["STAGED", "Honeyd", "Inert"]
+LABEL = {"STAGED": "T1 STAGED", "Honeyd": "T2 Honeyd", "Inert": "T5 inert"}
+# Runs recorded before the framework was named carry the placeholder "XXX".
+OLD_KEYS = {"XXX": "STAGED"}
+RUN_RE = re.compile(r"^(eternalblue|bluekeep|ms12_020)_(STAGED|XXX|Honeyd|Inert|Unpatched|Patched)_(.+)_r(\d+)$")
 
 # First match wins. Labels are short; the evidence line is kept in the report.
 VERDICTS = {
@@ -92,6 +94,7 @@ def load_runs(root):
         if not m:
             continue
         attack, target, tool, rep = m.group(1), m.group(2), m.group(3), int(m.group(4))
+        target = OLD_KEYS.get(target, target)
         if RESCORE:
             obs = _observer().analyse(os.path.join(root, tag + ".pcap"), attack,
                                       None, target, tool)
@@ -133,7 +136,7 @@ CONSOLE = re.compile(r"^\d\d:\d\d:\d\d \[")      # root handler; the driver hand
 
 
 def int_sessions_by_port(decoy_log):
-    """SC_int per client source port, from the honeypoint's own console log.
+    """SC_int per client source port, from STAGED's own console log.
 
     The tracker never records the source port (StageEvent.source_port is
     always 0), but every connection handler ends with "Encerrada [ip:port]",
@@ -220,7 +223,7 @@ def main():
                   + (f" (+ activity beyond N in {beyond} runs)" if beyond else ""))
 
         # RUNBOOK s5: SC_int vs SC_obs on T1
-        xr = [r for r in ar if r["target"] == "XXX"]
+        xr = [r for r in ar if r["target"] == "STAGED"]
         p("\n**SC_int vs SC_obs (T1, per session)**\n")
         p("matched by client source port; sessions with no stage on either side are skipped\n")
         p("| tool | sessions compared | agree | differ | SC_obs > 0 but no SC_int | SC_int recorded under |")

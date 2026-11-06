@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Família SMB1-Recon — base compartilhada para drivers de honeypoint que
+Família SMB1-Recon — base compartilhada para drivers de decoy que
 simulam CVEs cujo reconhecimento SMBv1 começa com a mesma sequência:
 
   1. Negotiate Protocol
@@ -45,7 +45,7 @@ from framework.base import DriverMetadata, StageDefinition
 from framework.tracker import SCTracker
 from framework import family
 
-logger = logging.getLogger("honeypoint.smb_family")
+logger = logging.getLogger("staged.smb_family")
 if not logger.handlers:
     logger.setLevel(logging.INFO)
     _sh = logging.StreamHandler()

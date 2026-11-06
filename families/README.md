@@ -1,4 +1,4 @@
-# Honeypoint Families
+# STAGED Families
 
 `families/` é a camada entre `framework/` (core genérico, sem protocolo) e
 `drivers/` (CVE específica): concentra o **tronco de reconhecimento

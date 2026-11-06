@@ -4,7 +4,7 @@ sc_observer.py - Stage Coverage from a packet capture.
 
 Scores a pcap against the stage list of a reconnaissance attack, without
 consulting the target's own logs. This is what lets a third-party decoy that
-declares no stages be placed on the same scale as a honeypoint driver.
+declares no stages be placed on the same scale as a STAGED driver.
 
 Standard library only, like the framework itself.
 

@@ -1,8 +1,8 @@
 """
-Honeypoint Drivers
+STAGED Drivers
 ==================
 Implementações específicas de protocolo para o framework.
-Cada arquivo .py neste diretório que herde de HoneyPointDriver
+Cada arquivo .py neste diretório que herde de StagedDriver
 é descoberto automaticamente pelo launcher.
  
 Drivers incluídos:

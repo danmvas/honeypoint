@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Honeypoint Framework — Launcher
+STAGED — Launcher
 =================================
 Descobre drivers instalados, carrega e executa simultaneamente.
 
@@ -12,7 +12,7 @@ Uso:
   
 Instalando drivers:
   Coloque seu driver em drivers/ e ele será descoberto automaticamente.
-  O driver deve herdar de framework.base.HoneyPointDriver.
+  O driver deve herdar de framework.base.StagedDriver.
 """
 
 import argparse
@@ -27,7 +27,7 @@ import threading
 import logging
 from pathlib import Path
 
-from framework.base import HoneyPointDriver
+from framework.base import StagedDriver
 from framework.tracker import SCTracker, LOG_DIR
 
 # Diretório onde os drivers ficam
@@ -41,12 +41,12 @@ def setup_logging(verbose: bool = False) -> None:
     logging.basicConfig(level=level, format=fmt, datefmt="%H:%M:%S")
 
 
-def discover_drivers() -> dict[str, type[HoneyPointDriver]]:
+def discover_drivers() -> dict[str, type[StagedDriver]]:
     """
     Descobre todos os drivers disponíveis no diretório drivers/.
     
     Percorre todos os arquivos .py em drivers/, importa, e coleta
-    classes que herdam de HoneyPointDriver.
+    classes que herdam de StagedDriver.
     
     Returns:
         Dict de {nome_lowercase: classe_do_driver}
@@ -74,8 +74,8 @@ def discover_drivers() -> dict[str, type[HoneyPointDriver]]:
             continue
         
         for name, obj in inspect.getmembers(module, inspect.isclass):
-            if (issubclass(obj, HoneyPointDriver) 
-                and obj is not HoneyPointDriver):
+            if (issubclass(obj, StagedDriver) 
+                and obj is not StagedDriver):
                 meta = obj().get_metadata()
                 key = meta.name.lower().replace(" ", "_")
                 drivers[key] = obj
@@ -87,12 +87,12 @@ def discover_drivers() -> dict[str, type[HoneyPointDriver]]:
 def list_drivers(drivers: dict) -> None:
     """Lista os drivers disponíveis."""
     print(f"\n{'='*70}")
-    print(f"  Honeypoint Framework — Drivers Disponíveis")
+    print(f"  STAGED — Drivers Disponíveis")
     print(f"{'='*70}")
     
     if not drivers:
         print("  Nenhum driver encontrado em drivers/")
-        print(f"  Crie um driver herdando de framework.base.HoneyPointDriver")
+        print(f"  Crie um driver herdando de framework.base.StagedDriver")
     else:
         metas = {key: cls().get_metadata() for key, cls in drivers.items()}
         has_family = any(m.family for m in metas.values())
@@ -114,7 +114,7 @@ def list_drivers(drivers: dict) -> None:
     print(f"{'='*70}\n")
 
 
-def run_driver(driver_cls: type[HoneyPointDriver], 
+def run_driver(driver_cls: type[StagedDriver], 
                port_override: int | None = None) -> None:
     """Instancia e executa um driver."""
     driver = driver_cls()
@@ -153,7 +153,7 @@ def generate_report() -> None:
         by_driver.setdefault(name, []).append(r)
     
     print(f"\n{'='*70}")
-    print(f"  Honeypoint Framework — Relatório de Sessões")
+    print(f"  STAGED — Relatório de Sessões")
     print(f"{'='*70}")
     
     for driver_name, sessions in sorted(by_driver.items()):
@@ -188,7 +188,7 @@ def generate_report() -> None:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Honeypoint Framework — Launcher",
+        description="STAGED — Launcher",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Exemplos:
@@ -256,7 +256,7 @@ Como testar:
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     
-    print(f"\n  Honeypoint Framework — Iniciando {len(to_run)} driver(s)\n")
+    print(f"\n  STAGED — Iniciando {len(to_run)} driver(s)\n")
     
     for key, cls in to_run.items():
         port = args.port if (args.driver and args.port) else None

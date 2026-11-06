@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Honeypoint Framework — Driver Base Class
+STAGED — Driver Base Class
 ==========================================
-Define o contrato que qualquer driver de honeypoint deve seguir.
+Define o contrato que qualquer driver de decoy deve seguir.
 
 Um driver é responsável por:
   1. Declarar suas stages (etapas do protocolo de reconhecimento)
@@ -50,9 +50,9 @@ class DriverMetadata:
         return len(self.stages)
 
 
-class HoneyPointDriver(ABC):
+class StagedDriver(ABC):
     """
-    Classe base abstrata para drivers de honeypoint.
+    Classe base abstrata para drivers de decoy.
     
     Para criar um novo driver:
     
@@ -64,7 +64,7 @@ class HoneyPointDriver(ABC):
     
     Exemplo mínimo:
     
-        class MyDriver(HoneyPointDriver):
+        class MyDriver(StagedDriver):
             def get_metadata(self) -> DriverMetadata:
                 return DriverMetadata(
                     name="MyProtocol",
@@ -93,7 +93,7 @@ class HoneyPointDriver(ABC):
     @abstractmethod
     def start(self, port: int, tracker: 'SCTracker') -> None:
         """
-        Inicia o servidor do honeypoint.
+        Inicia o servidor do decoy.
         
         Args:
             port: Porta TCP para escutar
@@ -103,7 +103,7 @@ class HoneyPointDriver(ABC):
 
     @abstractmethod
     def stop(self) -> None:
-        """Para o servidor do honeypoint."""
+        """Para o servidor do decoy."""
         ...
 
     def get_port_override(self) -> Optional[int]:
