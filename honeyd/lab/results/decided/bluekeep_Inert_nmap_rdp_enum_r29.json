@@ -1,0 +1,36 @@
+[
+  {
+    "target": "Inert",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:33344",
+    "server": "10.0.0.70:3389",
+    "start_time": 1793975944.204192,
+    "end_time": 1793975944.204229,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 0,
+    "events": [],
+    "activity_beyond_n": []
+  },
+  {
+    "target": "Inert",
+    "tool": "nmap_rdp_enum",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:56612",
+    "server": "10.0.0.70:3389",
+    "start_time": 1793975944.416328,
+    "end_time": 1793975949.456908,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 1,
+    "events": [],
+    "activity_beyond_n": []
+  }
+]

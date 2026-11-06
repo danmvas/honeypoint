@@ -1,0 +1,6 @@
+2026-11-06 13:23:43,157 [INFO] 📡 [10.0.0.9:53776] MCS Channel Join: 2002
+2026-11-06 13:23:43,157 [INFO] 📡 [10.0.0.9:53776] MCS Channel Join: 1003
+2026-11-06 13:23:43,157 [WARNING] 🚨 [10.0.0.9:53776] MS_T120 channel bind! (canal 1004)
+2026-11-06 13:23:43,157 [INFO] 📡 [10.0.0.9:53776] MCS Channel Join: 1004
+2026-11-06 13:23:43,158 [INFO] {"timestamp": "2026-11-06T13:23:43.158297+00:00", "event_type": "rdp_possible_exploit", "src_ip": "10.0.0.9", "src_port": 53776, "details": {"alert": "DADOS NO CANAL MS_T120 (sonda BlueKeep ou exploit)", "pdu_size": 67, "channel_id": 1004}}
+2026-11-06 13:23:43,158 [WARNING] 🚨 [10.0.0.9:53776] Dados no canal MS_T120 (67 bytes) -> Disconnect Provider Ultimatum

@@ -1,6 +1,6 @@
-# recorded 2026-11-06T11:38:51Z by honeyd/lab/lab.sh versions
+# recorded 2026-11-06T13:25:41Z by honeyd/lab/lab.sh versions
 host: Linux 7.2.15-200.fc44.x86_64, Fedora Linux 44 (KDE Plasma Desktop Edition), podman 5.8.9
-honeypoint: b02681d
+honeypoint: 6e183c4
 msfconsole: Framework Version: 6.5.9-dev
 nmap: Nmap version 7.99 ( https://nmap.org )
 rdpscan: commit 09db2719a76d0fbc535f99fb51304ef060c0e484

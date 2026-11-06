@@ -1,0 +1,19 @@
+[
+  {
+    "target": "Inert",
+    "tool": "msf_smb_ms17_010",
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:38653",
+    "server": "10.0.0.70:445",
+    "start_time": 1793972418.17959,
+    "end_time": 1793972428.228899,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 1,
+    "events": [],
+    "activity_beyond_n": []
+  }
+]

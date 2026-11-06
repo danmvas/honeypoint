@@ -1,0 +1,6 @@
+2026-11-06 13:44:13,424 [INFO] 🔍 [10.0.0.9:43069] SMB1 Command: TRANSACTION
+2026-11-06 13:44:13,424 [INFO] {"timestamp": "2026-11-06T13:44:13.424588+00:00", "event_type": "VULN_CHECK", "src_ip": "10.0.0.9", "src_port": 43069, "details": {"alert": "Scanner verificando vulnerabilidade MS17-010", "pipe_name": "\\PIPE\\", "subcommand": "PeekNamedPipe"}}
+2026-11-06 13:44:13,424 [WARNING] 🔍 [10.0.0.9:43069] VULN CHECK: Pipe=\PIPE\ SubCmd=PeekNamedPipe
+2026-11-06 13:44:13,434 [INFO] 🔍 [10.0.0.9:43069] SMB1 Command: TRANSACTION2
+2026-11-06 13:44:13,434 [INFO] {"timestamp": "2026-11-06T13:44:13.434691+00:00", "event_type": "EXPLOIT_ATTEMPT", "src_ip": "10.0.0.9", "src_port": 43069, "details": {"alert": "ATIVIDADE APÓS O VEREDITO (possível exploit EternalBlue)", "command": "TRANSACTION2", "raw_hex": "0000004fff534d4232000000001807c00000000000000000000000000008627f640041000f0c0000000100000000000000a6d9a40000000c00420000004e0001000e0000000c00000000000000000000000000"}}
+2026-11-06 13:44:13,434 [WARNING] 🚨 [10.0.0.9:43069] Atividade após o veredito: Cmd=TRANSACTION2

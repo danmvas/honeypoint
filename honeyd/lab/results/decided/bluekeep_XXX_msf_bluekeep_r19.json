@@ -1,0 +1,95 @@
+[
+  {
+    "target": "XXX",
+    "tool": "msf_bluekeep",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:33499",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793975221.576471,
+    "end_time": 1793975226.765921,
+    "total_stages": 5,
+    "completed_stages": 5,
+    "stages_completed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "sc_obs": 1.0,
+    "records_seen": 39,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793975221.577215,
+        "t_response": 1793975221.577325
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793975221.577215,
+        "t_response": 1793975221.577325,
+        "negotiation": "RDP_NEG_RSP"
+      },
+      {
+        "stage": 3,
+        "name": "MCS Connect Initial",
+        "t_request": 1793975221.577531,
+        "t_response": 1793975221.678724
+      },
+      {
+        "stage": 4,
+        "name": "Channel Join",
+        "t_request": 1793975221.679553,
+        "t_response": 1793975221.679836,
+        "channel_id": 1009,
+        "ms_t120_attempted": false
+      },
+      {
+        "stage": 5,
+        "name": "Exploit PDU",
+        "t_request": 1793975226.765401,
+        "t_response": 1793975226.765779,
+        "channel_id": 1005,
+        "payload_bytes": 51
+      }
+    ],
+    "activity_beyond_n": []
+  },
+  {
+    "target": "XXX",
+    "tool": "msf_bluekeep",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:45341",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793975221.551145,
+    "end_time": 1793975221.576181,
+    "total_stages": 5,
+    "completed_stages": 2,
+    "stages_completed": [
+      1,
+      2
+    ],
+    "sc_obs": 0.4,
+    "records_seen": 2,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793975221.575792,
+        "t_response": 1793975221.576017
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793975221.575792,
+        "t_response": 1793975221.576017,
+        "negotiation": "RDP_NEG_RSP"
+      }
+    ],
+    "activity_beyond_n": []
+  }
+]

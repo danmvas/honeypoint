@@ -343,3 +343,10 @@ Re-run after the framework fixes (framework commit `b02681d`, 2026-11-06):
 in 30/30 runs, and every cell is deterministic. What is still open (the
 stage-2 rule on legacy requests, the MS12-020 verdict race, T3/T4) is in the
 "Update" section of `honeyd/lab/FINDINGS.md`.
+
+Re-run with the stage rules settled (framework commit `6e183c4`, 2026-11-06):
+`honeyd/lab/results/decided/`, **the numbers to cite**. T1 reaches 5/5 with a
+VULNERABLE verdict ×30 for every EternalBlue tool, both BlueKeep scanners and
+MS12-020, and SC_int = SC_obs in every session. The rules and the MS12-020
+reply batching are in "Update 2" of `honeyd/lab/FINDINGS.md`. The older runs
+rescored under the same rules: `results/{main,fixed}/REPORT-rescored.md`.

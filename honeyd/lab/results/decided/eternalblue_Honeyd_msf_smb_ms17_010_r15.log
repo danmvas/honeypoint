@@ -1,0 +1,4 @@
+RHOSTS => 10.0.0.50
+[-] 10.0.0.50:445         - Rex::Proto::SMB::Exceptions::ErrorCode: The server responded with error: STATUS_ACCESS_DENIED (Command=117 WordCount=0)
+[*] 10.0.0.50:445         - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed

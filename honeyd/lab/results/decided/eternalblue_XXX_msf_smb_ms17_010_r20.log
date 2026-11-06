@@ -1,0 +1,5 @@
+RHOSTS => 10.0.0.40
+[+] 10.0.0.40:445         - Host is likely VULNERABLE to MS17-010! - W
+/usr/local/bundle/gems/recog-3.1.37/lib/recog/fingerprint/regexp_factory.rb:34: warning: nested repeat operator '+' and '?' was replaced with '*' in regular expression
+[*] 10.0.0.40:445         - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed

@@ -1,0 +1,61 @@
+[
+  {
+    "target": "XXX",
+    "tool": "rdpscan",
+    "attack": "bluekeep",
+    "cve": "CVE-2019-0708",
+    "client": "10.0.0.9:34378",
+    "server": "10.0.0.40:3389",
+    "start_time": 1793974515.427205,
+    "end_time": 1793974515.531053,
+    "total_stages": 5,
+    "completed_stages": 5,
+    "stages_completed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "sc_obs": 1.0,
+    "records_seen": 31,
+    "events": [
+      {
+        "stage": 1,
+        "name": "X.224 Connection Request",
+        "t_request": 1793974515.427299,
+        "t_response": 1793974515.42772
+      },
+      {
+        "stage": 2,
+        "name": "Security Negotiation",
+        "t_request": 1793974515.427299,
+        "t_response": 1793974515.42772,
+        "negotiation": "RDP_NEG_RSP"
+      },
+      {
+        "stage": 3,
+        "name": "MCS Connect Initial",
+        "t_request": 1793974515.427753,
+        "t_response": 1793974515.528998
+      },
+      {
+        "stage": 4,
+        "name": "Channel Join",
+        "t_request": 1793974515.529545,
+        "t_response": 1793974515.530083,
+        "channel_id": 2002,
+        "ms_t120_attempted": false
+      },
+      {
+        "stage": 5,
+        "name": "Exploit PDU",
+        "t_request": 1793974515.530666,
+        "t_response": 1793974515.53086,
+        "channel_id": 1004,
+        "payload_bytes": 67
+      }
+    ],
+    "activity_beyond_n": []
+  }
+]
