@@ -1,0 +1,4 @@
+RHOSTS => 10.0.0.40
+[*] 10.0.0.40:3389        - 10.0.0.40:3389 - The target is not exploitable. Not vulnerable
+[*] 10.0.0.40:3389        - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed

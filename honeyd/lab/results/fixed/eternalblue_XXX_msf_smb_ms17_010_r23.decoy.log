@@ -1,0 +1,65 @@
+
+  Honeypoint Framework — Iniciando 3 driver(s)
+
+12:09:17 [root] INFO: Iniciando EternalBlue (CVE-2017-0144) na porta 445
+12:09:17 [root] INFO:   Scanner esperado: auxiliary/scanner/smb/smb_ms17_010
+12:09:17 [root] INFO:   Total de stages: 5
+12:09:17 [root] INFO: Iniciando BlueKeep (CVE-2019-0708) na porta 3389
+12:09:17 [root] INFO:   Scanner esperado: auxiliary/scanner/rdp/cve_2019_0708_bluekeep
+12:09:17 [root] INFO:   Total de stages: 5
+12:09:17 [root] INFO: Iniciando MS12020 (CVE-2012-0002) na porta 3389
+12:09:17 [root] INFO:   Scanner esperado: auxiliary/scanner/rdp/ms12_020_check
+12:09:17 [root] INFO:   Total de stages: 5
+2026-11-06 12:09:17,897 [INFO] 🍯 Family Honeypoint escutando na porta 3389
+12:09:17 [honeypoint.family] INFO: 🍯 Family Honeypoint escutando na porta 3389
+2026-11-06 12:09:17,897 [INFO] 🍯 Family Honeypoint escutando na porta 445
+12:09:17 [honeypoint.family] INFO: 🍯 Family Honeypoint escutando na porta 445
+2026-11-06 12:09:18,197 [INFO] 🍯 Variantes ativas na porta 3389: ['BlueKeep', 'MS12020']
+12:09:18 [honeypoint.family] INFO: 🍯 Variantes ativas na porta 3389: ['BlueKeep', 'MS12020']
+2026-11-06 12:09:18,197 [INFO] 🍯 Variantes ativas na porta 445: ['EternalBlue']
+12:09:18 [honeypoint.family] INFO: 🍯 Variantes ativas na porta 445: ['EternalBlue']
+2026-11-06 12:09:21,420 [INFO] 🎯 Nova conexão SMB: 10.0.0.9:45177
+12:09:21 [honeypoint.smb_family] INFO: 🎯 Nova conexão SMB: 10.0.0.9:45177
+2026-11-06 12:09:21,427 [INFO] 🔍 [10.0.0.9:45177] Dialect index: 3
+12:09:21 [honeypoint.smb_family] INFO: 🔍 [10.0.0.9:45177] Dialect index: 3
+2026-11-06 12:09:21,433 [INFO] 🕵️ [10.0.0.9:45177] Session Setup: OS='Windows 2000 5.0'
+12:09:21 [honeypoint.smb_family] INFO: 🕵️ [10.0.0.9:45177] Session Setup: OS='Windows 2000 5.0'
+2026-11-06 12:09:21,437 [INFO] 🌲 [10.0.0.9:45177] Tree Connect: \\10.0.0.40\IPC$
+12:09:21 [honeypoint.smb_family] INFO: 🌲 [10.0.0.9:45177] Tree Connect: \\10.0.0.40\IPC$
+12:09:21 [honeypoint.EternalBlue] INFO: Nova sessão: EternalBlue_20261106_120921_441998_1587f5 de 10.0.0.9:45177
+12:09:21 [honeypoint.EternalBlue] INFO: [EternalBlue] Stage 1/5 (SMB Negotiate) completada — SC = 1/5
+12:09:21 [honeypoint.EternalBlue] INFO: [EternalBlue] Stage 2/5 (Session Setup) completada — SC = 2/5
+12:09:21 [honeypoint.EternalBlue] INFO: [EternalBlue] Stage 3/5 (Tree Connect IPC$) completada — SC = 3/5
+2026-11-06 12:09:21,442 [INFO] ➡️  [10.0.0.9:45177] Conexão resolvida para variante: EternalBlue
+12:09:21 [honeypoint.smb_family] INFO: ➡️  [10.0.0.9:45177] Conexão resolvida para variante: EternalBlue
+2026-11-06 12:09:21,442 [INFO] 🔍 [10.0.0.9:45177] SMB1 Command: TRANSACTION
+12:09:21 [honeypoint.eternalblue] INFO: 🔍 [10.0.0.9:45177] SMB1 Command: TRANSACTION
+12:09:21 [honeypoint.EternalBlue] INFO: [EternalBlue] Stage 4/5 (PeekNamedPipe) completada — SC = 4/5
+2026-11-06 12:09:21,442 [INFO] {"timestamp": "2026-11-06T12:09:21.442250+00:00", "event_type": "VULN_CHECK", "src_ip": "10.0.0.9", "src_port": 45177, "details": {"alert": "Scanner verificando vulnerabilidade MS17-010", "pipe_name": "\\PIPE\\", "subcommand": "PeekNamedPipe"}}
+12:09:21 [honeypoint.eternalblue.json] INFO: {"timestamp": "2026-11-06T12:09:21.442250+00:00", "event_type": "VULN_CHECK", "src_ip": "10.0.0.9", "src_port": 45177, "details": {"alert": "Scanner verificando vulnerabilidade MS17-010", "pipe_name": "\\PIPE\\", "subcommand": "PeekNamedPipe"}}
+2026-11-06 12:09:21,442 [WARNING] 🔍 [10.0.0.9:45177] VULN CHECK: Pipe=\PIPE\ SubCmd=PeekNamedPipe
+12:09:21 [honeypoint.eternalblue] WARNING: 🔍 [10.0.0.9:45177] VULN CHECK: Pipe=\PIPE\ SubCmd=PeekNamedPipe
+2026-11-06 12:09:21,443 [INFO] 🔍 [10.0.0.9:45177] SMB1 Command: TRANSACTION2
+12:09:21 [honeypoint.eternalblue] INFO: 🔍 [10.0.0.9:45177] SMB1 Command: TRANSACTION2
+12:09:21 [honeypoint.EternalBlue] INFO: [EternalBlue] Stage 5/5 (Vuln Check Response) completada — SC = 5/5
+2026-11-06 12:09:21,443 [INFO] {"timestamp": "2026-11-06T12:09:21.443565+00:00", "event_type": "EXPLOIT_ATTEMPT", "src_ip": "10.0.0.9", "src_port": 45177, "details": {"alert": "TENTATIVA DE EXPLOIT ETERNALBLUE", "command": "TRANSACTION2", "raw_hex": "0000004fff534d4232000000001807c00000000000000000000000000008af28640041000f0c0000000100000000000000a6d9a40000000c00420000004e0001000e0000000c00000000000000000000000000"}}
+12:09:21 [honeypoint.eternalblue.json] INFO: {"timestamp": "2026-11-06T12:09:21.443565+00:00", "event_type": "EXPLOIT_ATTEMPT", "src_ip": "10.0.0.9", "src_port": 45177, "details": {"alert": "TENTATIVA DE EXPLOIT ETERNALBLUE", "command": "TRANSACTION2", "raw_hex": "0000004fff534d4232000000001807c00000000000000000000000000008af28640041000f0c0000000100000000000000a6d9a40000000c00420000004e0001000e0000000c00000000000000000000000000"}}
+2026-11-06 12:09:21,443 [WARNING] 🚨 [10.0.0.9:45177] EXPLOIT ATTEMPT! Cmd=TRANSACTION2
+12:09:21 [honeypoint.eternalblue] WARNING: 🚨 [10.0.0.9:45177] EXPLOIT ATTEMPT! Cmd=TRANSACTION2
+12:09:21 [honeypoint.EternalBlue] INFO: Sessão finalizada: SC = 5/5 (SUCESSO) → /logs/sc_EternalBlue_20261106_120921_441998_1587f5.json
+
+============================================================
+  EternalBlue (CVE-2017-0144) — SC = 5/5 (100%)
+============================================================
+  ✅ Stage 1: SMB Negotiate
+  ✅ Stage 2: Session Setup
+  ✅ Stage 3: Tree Connect IPC$
+  ✅ Stage 4: PeekNamedPipe
+  ✅ Stage 5: Vuln Check Response
+============================================================
+
+2026-11-06 12:09:21,739 [INFO] 🔒 [10.0.0.9:45177] Encerrada (5 interações)
+12:09:21 [honeypoint.smb_family] INFO: 🔒 [10.0.0.9:45177] Encerrada (5 interações)
+
+
+Parando todos os drivers...

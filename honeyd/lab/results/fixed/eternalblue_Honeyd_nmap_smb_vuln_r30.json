@@ -1,0 +1,43 @@
+[
+  {
+    "target": "Honeyd",
+    "tool": "nmap_smb_vuln",
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:46652",
+    "server": "10.0.0.50:445",
+    "start_time": 1793967547.746191,
+    "end_time": 1793967547.762645,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 0,
+    "events": []
+  },
+  {
+    "target": "Honeyd",
+    "tool": "nmap_smb_vuln",
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:54150",
+    "server": "10.0.0.50:445",
+    "start_time": 1793967547.793042,
+    "end_time": 1793967548.124194,
+    "total_stages": 5,
+    "completed_stages": 1,
+    "stages_completed": [
+      1
+    ],
+    "sc_obs": 0.2,
+    "records_seen": 2,
+    "events": [
+      {
+        "stage": 1,
+        "name": "SMB Negotiate",
+        "t_request": 1793967548.062551,
+        "t_response": 1793967548.092619
+      }
+    ]
+  }
+]

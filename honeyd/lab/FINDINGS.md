@@ -16,6 +16,67 @@ image on this machine, so the top of the scale is not anchored yet. Every
 "VULNERABLE" below is the scanner's verdict on a decoy. Nothing was checked
 against a real host.
 
+## Update (2026-11-06): after the fixes, framework commit `b02681d`
+
+Defects F1–F8 below are fixed in `b02681d`; the RDP connection is now carried
+through to the scanner's MS_T120 probe. The lab, scanners, observer and R = 30
+are unchanged. Data: `results/fixed/` (630 runs, every run scored, provenance in
+`results/fixed/versions.txt`). **Every SC_obs cell was deterministic.**
+
+| T1 (your framework) | before (`0564e0d`) | after (`b02681d`) |
+|---|---|---|
+| EternalBlue: msf scanner / msf check / nmap | 5/5, 5/5, 4/5; all VULNERABLE | **unchanged** |
+| msf BlueKeep scanner | 5/5 (29), 3/5 (1); **not vulnerable** | 5/5 ×30; **VULNERABLE ×30** |
+| rdpscan | 3/5 (24), 5/5 (6); UNKNOWN | 5/5 ×30; **VULNERABLE ×30** |
+| nmap `rdp-enum-encryption` | 3/5 | 2/5 (see I1) |
+| msf `ms12_020_check` | 2/5; "Could not connect to RDP" | 3/5 (stages 1, 3, 4); SAFE ×29, VULNERABLE ×1 |
+| SC_int records lost to same-second IDs | 224 of 360 | **0** |
+
+Honeyd and the inert socket gave exactly the same values as before in every cell,
+which is a useful check that the testbed didn't drift between runs.
+
+**SC_int vs SC_obs, per session by source port:** SMB 90/90; msf BlueKeep 60/60
+(30 BlueKeep sessions plus its 30 fingerprint connections, now filed under
+`RDP-Recon`); rdpscan 30/30; nmap 150/270; msf MS12-020 0/30. **All 150
+disagreements are one thing: stage 2 on a legacy request** (no `RDP_NEG_REQ`).
+The tracker credits its synthetic "Security Negotiation"; the observer requires
+an `RDP_NEG_RSP`, which a correct server no longer sends there. This is exactly
+the mismatch RUNBOOK §5 predicted. It was hidden before only because of F1
+(`RDP_NEG_RSP` was always sent). It drops to zero once I1 is decided.
+
+**What is still open**
+
+1. **I1 (your decision): stage 2 on legacy requests.** Either the observer
+   credits stage 2 when the request had no `RDP_NEG_REQ` and the server answered
+   with a Connection Confirm, or the tracker stops crediting it there. In the
+   second case MS12-020 tops out at 4/5 for every target, Windows included.
+   Either way SC_int = SC_obs everywhere again.
+2. **The MS12-020 verdict is a race inside Metasploit.** The module sends
+   Connect Initial and Attach User back to back, then reads once per request,
+   and takes the user id from whatever the first read returns. Its own Nagle
+   buffering holds back the Attach User Request until the Connect Response
+   arrives, so that read usually holds the Connect Response alone. Every later
+   read is then one reply behind, and the module checks an Attach User Confirm
+   instead of the Channel Join Confirm: SAFE. In run r18 the first read caught
+   both replies, the reads lined up, and the verdict was VULNERABLE.
+   The framework could make this deterministic by sending the Connect Response
+   together with the first Attach User Confirm (holding it a few milliseconds).
+   Whether Windows does that needs the T3 capture, so it hasn't been done.
+3. **Decision 1 / I2.** The observer still credits BlueKeep stage 5 on any
+   client Send Data. It no longer changes a number, since T1 now reaches the
+   probe and 5/5 coincides with VULNERABLE, but it would for a decoy that stops
+   after the Security Exchange.
+4. **T3/T4.** Still missing.
+
+**Claims supported now:** five scanner implementations judge T1 VULNERABLE with
+zero variance across 30 runs: Metasploit's MS17-010 scanner and check, Nmap
+`smb-vuln-ms17-010`, Metasploit's BlueKeep scanner, and rdpscan. Honeyd gets
+none. MS12-020 isn't there yet (item 2). On BlueKeep the two independent
+implementations now agree (5/5, VULNERABLE). The cost is unchanged: T1 about
+17.8 MiB and 214–241 ms CPU per run.
+
+The sections below describe the original run at `0564e0d` and are kept as the record.
+
 ## Table 2 — SMB / EternalBlue (N = 5)
 
 SC_obs per run, as the deepest TCP session of the run. All cells were
@@ -65,7 +126,11 @@ credit stage 2. It appears as soon as F1 is fixed (see the what-if).
 the run (startup included): T1 ≈ 17 MiB and 210–220 ms CPU; Honeyd 12–15 MiB and
 50–63 ms; inert 5.7 MiB and 24 ms.
 
-## Defects found in the honeypoint (T1)
+## Defects found in the honeypoint (T1) — all fixed in `b02681d`
+
+Line numbers refer to `0564e0d`. The fix commit also corrects the Connect
+Initial parser, which located CS_CORE inside the GCC header (hence the garbage
+client hostnames in every log). That bug blocked the channel lookup F4 needs.
 
 | # | Where | What the real scanners exposed |
 |---|---|---|
@@ -148,6 +213,7 @@ user) is reachable with this module at all.
 ```bash
 podman build -t localhost/honeyd:a0f3d64 -f honeyd/Containerfile honeyd/   # once
 ./honeyd/lab/run_all.sh                       # RUNBOOK s0, s7, s2, s4; ~90 min at R=30
+OUT=$PWD/honeyd/lab/results/fixed ./honeyd/lab/run_all.sh   # what produced results/fixed
 python3 honeyd/lab/report.py honeyd/lab/results/main > REPORT.md
 ./honeyd/lab/diag_bluekeep_verbose.sh         # verbose verdicts
 ./honeyd/lab/whatif/run_whatif.sh             # patched copy, R=5

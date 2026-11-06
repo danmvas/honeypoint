@@ -1,0 +1,2 @@
+2026-11-06 12:55:34,350 [INFO] {"timestamp": "2026-11-06T12:55:34.350932+00:00", "event_type": "second_attach_user", "src_ip": "10.0.0.9", "src_port": 42741, "details": {"attached_user_ids": [1001, 1002]}}
+2026-11-06 12:55:34,351 [INFO] 📡 [10.0.0.9:42741] Channel Join (não cross-user): initiator 33281 (anexados: [1001, 1002]) -> canal 2002

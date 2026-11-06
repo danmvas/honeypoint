@@ -1,0 +1,34 @@
+[
+  {
+    "target": "Inert",
+    "tool": "nmap_smb_vuln",
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:46456",
+    "server": "10.0.0.70:445",
+    "start_time": 1793965972.893233,
+    "end_time": 1793965972.893272,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 0,
+    "events": []
+  },
+  {
+    "target": "Inert",
+    "tool": "nmap_smb_vuln",
+    "attack": "eternalblue",
+    "cve": "CVE-2017-0144",
+    "client": "10.0.0.9:58048",
+    "server": "10.0.0.70:445",
+    "start_time": 1793965972.911203,
+    "end_time": 1793965982.952903,
+    "total_stages": 5,
+    "completed_stages": 0,
+    "stages_completed": [],
+    "sc_obs": 0.0,
+    "records_seen": 1,
+    "events": []
+  }
+]

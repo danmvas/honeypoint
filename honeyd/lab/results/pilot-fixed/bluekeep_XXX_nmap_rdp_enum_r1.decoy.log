@@ -1,0 +1,244 @@
+
+  Honeypoint Framework — Iniciando 3 driver(s)
+
+11:36:50 [root] INFO: Iniciando EternalBlue (CVE-2017-0144) na porta 445
+11:36:50 [root] INFO:   Scanner esperado: auxiliary/scanner/smb/smb_ms17_010
+11:36:50 [root] INFO:   Total de stages: 5
+11:36:50 [root] INFO: Iniciando BlueKeep (CVE-2019-0708) na porta 3389
+11:36:50 [root] INFO:   Scanner esperado: auxiliary/scanner/rdp/cve_2019_0708_bluekeep
+11:36:50 [root] INFO:   Total de stages: 5
+2026-11-06 11:36:50,164 [INFO] 🍯 Family Honeypoint escutando na porta 445
+11:36:50 [honeypoint.family] INFO: 🍯 Family Honeypoint escutando na porta 445
+2026-11-06 11:36:50,164 [INFO] 🍯 Family Honeypoint escutando na porta 3389
+11:36:50 [honeypoint.family] INFO: 🍯 Family Honeypoint escutando na porta 3389
+11:36:50 [root] INFO: Iniciando MS12020 (CVE-2012-0002) na porta 3389
+11:36:50 [root] INFO:   Scanner esperado: auxiliary/scanner/rdp/ms12_020_check
+11:36:50 [root] INFO:   Total de stages: 5
+2026-11-06 11:36:50,465 [INFO] 🍯 Variantes ativas na porta 445: ['EternalBlue']
+11:36:50 [honeypoint.family] INFO: 🍯 Variantes ativas na porta 445: ['EternalBlue']
+2026-11-06 11:36:50,465 [INFO] 🍯 Variantes ativas na porta 3389: ['BlueKeep', 'MS12020']
+11:36:50 [honeypoint.family] INFO: 🍯 Variantes ativas na porta 3389: ['BlueKeep', 'MS12020']
+2026-11-06 11:36:51,633 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:33802
+11:36:51 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:33802
+2026-11-06 11:36:51,633 [INFO] 🔍 [10.0.0.9:33802] X.224 CR: cookie=Cookie: mstshash=nmap
+11:36:51 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:33802] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 11:36:51,633 [INFO] 🔓 [10.0.0.9:33802] Security: RDP nativo (sem NLA)
+11:36:51 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:33802] Security: RDP nativo (sem NLA)
+11:36:51 [honeypoint.RDP-Recon] INFO: Nova sessão: RDP-Recon_20261106_113651_634144_807e53 de 10.0.0.9:33802
+11:36:51 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+11:36:51 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+11:36:51 [honeypoint.RDP-Recon] INFO: Sessão finalizada: SC = 2/5 (PARCIAL) → /logs/sc_RDP-Recon_20261106_113651_634144_807e53.json
+
+============================================================
+  RDP-Recon () — SC = 2/5 (40%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ⬜ Stage 3: 
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 11:36:51,634 [INFO] 🔒 [10.0.0.9:33802] Encerrada
+11:36:51 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:33802] Encerrada
+2026-11-06 11:36:51,834 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:33812
+11:36:51 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:33812
+2026-11-06 11:36:51,834 [INFO] 🔍 [10.0.0.9:33812] X.224 CR: cookie=Cookie: mstshash=nmap
+11:36:51 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:33812] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 11:36:51,834 [INFO] 🔓 [10.0.0.9:33812] Security: RDP nativo (sem NLA)
+11:36:51 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:33812] Security: RDP nativo (sem NLA)
+2026-11-06 11:36:51,835 [INFO] ❔ [10.0.0.9:33812] Esperava MCS Connect Initial, chegou 160301063b010006 — encerrando sem creditar a stage 3
+11:36:51 [honeypoint.rdp_family] INFO: ❔ [10.0.0.9:33812] Esperava MCS Connect Initial, chegou 160301063b010006 — encerrando sem creditar a stage 3
+11:36:51 [honeypoint.RDP-Recon] INFO: Nova sessão: RDP-Recon_20261106_113651_835292_d70aa4 de 10.0.0.9:33812
+11:36:51 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+11:36:51 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+11:36:51 [honeypoint.RDP-Recon] INFO: Sessão finalizada: SC = 2/5 (PARCIAL) → /logs/sc_RDP-Recon_20261106_113651_835292_d70aa4.json
+
+============================================================
+  RDP-Recon () — SC = 2/5 (40%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ⬜ Stage 3: 
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 11:36:51,835 [INFO] 🔒 [10.0.0.9:33812] Encerrada
+11:36:51 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:33812] Encerrada
+2026-11-06 11:36:52,036 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:33822
+11:36:52 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:33822
+2026-11-06 11:36:52,036 [INFO] 🔍 [10.0.0.9:33822] X.224 CR: cookie=Cookie: mstshash=nmap
+11:36:52 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:33822] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 11:36:52,036 [INFO] 🔓 [10.0.0.9:33822] Security: RDP nativo (sem NLA)
+11:36:52 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:33822] Security: RDP nativo (sem NLA)
+11:36:52 [honeypoint.RDP-Recon] INFO: Nova sessão: RDP-Recon_20261106_113652_037033_1c5815 de 10.0.0.9:33822
+11:36:52 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+11:36:52 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+11:36:52 [honeypoint.RDP-Recon] INFO: Sessão finalizada: SC = 2/5 (PARCIAL) → /logs/sc_RDP-Recon_20261106_113652_037033_1c5815.json
+
+============================================================
+  RDP-Recon () — SC = 2/5 (40%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ⬜ Stage 3: 
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 11:36:52,037 [INFO] 🔒 [10.0.0.9:33822] Encerrada
+11:36:52 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:33822] Encerrada
+2026-11-06 11:36:52,237 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:33838
+11:36:52 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:33838
+2026-11-06 11:36:52,237 [INFO] 🔍 [10.0.0.9:33838] X.224 CR: cookie=Cookie: mstshash=nmap
+11:36:52 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:33838] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 11:36:52,237 [INFO] 🔓 [10.0.0.9:33838] Security: RDP nativo (sem NLA)
+11:36:52 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:33838] Security: RDP nativo (sem NLA)
+11:36:52 [honeypoint.RDP-Recon] INFO: Nova sessão: RDP-Recon_20261106_113652_237914_c3f1c9 de 10.0.0.9:33838
+11:36:52 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+11:36:52 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+11:36:52 [honeypoint.RDP-Recon] INFO: Sessão finalizada: SC = 2/5 (PARCIAL) → /logs/sc_RDP-Recon_20261106_113652_237914_c3f1c9.json
+
+============================================================
+  RDP-Recon () — SC = 2/5 (40%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ⬜ Stage 3: 
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 11:36:52,238 [INFO] 🔒 [10.0.0.9:33838] Encerrada
+11:36:52 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:33838] Encerrada
+2026-11-06 11:36:52,438 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:33848
+11:36:52 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:33848
+2026-11-06 11:36:52,438 [INFO] 🔍 [10.0.0.9:33848] X.224 CR: cookie=Cookie: mstshash=nmap
+11:36:52 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:33848] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 11:36:52,438 [INFO] 🔓 [10.0.0.9:33848] Security: RDP nativo (sem NLA)
+11:36:52 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:33848] Security: RDP nativo (sem NLA)
+11:36:52 [honeypoint.RDP-Recon] INFO: Nova sessão: RDP-Recon_20261106_113652_438772_13f9fc de 10.0.0.9:33848
+11:36:52 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+11:36:52 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+11:36:52 [honeypoint.RDP-Recon] INFO: Sessão finalizada: SC = 2/5 (PARCIAL) → /logs/sc_RDP-Recon_20261106_113652_438772_13f9fc.json
+
+============================================================
+  RDP-Recon () — SC = 2/5 (40%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ⬜ Stage 3: 
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 11:36:52,439 [INFO] 🔒 [10.0.0.9:33848] Encerrada
+11:36:52 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:33848] Encerrada
+2026-11-06 11:36:52,639 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:33858
+11:36:52 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:33858
+2026-11-06 11:36:52,639 [INFO] 🔍 [10.0.0.9:33858] X.224 CR: cookie=Cookie: mstshash=nmap
+11:36:52 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:33858] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 11:36:52,639 [INFO] 🔓 [10.0.0.9:33858] Security: RDP nativo (sem NLA)
+11:36:52 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:33858] Security: RDP nativo (sem NLA)
+2026-11-06 11:36:52,640 [INFO] 🕵️ [10.0.0.9:33858] MCS: host='EMP-LAP-0014' canais=['rdpdr', 'cliprdr', 'rdpsnd']
+11:36:52 [honeypoint.rdp_family] INFO: 🕵️ [10.0.0.9:33858] MCS: host='EMP-LAP-0014' canais=['rdpdr', 'cliprdr', 'rdpsnd']
+11:36:52 [honeypoint.RDP-Recon] INFO: Nova sessão: RDP-Recon_20261106_113652_640545_d7771d de 10.0.0.9:33858
+11:36:52 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+11:36:52 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+11:36:52 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 3/5 (MCS Connect Initial) completada — SC = 3/5
+11:36:52 [honeypoint.RDP-Recon] INFO: Sessão finalizada: SC = 3/5 (PARCIAL) → /logs/sc_RDP-Recon_20261106_113652_640545_d7771d.json
+
+============================================================
+  RDP-Recon () — SC = 3/5 (60%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ✅ Stage 3: MCS Connect Initial
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 11:36:52,640 [INFO] 🔒 [10.0.0.9:33858] Encerrada
+11:36:52 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:33858] Encerrada
+2026-11-06 11:36:52,840 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:33860
+11:36:52 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:33860
+2026-11-06 11:36:52,841 [INFO] 🔍 [10.0.0.9:33860] X.224 CR: cookie=Cookie: mstshash=nmap
+11:36:52 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:33860] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 11:36:52,841 [INFO] 🔓 [10.0.0.9:33860] Security: RDP nativo (sem NLA)
+11:36:52 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:33860] Security: RDP nativo (sem NLA)
+2026-11-06 11:36:52,841 [INFO] 🕵️ [10.0.0.9:33860] MCS: host='EMP-LAP-0014' canais=['rdpdr', 'cliprdr', 'rdpsnd']
+11:36:52 [honeypoint.rdp_family] INFO: 🕵️ [10.0.0.9:33860] MCS: host='EMP-LAP-0014' canais=['rdpdr', 'cliprdr', 'rdpsnd']
+11:36:52 [honeypoint.RDP-Recon] INFO: Nova sessão: RDP-Recon_20261106_113652_841734_35986b de 10.0.0.9:33860
+11:36:52 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+11:36:52 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+11:36:52 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 3/5 (MCS Connect Initial) completada — SC = 3/5
+11:36:52 [honeypoint.RDP-Recon] INFO: Sessão finalizada: SC = 3/5 (PARCIAL) → /logs/sc_RDP-Recon_20261106_113652_841734_35986b.json
+
+============================================================
+  RDP-Recon () — SC = 3/5 (60%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ✅ Stage 3: MCS Connect Initial
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 11:36:52,842 [INFO] 🔒 [10.0.0.9:33860] Encerrada
+11:36:52 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:33860] Encerrada
+2026-11-06 11:36:53,042 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:33868
+11:36:53 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:33868
+2026-11-06 11:36:53,042 [INFO] 🔍 [10.0.0.9:33868] X.224 CR: cookie=Cookie: mstshash=nmap
+11:36:53 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:33868] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 11:36:53,042 [INFO] 🔓 [10.0.0.9:33868] Security: RDP nativo (sem NLA)
+11:36:53 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:33868] Security: RDP nativo (sem NLA)
+2026-11-06 11:36:53,043 [INFO] 🕵️ [10.0.0.9:33868] MCS: host='EMP-LAP-0014' canais=['rdpdr', 'cliprdr', 'rdpsnd']
+11:36:53 [honeypoint.rdp_family] INFO: 🕵️ [10.0.0.9:33868] MCS: host='EMP-LAP-0014' canais=['rdpdr', 'cliprdr', 'rdpsnd']
+11:36:53 [honeypoint.RDP-Recon] INFO: Nova sessão: RDP-Recon_20261106_113653_043620_593016 de 10.0.0.9:33868
+11:36:53 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+11:36:53 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+11:36:53 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 3/5 (MCS Connect Initial) completada — SC = 3/5
+11:36:53 [honeypoint.RDP-Recon] INFO: Sessão finalizada: SC = 3/5 (PARCIAL) → /logs/sc_RDP-Recon_20261106_113653_043620_593016.json
+
+============================================================
+  RDP-Recon () — SC = 3/5 (60%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ✅ Stage 3: MCS Connect Initial
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 11:36:53,044 [INFO] 🔒 [10.0.0.9:33868] Encerrada
+11:36:53 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:33868] Encerrada
+2026-11-06 11:36:53,243 [INFO] 🎯 Nova conexão RDP: 10.0.0.9:33870
+11:36:53 [honeypoint.rdp_family] INFO: 🎯 Nova conexão RDP: 10.0.0.9:33870
+2026-11-06 11:36:53,244 [INFO] 🔍 [10.0.0.9:33870] X.224 CR: cookie=Cookie: mstshash=nmap
+11:36:53 [honeypoint.rdp_family] INFO: 🔍 [10.0.0.9:33870] X.224 CR: cookie=Cookie: mstshash=nmap
+2026-11-06 11:36:53,244 [INFO] 🔓 [10.0.0.9:33870] Security: RDP nativo (sem NLA)
+11:36:53 [honeypoint.rdp_family] INFO: 🔓 [10.0.0.9:33870] Security: RDP nativo (sem NLA)
+2026-11-06 11:36:53,244 [INFO] 🕵️ [10.0.0.9:33870] MCS: host='EMP-LAP-0014' canais=['rdpdr', 'cliprdr', 'rdpsnd']
+11:36:53 [honeypoint.rdp_family] INFO: 🕵️ [10.0.0.9:33870] MCS: host='EMP-LAP-0014' canais=['rdpdr', 'cliprdr', 'rdpsnd']
+11:36:53 [honeypoint.RDP-Recon] INFO: Nova sessão: RDP-Recon_20261106_113653_244870_9c4533 de 10.0.0.9:33870
+11:36:53 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 1/5 (X.224 Connection Request) completada — SC = 1/5
+11:36:53 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 2/5 (Security Negotiation) completada — SC = 2/5
+11:36:53 [honeypoint.RDP-Recon] INFO: [RDP-Recon] Stage 3/5 (MCS Connect Initial) completada — SC = 3/5
+11:36:53 [honeypoint.RDP-Recon] INFO: Sessão finalizada: SC = 3/5 (PARCIAL) → /logs/sc_RDP-Recon_20261106_113653_244870_9c4533.json
+
+============================================================
+  RDP-Recon () — SC = 3/5 (60%)
+============================================================
+  ✅ Stage 1: X.224 Connection Request
+  ✅ Stage 2: Security Negotiation
+  ✅ Stage 3: MCS Connect Initial
+  ⬜ Stage 4: 
+  ⬜ Stage 5: 
+============================================================
+
+2026-11-06 11:36:53,245 [INFO] 🔒 [10.0.0.9:33870] Encerrada
+11:36:53 [honeypoint.rdp_family] INFO: 🔒 [10.0.0.9:33870] Encerrada
+
+
+Parando todos os drivers...
