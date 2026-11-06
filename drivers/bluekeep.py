@@ -13,7 +13,7 @@ comportamento genérico que já existia antes da família ser extraída.
 
 Stages 4-5 (ponto de divergência real do BlueKeep):
   B4: Channel Join   — Scanner solicita join nos canais virtuais
-  B5: Exploit PDU    — Scanner envia dados no canal virtual MS_T120 (a sonda
+  B5: MS_T120 Probe  — Scanner envia dados no canal virtual MS_T120 (a sonda
                        do scanner ou o payload de um exploit); o servidor
                        responde como um alvo vulnerável
 
@@ -62,7 +62,7 @@ class BlueKeepDriver(rdp.RDPFamilyDriver):
             stages=rdp.SHARED_RDP_STAGES + [
                 StageDefinition(4, "Channel Join",
                     "Scanner solicita join nos canais virtuais", "RDP"),
-                StageDefinition(5, "Exploit PDU",
+                StageDefinition(5, "MS_T120 Probe",
                     "Scanner envia dados no canal MS_T120 (sonda ou payload); "
                     "servidor responde Disconnect Provider Ultimatum, como um alvo vulnerável",
                     "RDP"),
@@ -105,7 +105,7 @@ class BlueKeepDriver(rdp.RDPFamilyDriver):
             logger.warning(f"🚨 [{handler.ip}:{handler.port}] Dados no canal MS_T120 "
                            f"({len(data)} bytes) -> Disconnect Provider Ultimatum")
             if 5 not in handler.tracker._completed:
-                handler.tracker.complete_stage(5, "Exploit PDU",
+                handler.tracker.complete_stage(5, "MS_T120 Probe",
                     source_ip=handler.ip, data={
                         "channel_id": context.get("channel_id"),
                         "payload_size": len(data),

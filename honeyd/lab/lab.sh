@@ -156,6 +156,24 @@ cmd_collect() {
 
 cmd_exec() { podman exec -w "$PWD" scanner "$@"; }
 
+# What T2 claims to be, read from the Honeyd image: the personality string,
+# the nmap-os-db entry it resolves to (Honeyd keeps the LAST fingerprint with a
+# given name, personality.c "Overwriting old fingerprint"), the database's $Id,
+# and the OS strings the SMB script announces.
+honeyd_persona() {
+  podman run --rm -i --entrypoint sh "$HONEYD_IMG" -s <<'EOF'
+conf=/opt/honeyd/windows.conf.in; db=/usr/local/share/honeyd/nmap-os-db; smb=/opt/scripts/smb.conf
+p=$(sed -n 's/^set [^ ]* personality "\(.*\)"$/\1/p' "$conf" | head -1)
+n=$(grep -c "^Fingerprint $p\$" "$db")
+ln=$(grep -n "^Fingerprint $p\$" "$db" | tail -1 | cut -d: -f1)
+c=$(awk -v ln="$ln" 'NR<ln && /^#/ {c=$0} NR==ln {print c; exit}' "$db")
+echo "honeyd personality: \"$p\" ($n fingerprints share the name; Honeyd keeps the last, line $ln)"
+echo "  entry in effect: ${c#\# }"
+echo "  nmap-os-db: $(grep -m1 '^# \$Id' "$db" | sed -e 's/^# //' -e 's/ *$//')"
+echo "honeyd smb-autofail: NATIVE_OS \"$(sed -n 's/^NATIVE_OS //p' "$smb")\", LAN_MANAGER \"$(sed -n 's/^LAN_MANAGER //p' "$smb")\""
+EOF
+}
+
 cmd_versions() {
   local f="$RESULTS/versions.txt"
   {
@@ -167,6 +185,7 @@ cmd_versions() {
     echo "rdpscan: commit $(podman exec scanner git -C /src/rdpscan rev-parse HEAD)"
     echo "honeyd: $(podman exec t2-honeyd honeyd --version 2>&1 | head -1), commit $(podman exec t2-honeyd cat /usr/local/share/honeyd/BUILT_FROM_COMMIT)"
     echo "T1/T5 python: $(podman exec t1-honeypoint python3 -V)"
+    honeyd_persona
     echo "images:"
     for i in "$PY" "$HONEYD_IMG" "$SCANNER_IMG"; do
       echo "  $i $(podman image inspect "$i" --format '{{.Id}}' | cut -c1-12)"
