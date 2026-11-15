@@ -31,7 +31,7 @@ drivers/                   ← CVE específica (arquivo fino, só a divergência
 └── README.md               ← Como criar um novo driver
 ```
 
-![Arquitetura do STAGED](framework_architecture.svg)
+![Arquitetura do STAGED](framework_architecture.pdf)
 
 A analogia é com IDS como Snort/Suricata: o motor é genérico, a comunidade cria as assinaturas. Aqui, o framework provê o motor de deception, `families/` provê os "decoders" de protocolo compartilhados entre assinaturas relacionadas, e o usuário implementa drivers finos para as CVEs que deseja simular.
 
